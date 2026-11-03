@@ -10,7 +10,7 @@ Une tâche passe à « prête » quand toutes ses dépendances sont « terminée
 | [P1-04](P1-04.md) | Référentiel `rules.yaml` et son chargeur | Backend Go | P1-02 | terminée |
 | [P1-05](P1-05.md) | Moteur : calcul des mesures | Backend Go | P1-04 | terminée |
 | [P1-06](P1-06.md) | Moteur : pointage, statuts, profils et verdict | Backend Go | P1-04, P1-05 | à faire |
-| [P1-07](P1-07.md) | Oracle LibreOffice | Vérificateur | P1-02 | à faire |
+| [P1-07](P1-07.md) | Oracle LibreOffice | Vérificateur | P1-02 | terminée |
 | [P1-08](P1-08.md) | Moteur : mode compat | Backend Go | P1-05, P1-07 | à faire |
 | [P1-09](P1-09.md) | Schéma SQL du socle et du module 1 | Backend Go | P1-01 | terminée |
 | [P1-10](P1-10.md) | Dépôts PostgreSQL du module 1 | Backend Go | P1-09 | à faire |

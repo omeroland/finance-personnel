@@ -58,8 +58,13 @@ test-int: ## Tests d'intégration (testcontainers ; Docker requis)
 e2e: ## Playwright
 	@echo "e2e : non configurée (P1-22)"
 
-oracle: ## Recalcule l'oracle avec LibreOffice
-	@echo "oracle : non configurée (P1-07)"
+ORACLE_IMAGE := finance-oracle:p1-07
+
+# Hors make ci (exige Docker et télécharge LibreOffice) ; sortie : testdata/oracle/cases.json.
+oracle: ## Recalcule l'oracle avec LibreOffice (conteneur épinglé)
+	docker build -q -t $(ORACLE_IMAGE) tools/oracle
+	docker run --rm --user "$$(id -u):$$(id -g)" -e HOME=/tmp \
+		-v "$(CURDIR)/testdata/xlsx:/data/xlsx:ro" -v "$(CURDIR)/testdata/oracle:/data/oracle" $(ORACLE_IMAGE)
 
 mock: $(API)/node_modules/.package-lock.json ## Serveur simulé Prism (port 4010)
 	cd $(API) && npx prism mock --host 127.0.0.1 --port 4010 openapi.yaml
