@@ -1,0 +1,30 @@
+extends: ["spectral:oas"]
+rules:
+  operation-operationId: error
+  operation-tags: error
+  operation-description: error
+  # Opérations nommées : operationId en lowerCamelCase.
+  fp-operation-id-camel-case:
+    description: Chaque opération porte un operationId en lowerCamelCase.
+    severity: error
+    given: "$.paths[*][get,put,post,delete,patch]"
+    then:
+      field: operationId
+      function: pattern
+      functionOptions:
+        match: "^[a-z][a-zA-Z0-9]+$"
+  # Exemples obligatoires : utilisés par le serveur simulé Prism.
+  fp-response-example-required:
+    description: Chaque réponse avec contenu a un example ou des examples.
+    severity: error
+    given:
+      - "$.paths[*][*].responses[*].content[*]"
+      - "$.components.responses[*].content[*]"
+    then:
+      function: schema
+      functionOptions:
+        schema:
+          type: object
+          anyOf:
+            - required: [example]
+            - required: [examples]
