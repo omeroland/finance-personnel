@@ -62,3 +62,11 @@ Une nouvelle ambiguïté s'ajoute à la suite. D1 à D16 : `docs/architecture.md
 | # | Sujet | Décision MVP | À réévaluer |
 | --- | --- | --- | --- |
 | D50 | Format de `rules.yaml` | `version: "1"` (chaîne, à incrémenter à chaque changement de seuil) ; empreinte SHA-256 des octets du fichier ; analyseur `go.yaml.in/yaml/v3` en mode strict (champ inconnu refusé) ; le chargeur exige un seuil assoupli pour 5a, 5b, 6, 7, 8, 11a, 11c et aucun pour 9, 10, 11b, et refuse un assoupli qui change la borne basse d'un intervalle (7, 8, 11a, 11c) | Schéma de version sémantique |
+
+## D60 à D62 — Authentification (P1-13)
+
+| # | Sujet | Décision MVP | À réévaluer |
+| --- | --- | --- | --- |
+| D60 | Découverte OIDC | Faite à la première requête authentifiée, réessayée tant qu'elle échoue (fermé par défaut : 401) : l'API démarre sans Keycloak. `OIDC_ISSUER` est obligatoire au démarrage ; `OIDC_DISCOVERY_URL` optionnel quand Keycloak est joint par une adresse interne distincte de l'issuer public ; `OIDC_AUDIENCE` vaut `finance-api` par défaut | Découverte au démarrage avec nouvelle tentative |
+| D61 | Realm Keycloak | `deploy/keycloak/realm-finance.json` : URI de redirection et origine web via la variable `${FINANCE_WEB_ORIGIN}` (substitution native de l'import Keycloak), sans utilisateur ; client Flutter ajouté en phase 4. Version Keycloak 26.4, image épinglée par digest dans le test d'intégration | Un fichier par environnement |
+| D62 | Erreurs HTTP | `platform/httpx.WriteProblem` (RFC 9457) créé ici, avec le strict nécessaire, faute d'être livré ailleurs | Reprise par la tâche des middlewares |

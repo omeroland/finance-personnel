@@ -11,6 +11,8 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/omeroland/finance-privee/backend/internal/platform/auth"
 )
 
 const (
@@ -20,13 +22,33 @@ const (
 
 func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
-	if err := run(logger, os.Getenv("HTTP_ADDR")); err != nil {
+	if err := run(logger, os.Getenv("HTTP_ADDR"), authConfig()); err != nil {
 		logger.Error("arrêt sur erreur", slog.String("erreur", err.Error()))
 		os.Exit(1)
 	}
 }
 
-func run(logger *slog.Logger, addr string) error {
+// authConfig lit le realm attendu dans l'environnement. OIDC_ISSUER est
+// obligatoire (l'API refuse de démarrer sans) ; OIDC_DISCOVERY_URL sert quand
+// Keycloak est joint par une adresse interne différente de l'issuer public.
+func authConfig() auth.Config {
+	aud := os.Getenv("OIDC_AUDIENCE")
+	if aud == "" {
+		aud = "finance-api"
+	}
+	return auth.Config{
+		Issuer:       os.Getenv("OIDC_ISSUER"),
+		DiscoveryURL: os.Getenv("OIDC_DISCOVERY_URL"),
+		Audience:     aud,
+	}
+}
+
+func run(logger *slog.Logger, addr string, authCfg auth.Config) error {
+	verifier, err := auth.NewVerifier(authCfg, nil, logger)
+	if err != nil {
+		return fmt.Errorf("authentification (OIDC_ISSUER requis): %w", err)
+	}
+
 	if addr == "" {
 		addr = defaultAddr
 	}
@@ -40,7 +62,7 @@ func run(logger *slog.Logger, addr string) error {
 
 	srv := &http.Server{
 		Addr:              addr,
-		Handler:           mux,
+		Handler:           verifier.Middleware("/healthz", "/readyz")(mux),
 		ReadHeaderTimeout: 5 * time.Second,
 		ReadTimeout:       15 * time.Second,
 		WriteTimeout:      30 * time.Second,
