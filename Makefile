@@ -9,7 +9,7 @@ WEB_API := web/src/app/api
 SQLC_OUT := $(BACKEND)/internal/modules/stockeval/store/storedb
 GENERATED := $(BACKEND)/internal/api/gen $(WEB_API) $(SQLC_OUT)
 
-.PHONY: help gen gen-api gen-sqlc gen-check lint test test-engine test-int e2e oracle mock up down ci govulncheck test-headers scan-images
+.PHONY: help test-backup gen gen-api gen-sqlc gen-check lint test test-engine test-int e2e oracle mock up down ci govulncheck test-headers scan-images
 
 help: ## Liste les cibles
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-12s %s\n", $$1, $$2}'
@@ -106,3 +106,6 @@ govulncheck: ## Vulnérabilités connues des dépendances
 	cd $(BACKEND) && govulncheck ./...
 
 ci: lint gen-check test test-int govulncheck ## Doit passer avant toute PR
+
+test-backup: ## Sauvegarde/restauration/retention contre MinIO (P1-20 ; Docker requis, hors make ci)
+	bash deploy/backup/tests/test.sh

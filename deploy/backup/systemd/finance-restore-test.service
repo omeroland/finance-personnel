@@ -1,0 +1,11 @@
+[Unit]
+Description=Finance privée - contrôle mensuel des sauvegardes (mode léger, sans clé privée)
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/finance-privee
+# Échec = unité en erreur (journal) + webhook ALERT_WEBHOOK_URL si configuré.
+ExecStart=/usr/bin/docker compose -f deploy/compose.yaml --env-file deploy/.env --profile backup run --rm backup restore-test
+TimeoutStartSec=30min
