@@ -16,7 +16,7 @@ Une tâche passe à « prête » quand toutes ses dépendances sont « terminée
 | [P1-10](P1-10.md) | Dépôts PostgreSQL du module 1 | Backend Go | P1-09 | à faire |
 | [P1-11](P1-11.md) | Import de la feuille Simply Investing | Données | P1-02, P1-10 | à faire |
 | [P1-12](P1-12.md) | Handlers d'API du module 1 | Backend Go | P1-03, P1-06, P1-08, P1-10 | à faire |
-| [P1-13](P1-13.md) | Authentification JWT et realm Keycloak | Plateforme | P1-03 | à faire |
+| [P1-13](P1-13.md) | Authentification JWT et realm Keycloak | Plateforme | P1-03 | terminée |
 | [P1-14](P1-14.md) | Angular : squelette, connexion et coquille multi-modules | Frontend Angular | P1-03, P1-13 | à faire |
 | [P1-15](P1-15.md) | Angular : liste de suivi | Frontend Angular | P1-14 | à faire |
 | [P1-16](P1-16.md) | Angular : fiche d'une action | Frontend Angular | P1-15 | à faire |
