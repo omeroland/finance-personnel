@@ -152,3 +152,10 @@ Une nouvelle ambiguïté s'ajoute à la suite. D1 à D16 : `docs/architecture.md
 | D183 | Archivage | Le bouton « Archiver cette évaluation » archive toujours en mode corrigé ; la ligne retournée par l'API est ajoutée en tête de l'historique sans nouveau chargement | Choix du mode à archiver |
 | D184 | Explication des statuts et dates | Explication par `matTooltip` sur un élément focalisable (survol et focus clavier) ; libellés dans `fr-CA.json`. Dates formatées par `Intl.DateTimeFormat('fr-CA')` (pas de `DatePipe`, aucune donnée de locale Angular enregistrée) | `registerLocaleData` si d'autres pipes de locale arrivent |
 | D161 | `kind` dans le compte rendu d'import (P1-11b) | `ingest.Report.Entries` (et `RowReport.Entries`) : `{level, kind, line, symbol, message}`, `kind` ∈ imported (info, ligne importée), skipped (ligne en double ou invalide), conflict (valeur manuelle conservée), normalized (D31), protected (instantané manuel ou refusé) ; vide pour les autres avertissements. `Warnings` conservé. Niveaux info/warning ; error réservé au job | Un niveau error par ligne si l'import cesse d'être interrompu à la première erreur |
+
+
+## D210 — Liste de suivi : horizon parfait fourni par l'API (correctif P1-15)
+
+| # | Sujet | Décision MVP | À réévaluer |
+| --- | --- | --- | --- |
+| D210 | Colonne « plus long horizon à 10/10 » | Remplace la méthode de D140 : le web lit `ScoreSummary.perfectHorizon` (D160) et fait un seul appel `listStocks` par chargement, dans tous les modes. Champ absent = « Aucun ». Le tri sur la colonne utilise la valeur reçue (absente = 0). Aucun calcul côté client | — |
