@@ -1,0 +1,51 @@
+# Référentiel des règles 5a à 11c (règle 12 : versionné dans git, archivé avec chaque évaluation).
+# Ratios et taux en fraction (0.70 = 70 %). Source : docs/rules.md ; D2, D7, D8, D9.
+# gt : strictement supérieur ; ge : supérieur ou égal ; le : inférieur ou égal.
+# Un critère sans bloc « relaxed » n'a pas de seuil assoupli.
+version: "1"
+
+parameters:
+  horizons: [5, 10, 15, 20]
+  trim_min_rates: 5          # moyenne tronquée dès 5 taux, sinon moyenne simple
+  min_verdict_horizon: 10    # D9 : l'horizon de 5 ans est indicatif
+  buyback_period_years: 1    # D7 : règle 10 sur 1 an, configurable à 5
+
+criteria:
+  5a:
+    strict: {ge: 0.08}
+    relaxed: {ge: 0.06}
+  5b:
+    strict: {min_rises: {5: 2, 10: 4, 15: 6, 20: 8}}
+    relaxed: {min_rises: {5: 1, 10: 3, 15: 4, 20: 6}}   # D8
+  6:
+    strict: {ge: 0.08}
+    relaxed: {ge: 0.06}
+  7:
+    strict: {gt: 0, le: 0.75}
+    relaxed: {gt: 0, le: 0.85}
+  8:
+    strict: {ge: 0, le: 0.70}   # D2 : dette nulle réussit
+    relaxed: {ge: 0, le: 0.95}
+  9:
+    strict: {ge: 0}
+  10:
+    strict: {direction: decrease}   # D7
+  11a:
+    strict: {gt: 0, le: 25}
+    relaxed: {gt: 0, le: 35}
+  11b:
+    strict: {direction: greater}    # rendement actuel strictement supérieur au rendement moyen
+  11c:
+    strict: {gt: 0, le: 3}
+    relaxed: {gt: 0, le: 6}
+
+# Comportements de la feuille reproduits par le mode compat (horizon de 20 ans seulement).
+compat:
+  divisor: 18
+  rule_5b_horizon: 20
+  rule_5b_min_rises: 8
+  rule_5b_skip_first_transition: true
+  lower_bounds_checked: false
+  empty_data_passes: true
+  empty_cell_as_zero: true
+  rule_9_operator: ">="
