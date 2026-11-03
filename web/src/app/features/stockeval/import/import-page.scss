@@ -1,0 +1,57 @@
+:host {
+  display: block;
+  padding: 16px;
+  max-width: 960px;
+}
+.formulaire {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: flex-start;
+}
+.champ {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.erreur {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #b3261e;
+  font-weight: 500;
+}
+.etat {
+  margin: 16px 0;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+th,
+td {
+  text-align: left;
+  padding: 8px;
+  border-bottom: 1px solid #ccc;
+  vertical-align: top;
+}
+.niveau {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+.compteurs {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
