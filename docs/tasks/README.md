@@ -4,7 +4,7 @@ Une tâche passe à « prête » quand toutes ses dépendances sont « terminée
 
 | ID | Tâche | Agent | Dépend de | Statut |
 | --- | --- | --- | --- | --- |
-| [P1-01](P1-01.md) | Squelette du monodépôt | Plateforme | — | à faire |
+| [P1-01](P1-01.md) | Squelette du monodépôt | Plateforme | — | terminée |
 | [P1-02](P1-02.md) | Documents et données de test dans le dépôt | Orchestrateur | P1-01 | à faire |
 | [P1-03](P1-03.md) | Contrat OpenAPI du module 1 et génération | Backend Go | P1-01 | à faire |
 | [P1-04](P1-04.md) | Référentiel `rules.yaml` et son chargeur | Backend Go | P1-02 | à faire |
