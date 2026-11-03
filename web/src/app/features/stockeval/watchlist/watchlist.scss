@@ -1,0 +1,31 @@
+.entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.filtres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.tableau {
+  width: 100%;
+}
+
+.verdict {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.icone {
+  display: inline-block;
+  width: 1.25em;
+  text-align: center;
+}
+
+.note {
+  font: var(--mat-sys-body-small);
+}

@@ -1,0 +1,141 @@
+<header class="entete">
+  <h1>{{ 'liste.titre' | t }}</h1>
+  <button mat-flat-button type="button" data-testid="ajouter" (click)="ajouter()">{{ 'liste.ajouter' | t }}</button>
+</header>
+
+<section class="filtres" role="group" [attr.aria-label]="'liste.titre' | t">
+  <mat-form-field>
+    <mat-label>{{ 'filtre.bourse' | t }}</mat-label>
+    <mat-select data-testid="filtre-bourse" [value]="bourse()" (valueChange)="bourse.set($event)">
+      <mat-option value="">{{ 'filtre.toutes' | t }}</mat-option>
+      @for (b of bourses; track b) {
+        <mat-option [value]="b">{{ b }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>{{ 'filtre.verdict' | t }}</mat-label>
+    <mat-select data-testid="filtre-verdict" [value]="verdict()" (valueChange)="verdict.set($event)">
+      <mat-option value="">{{ 'filtre.tous' | t }}</mat-option>
+      @for (v of verdicts; track v) {
+        <mat-option [value]="v">{{ libelleVerdict(v) }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>{{ 'filtre.mode' | t }}</mat-label>
+    <mat-select data-testid="filtre-mode" [value]="mode()" (valueChange)="changerMode($event)">
+      @for (m of modes; track m) {
+        <mat-option [value]="m">{{ m === 'compat' ? ('mode.compat' | t) : ('mode.corrected' | t) }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>{{ 'filtre.horizon' | t }}</mat-label>
+    <mat-select
+      data-testid="filtre-horizon"
+      [value]="horizon()"
+      [disabled]="mode() === 'compat'"
+      (valueChange)="changerHorizon($event)"
+    >
+      @for (h of horizons; track h) {
+        <mat-option [value]="h">{{ 'horizon.valeur' | t: { n: '' + h } }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+</section>
+@if (mode() === 'compat') {
+  <p class="note">{{ 'liste.compat' | t }}</p>
+}
+
+@switch (etat()) {
+  @case ('chargement') {
+    <p role="status" data-testid="chargement">{{ 'liste.chargement' | t }}</p>
+  }
+  @case ('erreur') {
+    <p role="alert" data-testid="erreur">{{ 'liste.erreur' | t }}</p>
+    <button mat-stroked-button type="button" (click)="charger()">{{ 'liste.reessayer' | t }}</button>
+  }
+  @default {
+    @if (nbLignes() === 0) {
+      <p role="status" data-testid="vide">{{ 'liste.vide' | t }}</p>
+    }
+    <table
+      mat-table
+      matSort
+      [dataSource]="donnees"
+      class="tableau"
+      data-testid="tableau"
+      [attr.aria-label]="'liste.tableau' | t"
+      [hidden]="nbLignes() === 0"
+    >
+      <ng-container matColumnDef="symbole">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'col.symbole' | t }}</th>
+        <td mat-cell *matCellDef="let l">{{ l.stock.symbol }}</td>
+      </ng-container>
+      <ng-container matColumnDef="nom">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'col.nom' | t }}</th>
+        <td mat-cell *matCellDef="let l">{{ l.stock.name }}</td>
+      </ng-container>
+      <ng-container matColumnDef="strict">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'col.strict' | t }}</th>
+        <td mat-cell *matCellDef="let l" data-col="strict">
+          {{ 'score.sur' | t: { n: '' + l.score.strict, total: '' + l.score.outOf } }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="assoupli">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'col.assoupli' | t }}</th>
+        <td mat-cell *matCellDef="let l" data-col="assoupli">
+          {{ 'score.sur' | t: { n: '' + l.score.relaxed, total: '' + l.score.outOf } }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="qualitePrix">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'col.qualitePrix' | t }}</th>
+        <td mat-cell *matCellDef="let l">
+          {{
+            'score.qualitePrix'
+              | t
+                : {
+                    q: '' + l.score.quality.strict,
+                    qt: '' + l.score.quality.outOf,
+                    p: '' + l.score.price.strict,
+                    pt: '' + l.score.price.outOf,
+                  }
+          }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="verdict">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'col.verdict' | t }}</th>
+        <td mat-cell *matCellDef="let l" data-col="verdict">
+          <span class="verdict"
+            ><span aria-hidden="true" class="icone">{{ icone(l.score.verdict) }}</span> {{ libelleVerdict(l.score.verdict) }}</span
+          >
+          @if (l.score.insufficientHistory) {
+            <span class="note">({{ 'score.insuffisant' | t }})</span>
+          }
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="horizon">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'col.horizon' | t }}</th>
+        <td mat-cell *matCellDef="let l" data-col="horizon">
+          {{ l.plusLongHorizon10sur10 === null ? ('score.aucun' | t) : ('horizon.valeur' | t: { n: '' + l.plusLongHorizon10sur10 }) }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>{{ 'col.actions' | t }}</th>
+        <td mat-cell *matCellDef="let l">
+          <button
+            mat-stroked-button
+            type="button"
+            [attr.data-testid]="'retirer-' + l.stock.symbol"
+            (click)="retirer(l.stock.symbol)"
+          >
+            {{ 'retirer.bouton' | t: { symbole: l.stock.symbol } }}
+          </button>
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="colonnes"></tr>
+      <tr mat-row *matRowDef="let row; columns: colonnes" data-testid="ligne"></tr>
+    </table>
+  }
+}
