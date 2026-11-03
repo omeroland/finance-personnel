@@ -47,3 +47,7 @@ Thumbs.db
 # binaire du serveur et worktrees des agents
 /backend/server
 /.claude/worktrees/
+
+# Clés age privées et environnements de restauration (jamais dans git)
+age-*.txt
+restore.env

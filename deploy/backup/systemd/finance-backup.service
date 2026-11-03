@@ -1,0 +1,10 @@
+[Unit]
+Description=Finance privée - sauvegarde chiffrée de la base (pg_dump, age, S3)
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/finance-privee
+ExecStart=/usr/bin/docker compose -f deploy/compose.yaml --env-file deploy/.env --profile backup run --rm backup backup
+TimeoutStartSec=1h

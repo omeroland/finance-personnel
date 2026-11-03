@@ -111,6 +111,35 @@ services:
       retries: 18
       start_period: 40s
 
+  # Sauvegarde chiffrée (P1-20). Tâche ponctuelle lancée par les minuteries systemd
+  # (deploy/backup/systemd) : `docker compose --profile backup run --rm backup [backup|restore-test]`.
+  # Le serveur n'a que la clé PUBLIQUE age (AGE_RECIPIENT) ; la clé privée reste sur ton poste.
+  backup:
+    <<: *durci
+    restart: "no"
+    profiles: [backup]
+    build:
+      context: ./backup
+    image: finance/backup:dev
+    read_only: true
+    tmpfs: ["/tmp"]
+    environment:
+      PGHOST: db
+      PGUSER: finance
+      PGDATABASE: finance
+      PGPASSWORD: ${POSTGRES_PASSWORD:-}
+      AGE_RECIPIENT: ${AGE_RECIPIENT:-}
+      BACKUP_BUCKET: ${BACKUP_BUCKET:-}
+      BACKUP_S3_ENDPOINT: ${BACKUP_S3_ENDPOINT:-}
+      BACKUP_S3_REGION: ${BACKUP_S3_REGION:-}
+      BACKUP_S3_ACCESS_KEY_ID: ${BACKUP_S3_ACCESS_KEY_ID:-}
+      BACKUP_S3_SECRET_ACCESS_KEY: ${BACKUP_S3_SECRET_ACCESS_KEY:-}
+      BACKUP_S3_PATH_STYLE: ${BACKUP_S3_PATH_STYLE:-false}
+      ALERT_WEBHOOK_URL: ${ALERT_WEBHOOK_URL:-}
+    depends_on:
+      db: {condition: service_healthy}
+    networks: [edge, internal]   # edge : sortie vers OVH Object Storage ; internal : la base
+
   traefik-local:
     <<: *traefik
     profiles: [local]

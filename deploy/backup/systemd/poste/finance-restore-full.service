@@ -1,0 +1,9 @@
+[Unit]
+Description=Finance privée - test de restauration complet (POSTE du propriétaire, avec la clé privée age)
+
+[Service]
+Type=oneshot
+# Fichier d'environnement HORS dépôt (chmod 600) : AGE_IDENTITY_FILE, BACKUP_BUCKET, BACKUP_S3_*…
+EnvironmentFile=%h/.config/finance-privee/restore.env
+ExecStart=%h/finance-privee/deploy/backup/restore-local.sh
+TimeoutStartSec=1h
