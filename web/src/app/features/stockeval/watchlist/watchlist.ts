@@ -7,6 +7,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { RouterLink } from '@angular/router';
 import { Exchange, Horizon, Mode, StocksService, Verdict } from '../../../api';
 import { TraductionPipe, traduire } from '../../../i18n/t.pipe';
 import { AjoutDialog } from './ajout-dialog';
@@ -26,7 +27,7 @@ type Etat = 'chargement' | 'pret' | 'erreur';
 /** Liste de suivi du module 1 : tableau triable, filtres, ajout et retrait. Aucune valeur n'est calculée ici. */
 @Component({
   selector: 'app-watchlist',
-  imports: [MatButtonModule, MatFormFieldModule, MatSelectModule, MatSortModule, MatTableModule, TraductionPipe],
+  imports: [MatButtonModule, MatFormFieldModule, MatSelectModule, MatSortModule, MatTableModule, RouterLink, TraductionPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './watchlist.html',
   styleUrl: './watchlist.scss',

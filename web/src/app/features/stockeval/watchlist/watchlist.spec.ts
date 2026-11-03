@@ -1,6 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { BASE_PATH, Currency, Exchange, Horizon, Mode, StockList, Verdict } from '../../../api';
 import { Watchlist } from './watchlist';
 import { assembler } from './watchlist.data';
@@ -57,7 +58,7 @@ describe('assembler', () => {
 describe('Watchlist', () => {
   it('affiche le verdict en texte avec son icône, et seulement les lignes du filtre', async () => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting(), { provide: BASE_PATH, useValue: '' }],
+      providers: [provideHttpClient(), provideRouter([]), provideHttpClientTesting(), { provide: BASE_PATH, useValue: '' }],
     });
     const http = TestBed.inject(HttpTestingController);
     const fixture = TestBed.createComponent(Watchlist);

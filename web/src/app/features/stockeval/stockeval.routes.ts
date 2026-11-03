@@ -6,6 +6,10 @@ export const routes: Routes = [
     loadComponent: () => import('./import/import-page').then((m) => m.ImportPage),
   },
   {
+    path: ':symbol',
+    loadComponent: () => import('./detail/detail').then((m) => m.Detail),
+  },
+  {
     path: '',
     loadComponent: () => import('./watchlist/watchlist').then((m) => m.Watchlist),
   },
