@@ -246,8 +246,10 @@ func TestEvaluateEndToEnd(t *testing.T) {
 		DPS:         yearly(0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0),
 		AnnualYield: yearly(0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02),
 		Shares:      yearly(110, 109, 108, 107, 106, 105, 104, 103, 102, 101, 100),
-		Snapshot: Snapshot{Price: &price, ForwardDividend: &fwd, LongTermDebt: &debt, Equity: &eq,
-			BookValuePerShare: &bv},
+		Snapshot: Snapshot{
+			Price: &price, ForwardDividend: &fwd, LongTermDebt: &debt, Equity: &eq,
+			BookValuePerShare: &bv,
+		},
 		CurrentYear: 2011,
 	}
 	ev, err := Evaluate(in, r, Context{Gate: openGate})
