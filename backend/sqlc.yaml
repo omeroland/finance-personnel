@@ -1,0 +1,40 @@
+version: "2"
+sql:
+  - engine: postgresql
+    schema: migrations
+    queries: internal/modules/stockeval/store/queries
+    gen:
+      go:
+        package: storedb
+        out: internal/modules/stockeval/store/storedb
+        sql_package: pgx/v5
+        emit_empty_slices: true
+        overrides:
+          - db_type: uuid
+            go_type: github.com/google/uuid.UUID
+          - db_type: uuid
+            nullable: true
+            go_type: github.com/google/uuid.UUID
+          - db_type: pg_catalog.numeric
+            go_type: github.com/shopspring/decimal.Decimal
+          - db_type: pg_catalog.numeric
+            nullable: true
+            go_type: github.com/shopspring/decimal.NullDecimal
+          - db_type: pg_catalog.bool
+            nullable: true
+            go_type:
+              type: bool
+              pointer: true
+          - db_type: pg_catalog.bpchar
+            nullable: true
+            go_type:
+              type: string
+              pointer: true
+          - db_type: timestamptz
+            go_type: time.Time
+          - db_type: timestamptz
+            nullable: true
+            go_type:
+              import: time
+              type: Time
+              pointer: true
