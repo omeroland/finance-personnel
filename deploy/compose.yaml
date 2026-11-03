@@ -45,7 +45,7 @@ services:
     <<: *durci
     build:
       context: ../web
-      target: placeholder   # passer à `app` quand P1-14 est fusionnée (D70)
+      target: app   # P1-14 fusionnée (D70)
     image: finance/web:dev
     read_only: true
     user: "65532:65532"

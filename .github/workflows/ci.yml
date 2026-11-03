@@ -24,6 +24,13 @@ jobs:
         with:
           go-version: stable
           cache-dependency-path: backend/go.sum
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            web/package-lock.json
+            api/package-lock.json
       - name: Installer golangci-lint
         uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9.3.0
         with:
