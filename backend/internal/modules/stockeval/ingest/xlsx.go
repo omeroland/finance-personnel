@@ -78,6 +78,30 @@ const (
 	RowIgnored  = "ignored"
 )
 
+// Niveaux et catégories (kind) des entrées du compte rendu ; les valeurs de
+// kind sont celles de JobEntry.kind du contrat (D160, D161). Un kind vide
+// signifie une entrée sans catégorie.
+const (
+	LevelInfo    = "info"
+	LevelWarning = "warning"
+	LevelError   = "error"
+
+	KindImported   = "imported"
+	KindSkipped    = "skipped"
+	KindConflict   = "conflict"
+	KindNormalized = "normalized"
+	KindProtected  = "protected"
+)
+
+// Entry est une entrée du compte rendu, au format de JobEntry.
+type Entry struct {
+	Level   string `json:"level"`
+	Kind    string `json:"kind,omitempty"`
+	Line    int    `json:"line,omitempty"`
+	Symbol  string `json:"symbol,omitempty"`
+	Message string `json:"message"`
+}
+
 // RowReport est le compte rendu d'une ligne de « SI Worksheet ».
 type RowReport struct {
 	Row       int      `json:"row"`
@@ -89,12 +113,23 @@ type RowReport struct {
 	Conflicts int      `json:"conflicts"`
 	Snapshot  string   `json:"snapshot,omitempty"` // written, unchanged, protected, none
 	Warnings  []string `json:"warnings,omitempty"`
+	Entries   []Entry  `json:"entries,omitempty"`
+}
+
+// note ajoute une entrée à la ligne ; les avertissements restent aussi dans Warnings.
+func (rr *RowReport) note(level, kind, format string, a ...any) {
+	msg := fmt.Sprintf(format, a...)
+	if level == LevelWarning {
+		rr.Warnings = append(rr.Warnings, msg)
+	}
+	rr.Entries = append(rr.Entries, Entry{Level: level, Kind: kind, Line: rr.Row, Symbol: rr.Symbol, Message: msg})
 }
 
 // Report est le compte rendu complet d'un import.
 type Report struct {
 	Year1    int         `json:"year1"`
 	Rows     []RowReport `json:"rows"`
+	Entries  []Entry     `json:"entries"`
 	Imported int         `json:"imported"`
 	Ignored  int         `json:"ignored"`
 	Warnings int         `json:"warnings"`
@@ -164,7 +199,7 @@ func (im *Importer) Import(ctx context.Context, owner uuid.UUID, r io.Reader, op
 		rr := RowReport{Row: row, Symbol: sym}
 		if seen[strings.ToUpper(sym)] {
 			rr.Status = RowIgnored
-			rr.Warnings = append(rr.Warnings, "symbole en double dans la feuille : ligne ignorée")
+			rr.note(LevelWarning, KindSkipped, "symbole en double dans la feuille : ligne ignorée")
 		} else {
 			seen[strings.ToUpper(sym)] = true
 			if err := im.importRow(ctx, owner, f, row-firstStockRow, &rr, opts); err != nil {
@@ -183,6 +218,7 @@ func (r *Report) add(rr RowReport) {
 		r.Ignored++
 	}
 	r.Warnings += len(rr.Warnings)
+	r.Entries = append(r.Entries, rr.Entries...)
 	r.Rows = append(r.Rows, rr)
 }
 
@@ -231,19 +267,19 @@ func number(raw string) (v decimal.Decimal, ok bool, err error) {
 func normalize(v decimal.Decimal, limit float64, label string, rr *RowReport) decimal.Decimal {
 	if v.GreaterThan(decimal.NewFromFloat(limit)) {
 		n := v.Div(decimal.NewFromInt(100))
-		rr.Warnings = append(rr.Warnings, fmt.Sprintf("%s %s lu comme un pourcentage : converti en %s", label, v, n))
+		rr.note(LevelWarning, KindNormalized, "%s %s lu comme un pourcentage : converti en %s", label, v, n)
 		return n
 	}
 	return v
 }
 
 func (im *Importer) importRow(ctx context.Context, owner uuid.UUID, f *excelize.File, k int, rr *RowReport, opts Options) error {
-	warn := func(format string, a ...any) { rr.Warnings = append(rr.Warnings, fmt.Sprintf(format, a...)) }
+	warn := func(format string, a ...any) { rr.note(LevelWarning, "", format, a...) }
 
 	input, err := instrumentInput(rr.Symbol, cell(f, SheetMain, "B", firstStockRow+k), opts.Currency)
 	if err != nil {
 		rr.Status = RowIgnored
-		warn("%v", err)
+		rr.note(LevelWarning, KindSkipped, "%v", err)
 		return nil
 	}
 	inst, err := im.repos.AddToWatchlist(ctx, owner, input)
@@ -251,6 +287,7 @@ func (im *Importer) importRow(ctx context.Context, owner uuid.UUID, f *excelize.
 		return fmt.Errorf("ajouter à la liste de suivi: %w", err)
 	}
 	rr.Status = RowImported
+	rr.note(LevelInfo, KindImported, "ligne importée")
 	row := firstStockRow + k
 
 	read := func(col, label string) (decimal.Decimal, bool) {
@@ -312,7 +349,7 @@ func (im *Importer) importRow(ctx context.Context, owner uuid.UUID, f *excelize.
 		rr.Snapshot = "none"
 	case hasCur && cur.Source == store.SourceManual:
 		rr.Snapshot = "protected"
-		warn("instantané saisi à la main : valeurs de la feuille non appliquées")
+		rr.note(LevelWarning, KindProtected, "instantané saisi à la main : valeurs de la feuille non appliquées")
 	case hasCur && !changed && cur.Source == store.SourceXLSX:
 		rr.Snapshot = "unchanged"
 	default:
@@ -324,6 +361,7 @@ func (im *Importer) importRow(ctx context.Context, owner uuid.UUID, f *excelize.
 		rr.Snapshot = "written"
 		if !written {
 			rr.Snapshot = "protected"
+			rr.note(LevelWarning, KindProtected, "instantané protégé : valeurs de la feuille non appliquées")
 		}
 	}
 
@@ -361,7 +399,7 @@ func (im *Importer) importBuyback(ctx context.Context, owner, id uuid.UUID, v st
 	case "no", "non", "n", "false", "0":
 		val = false
 	default:
-		rr.Warnings = append(rr.Warnings, fmt.Sprintf("rachat %q non reconnu (oui/non attendu) : ignoré", v))
+		rr.note(LevelWarning, "", "rachat %q non reconnu (oui/non attendu) : ignoré", v)
 		return nil
 	}
 	q, err := im.repos.GetQualitative(ctx, owner, id)
@@ -392,7 +430,7 @@ func (im *Importer) importSeries(ctx context.Context, owner uuid.UUID, f *exceli
 		year := year1 - (yearsPerBlock - 1) + i
 		v, ok, err := number(cell(f, sheet, col, row))
 		if err != nil {
-			rr.Warnings = append(rr.Warnings, fmt.Sprintf("%s %s %d : %v (ignoré)", sheet, metric, year, err))
+			rr.note(LevelWarning, "", "%s %s %d : %v (ignoré)", sheet, metric, year, err)
 			continue
 		}
 		if !ok {
@@ -407,11 +445,11 @@ func (im *Importer) importSeries(ctx context.Context, owner uuid.UUID, f *exceli
 		if i > 0 {
 			prev := pts[i-1]
 			if p.year-prev.year > 1 {
-				rr.Warnings = append(rr.Warnings, fmt.Sprintf("%s : année(s) manquante(s) entre %d et %d", metric, prev.year, p.year))
+				rr.note(LevelWarning, "", "%s : année(s) manquante(s) entre %d et %d", metric, prev.year, p.year)
 			}
 			if metric == store.MetricEPSDiluted && prev.v.IsPositive() &&
 				p.v.GreaterThan(prev.v.Mul(decimal.NewFromInt(epsJumpFactor))) {
-				rr.Warnings = append(rr.Warnings, fmt.Sprintf("BPA %d : plus de %dx celui de %d", p.year, epsJumpFactor, prev.year))
+				rr.note(LevelWarning, "", "BPA %d : plus de %dx celui de %d", p.year, epsJumpFactor, prev.year)
 			}
 		}
 		out, err := im.repos.WriteFact(ctx, owner, store.Fact{
@@ -427,7 +465,7 @@ func (im *Importer) importSeries(ctx context.Context, owner uuid.UUID, f *exceli
 			rr.Updated++
 		case store.FactConflicted:
 			rr.Conflicts++
-			rr.Warnings = append(rr.Warnings, fmt.Sprintf("%s %d : valeur saisie à la main conservée, conflit créé", metric, p.year))
+			rr.note(LevelWarning, KindConflict, "%s %d : valeur saisie à la main conservée, conflit créé", metric, p.year)
 		default:
 			rr.Unchanged++
 		}
