@@ -79,13 +79,14 @@ func (s *Store) WriteFact(ctx context.Context, owner uuid.UUID, f Fact) (FactOut
 	if f.Currency != nil && len(*f.Currency) != 3 {
 		return "", fmt.Errorf("devise: %w", ErrInvalid)
 	}
+	year := int32(f.FiscalYear) //nolint:gosec // bornée à 1900..2200 ci-dessus
 	outcome := FactNoop
 	err := s.inTx(ctx, func(q *storedb.Queries) error {
 		if err := requireInstrument(ctx, q, owner, f.InstrumentID); err != nil {
 			return err
 		}
 		key := storedb.GetAnnualFactForUpdateParams{
-			OwnerID: owner, InstrumentID: f.InstrumentID, FiscalYear: int32(f.FiscalYear), Metric: f.Metric,
+			OwnerID: owner, InstrumentID: f.InstrumentID, FiscalYear: year, Metric: f.Metric,
 		}
 		cur, err := q.GetAnnualFactForUpdate(ctx, key)
 		exists := true
@@ -97,7 +98,7 @@ func (s *Store) WriteFact(ctx context.Context, owner uuid.UUID, f Fact) (FactOut
 
 		upsert := func() error {
 			return q.UpsertAnnualFact(ctx, storedb.UpsertAnnualFactParams{
-				OwnerID: owner, InstrumentID: f.InstrumentID, FiscalYear: int32(f.FiscalYear), Metric: f.Metric,
+				OwnerID: owner, InstrumentID: f.InstrumentID, FiscalYear: year, Metric: f.Metric,
 				Value: f.Value, Currency: f.Currency, Source: f.Source,
 			})
 		}
@@ -119,7 +120,7 @@ func (s *Store) WriteFact(ctx context.Context, owner uuid.UUID, f Fact) (FactOut
 		}
 		if protected {
 			ex := storedb.FindOpenConflictParams{
-				OwnerID: owner, InstrumentID: f.InstrumentID, FiscalYear: int32(f.FiscalYear), Metric: f.Metric,
+				OwnerID: owner, InstrumentID: f.InstrumentID, FiscalYear: year, Metric: f.Metric,
 				IncomingValue: f.Value, IncomingSource: f.Source, ExistingValue: cur.Value, ExistingSource: cur.Source,
 			}
 			if _, err := q.FindOpenConflict(ctx, ex); err == nil {
@@ -128,7 +129,7 @@ func (s *Store) WriteFact(ctx context.Context, owner uuid.UUID, f Fact) (FactOut
 				return fmt.Errorf("chercher un conflit ouvert: %w", err)
 			}
 			c, err := q.InsertFactConflict(ctx, storedb.InsertFactConflictParams{
-				OwnerID: owner, InstrumentID: f.InstrumentID, FiscalYear: int32(f.FiscalYear), Metric: f.Metric,
+				OwnerID: owner, InstrumentID: f.InstrumentID, FiscalYear: year, Metric: f.Metric,
 				ExistingValue: cur.Value, ExistingSource: cur.Source, IncomingValue: f.Value, IncomingSource: f.Source,
 			})
 			if err != nil {
