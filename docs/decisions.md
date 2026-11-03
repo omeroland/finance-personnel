@@ -97,6 +97,7 @@ Une nouvelle ambiguïté s'ajoute à la suite. D1 à D16 : `docs/architecture.md
 | D112 | Session OIDC du web | Jetons dans `sessionStorage` (défaut de la bibliothèque), jamais `localStorage`. Renouvellement par jeton de rafraîchissement sans `offline_access` (session SSO Keycloak). Intercepteur de la bibliothèque limité à `{apiUrl}/api/` | Mémoire seule (BFF) |
 | D113 | Pile de test Playwright | `e2e/web/compose.yaml` : Keycloak 26.4 `start-dev` avec `realm-finance-test.json`, port 8180 ; Prism (port 4010) et `ng serve` (4200) lancés par `playwright.config.ts`. Prérequis : `npm ci` dans `api/` et `web/` | Pile branchée sur `make e2e` (P1-22) |
 | D114 | CSP et styles Angular | Build de production avec `inlineCritical: false` (pas de script `onload`). Angular et Material injectent encore des éléments `<style>` à l'exécution : `style-src 'self'` de D74 peut les bloquer, à vérifier sur la pile `make up` (nonce `CSP_NONCE` ou `style-src 'unsafe-inline'`) | Nonce par requête dans Traefik/Caddy |
+
 ## D100 à D105 — Dépôts PostgreSQL (P1-10)
 
 | # | Sujet | Décision MVP | À réévaluer |
