@@ -40,10 +40,11 @@ lint: $(API)/node_modules/.package-lock.json ## golangci-lint, Spectral, ESLint
 		echo "lint : golangci-lint absent, installe-le (voir .github/workflows/ci.yml)" >&2; exit 1; \
 	fi
 	cd $(API) && npx spectral lint openapi.yaml --ruleset ../.spectral.yaml --fail-severity=info
-	@echo "lint (ESLint) : non configurée (P1-14)"
+	cd web && npm ci --no-audit --no-fund && npx ng lint
 
 test: ## Tests unitaires, sans Docker ni réseau
 	cd $(BACKEND) && go test -race -count=1 ./...
+	cd web && npm ci --no-audit --no-fund && npm run test
 
 test-engine: ## Tests du moteur de règles
 	@if [ -d $(BACKEND)/internal/modules/stockeval/engine ] && ls $(BACKEND)/internal/modules/stockeval/engine/*.go >/dev/null 2>&1; then \
@@ -56,7 +57,7 @@ test-int: ## Tests d'intégration (testcontainers ; Docker requis)
 	cd $(BACKEND) && go test -tags integration -race -count=1 ./...
 
 e2e: ## Playwright
-	@echo "e2e : non configurée (P1-22)"
+	cd e2e/web && npm ci --no-audit --no-fund && npx playwright install chromium && npm test
 
 ORACLE_IMAGE := finance-oracle:p1-07
 
