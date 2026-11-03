@@ -45,6 +45,10 @@ export interface ScoreSummary {
      * Vrai si l\'horizon manque de données (jamais extrapolé).
      */
     insufficientHistory?: boolean;
+    /**
+     * Plus long horizon (5, 10, 15 ou 20 ans) auquel l\'action atteint 10/10 au seuil strict. Calculé par le serveur ; absent si aucun horizon n\'atteint 10/10 (D37). Évite au client d\'interroger les quatre horizons.
+     */
+    perfectHorizon?: Horizon;
 }
 
 

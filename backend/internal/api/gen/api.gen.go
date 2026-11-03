@@ -197,6 +197,33 @@ func (e JobType) Valid() bool {
 	}
 }
 
+// Defines values for JobEntryKind.
+const (
+	JobEntryKindConflict   JobEntryKind = "conflict"
+	JobEntryKindImported   JobEntryKind = "imported"
+	JobEntryKindNormalized JobEntryKind = "normalized"
+	JobEntryKindProtected  JobEntryKind = "protected"
+	JobEntryKindSkipped    JobEntryKind = "skipped"
+)
+
+// Valid indicates whether the value is a known member of the JobEntryKind enum.
+func (e JobEntryKind) Valid() bool {
+	switch e {
+	case JobEntryKindConflict:
+		return true
+	case JobEntryKindImported:
+		return true
+	case JobEntryKindNormalized:
+		return true
+	case JobEntryKindProtected:
+		return true
+	case JobEntryKindSkipped:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for JobEntryLevel.
 const (
 	Error   JobEntryLevel = "error"
@@ -549,6 +576,9 @@ type JobType string
 
 // JobEntry Ligne du compte rendu d'un import.
 type JobEntry struct {
+	// Kind Catégorie de l'entrée, en plus du niveau. imported : ligne importée ; skipped : ligne ignorée ; conflict : valeur en conflit avec une donnée existante, non écrasée ; normalized : valeur corrigée à la lecture (ex. pourcentage divisé par 100) ; protected : instantané existant protégé, non remplacé. Absent pour les entrées sans catégorie.
+	Kind *JobEntryKind `json:"kind,omitempty"`
+
 	// Level Gravité.
 	Level JobEntryLevel `json:"level"`
 
@@ -561,6 +591,9 @@ type JobEntry struct {
 	// Symbol Symbole concerné, si connu.
 	Symbol *string `json:"symbol,omitempty"`
 }
+
+// JobEntryKind Catégorie de l'entrée, en plus du niveau. imported : ligne importée ; skipped : ligne ignorée ; conflict : valeur en conflit avec une donnée existante, non écrasée ; normalized : valeur corrigée à la lecture (ex. pourcentage divisé par 100) ; protected : instantané existant protégé, non remplacé. Absent pour les entrées sans catégorie.
+type JobEntryKind string
 
 // JobEntryLevel Gravité.
 type JobEntryLevel string
@@ -678,6 +711,9 @@ type ScoreSummary struct {
 
 	// OutOf Total possible, 10 (9 si un critère est exempté).
 	OutOf int `json:"outOf"`
+
+	// PerfectHorizon Plus long horizon (5, 10, 15 ou 20 ans) auquel l'action atteint 10/10 au seuil strict. Calculé par le serveur ; absent si aucun horizon n'atteint 10/10 (D37). Évite au client d'interroger les quatre horizons.
+	PerfectHorizon *Horizon `json:"perfectHorizon,omitempty"`
 
 	// Price Sous-score (qualité sur 7, prix sur 3), aux deux profils de seuils.
 	Price SubScore `json:"price"`

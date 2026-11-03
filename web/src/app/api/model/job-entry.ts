@@ -18,6 +18,10 @@ export interface JobEntry {
      */
     level: JobEntryLevelEnum;
     /**
+     * Catégorie de l\'entrée, en plus du niveau. imported : ligne importée ; skipped : ligne ignorée ; conflict : valeur en conflit avec une donnée existante, non écrasée ; normalized : valeur corrigée à la lecture (ex. pourcentage divisé par 100) ; protected : instantané existant protégé, non remplacé. Absent pour les entrées sans catégorie.
+     */
+    kind?: JobEntryKindEnum;
+    /**
      * Ligne ou rangée de la feuille.
      */
     line?: number;
@@ -34,6 +38,13 @@ export enum JobEntryLevelEnum {
     info = 'info',
     warning = 'warning',
     error = 'error'
+};
+export enum JobEntryKindEnum {
+    imported = 'imported',
+    skipped = 'skipped',
+    conflict = 'conflict',
+    normalized = 'normalized',
+    protected = 'protected'
 };
 
 
