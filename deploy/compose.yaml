@@ -34,6 +34,10 @@ services:
     user: "65532:65532"
     environment:
       HTTP_ADDR: ":8080"
+      # Émetteur public (claim iss) ; les clés sont lues par l'adresse interne de Keycloak (D74).
+      OIDC_ISSUER: ${FINANCE_PUBLIC_ORIGIN:-https://localhost:9443}/auth/realms/finance
+      OIDC_DISCOVERY_URL: http://keycloak:8080/auth/realms/finance/.well-known/openid-configuration
+      OIDC_AUDIENCE: finance-api
     networks: [edge, internal]
     expose: ["8080"]
 
@@ -77,9 +81,9 @@ services:
 
   keycloak:
     <<: *durci
-    # Image : keycloak 26.4. Le realm `finance` est ajouté par P1-13.
+    # Image : keycloak 26.4. Realm `finance` importé depuis deploy/keycloak (P1-13).
     image: quay.io/keycloak/keycloak:26.4@sha256:9409c59bdfb65dbffa20b11e6f18b8abb9281d480c7ca402f51ed3d5977e6007
-    command: ["start"]
+    command: ["start", "--import-realm"]
     environment:
       KC_DB: postgres
       KC_DB_URL: jdbc:postgresql://db:5432/keycloak
@@ -88,10 +92,13 @@ services:
       KC_HTTP_ENABLED: "true"            # TLS terminé par Traefik
       KC_PROXY_HEADERS: xforwarded
       KC_HTTP_RELATIVE_PATH: /auth
-      KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME: ${FINANCE_PUBLIC_ORIGIN:-https://localhost:9443}/auth
+      FINANCE_WEB_ORIGIN: ${FINANCE_PUBLIC_ORIGIN:-https://localhost:9443}
       KC_HEALTH_ENABLED: "true"
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?voir deploy/.env.example}
+    volumes:
+      - ./keycloak/realm-finance.json:/opt/keycloak/data/import/realm-finance.json:ro
     depends_on:
       db: {condition: service_healthy}
     networks: [edge, internal]
