@@ -40,7 +40,7 @@ export class ImportsService extends BaseService {
     /**
      * État d\&#39;un import
      * État et compte rendu ligne par ligne d\&#39;un import ou d\&#39;un rafraîchissement.
-     * @endpoint get /imports/{id}
+     * @endpoint get /api/v1/imports/{id}
      * @param id Identifiant du job.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -83,7 +83,7 @@ export class ImportsService extends BaseService {
             }
         }
 
-        let localVarPath = `/imports/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}`;
+        let localVarPath = `/api/v1/imports/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Job>('get', `${basePath}${localVarPath}`,
             {
@@ -101,7 +101,7 @@ export class ImportsService extends BaseService {
     /**
      * Importer la feuille xlsx
      * Import multipart (fichier de 10 Mo au plus et année de « Year 1 »). Répond 202 avec un job.
-     * @endpoint post /imports/xlsx
+     * @endpoint post /api/v1/imports/xlsx
      * @param file Fichier xlsx, 10 Mo au plus.
      * @param year1 Année fiscale de la colonne « Year 1 » de la feuille.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -173,7 +173,7 @@ export class ImportsService extends BaseService {
             }
         }
 
-        let localVarPath = `/imports/xlsx`;
+        let localVarPath = `/api/v1/imports/xlsx`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Job>('post', `${basePath}${localVarPath}`,
             {
@@ -192,7 +192,7 @@ export class ImportsService extends BaseService {
     /**
      * Rafraîchir depuis le fournisseur de données
      * Réponse 501 jusqu\&#39;à la phase 3 (D32). Ensuite, 202 et un job à interroger.
-     * @endpoint post /stocks/{symbol}/refresh
+     * @endpoint post /api/v1/stocks/{symbol}/refresh
      * @param symbol Symbole canonique &#x60;BOURSE:SYMBOLE&#x60;.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -235,7 +235,7 @@ export class ImportsService extends BaseService {
             }
         }
 
-        let localVarPath = `/stocks/${this.configuration.encodeParam({name: "symbol", value: symbol, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/refresh`;
+        let localVarPath = `/api/v1/stocks/${this.configuration.encodeParam({name: "symbol", value: symbol, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/refresh`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Job>('post', `${basePath}${localVarPath}`,
             {

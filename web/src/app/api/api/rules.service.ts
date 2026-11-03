@@ -40,7 +40,7 @@ export class RulesService extends BaseService {
     /**
      * Version et seuils des règles
      * Référentiel des règles, pour les libellés des clients. Les clients n\&#39;en tirent aucun calcul.
-     * @endpoint get /rules
+     * @endpoint get /api/v1/rules
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
@@ -79,7 +79,7 @@ export class RulesService extends BaseService {
             }
         }
 
-        let localVarPath = `/rules`;
+        let localVarPath = `/api/v1/rules`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Rules>('get', `${basePath}${localVarPath}`,
             {

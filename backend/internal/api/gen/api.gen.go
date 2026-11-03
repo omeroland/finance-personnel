@@ -947,46 +947,46 @@ type ReplaceQualitativeJSONRequestBody = Qualitative
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 	// Importer la feuille xlsx
-	// (POST /imports/xlsx)
+	// (POST /api/v1/imports/xlsx)
 	ImportXlsx(w http.ResponseWriter, r *http.Request)
 	// État d'un import
-	// (GET /imports/{id})
+	// (GET /api/v1/imports/{id})
 	GetImport(w http.ResponseWriter, r *http.Request, id openapi_types.UUID)
 	// Version et seuils des règles
-	// (GET /rules)
+	// (GET /api/v1/rules)
 	GetRules(w http.ResponseWriter, r *http.Request)
 	// Liste de suivi
-	// (GET /stocks)
+	// (GET /api/v1/stocks)
 	ListStocks(w http.ResponseWriter, r *http.Request, params ListStocksParams)
 	// Ajouter une action
-	// (POST /stocks)
+	// (POST /api/v1/stocks)
 	AddStock(w http.ResponseWriter, r *http.Request)
 	// Retirer de la liste de suivi
-	// (DELETE /stocks/{symbol})
+	// (DELETE /api/v1/stocks/{symbol})
 	DeleteStock(w http.ResponseWriter, r *http.Request, symbol Symbol)
 	// Fiche d'une action
-	// (GET /stocks/{symbol})
+	// (GET /api/v1/stocks/{symbol})
 	GetStock(w http.ResponseWriter, r *http.Request, symbol Symbol)
 	// Modifier les métadonnées et l'instantané
-	// (PATCH /stocks/{symbol})
+	// (PATCH /api/v1/stocks/{symbol})
 	UpdateStock(w http.ResponseWriter, r *http.Request, symbol Symbol)
 	// Évaluation à la volée
-	// (GET /stocks/{symbol}/evaluation)
+	// (GET /api/v1/stocks/{symbol}/evaluation)
 	GetEvaluation(w http.ResponseWriter, r *http.Request, symbol Symbol, params GetEvaluationParams)
 	// Historique archivé
-	// (GET /stocks/{symbol}/evaluations)
+	// (GET /api/v1/stocks/{symbol}/evaluations)
 	ListEvaluations(w http.ResponseWriter, r *http.Request, symbol Symbol)
 	// Calculer et archiver
-	// (POST /stocks/{symbol}/evaluations)
+	// (POST /api/v1/stocks/{symbol}/evaluations)
 	CreateEvaluation(w http.ResponseWriter, r *http.Request, symbol Symbol)
 	// Remplacer des valeurs annuelles
-	// (PUT /stocks/{symbol}/facts)
+	// (PUT /api/v1/stocks/{symbol}/facts)
 	ReplaceFacts(w http.ResponseWriter, r *http.Request, symbol Symbol)
 	// Saisir le jugement qualitatif
-	// (PUT /stocks/{symbol}/qualitative)
+	// (PUT /api/v1/stocks/{symbol}/qualitative)
 	ReplaceQualitative(w http.ResponseWriter, r *http.Request, symbol Symbol)
 	// Rafraîchir depuis le fournisseur de données
-	// (POST /stocks/{symbol}/refresh)
+	// (POST /api/v1/stocks/{symbol}/refresh)
 	RefreshStock(w http.ResponseWriter, r *http.Request, symbol Symbol)
 }
 
@@ -1567,20 +1567,20 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 		ErrorHandlerFunc:   options.ErrorHandlerFunc,
 	}
 
-	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/imports/xlsx", wrapper.ImportXlsx)
-	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/imports/{id}", wrapper.GetImport)
-	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/rules", wrapper.GetRules)
-	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/stocks", wrapper.ListStocks)
-	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/stocks", wrapper.AddStock)
-	m.HandleFunc(http.MethodDelete+" "+options.BaseURL+"/stocks/{symbol}", wrapper.DeleteStock)
-	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/stocks/{symbol}", wrapper.GetStock)
-	m.HandleFunc(http.MethodPatch+" "+options.BaseURL+"/stocks/{symbol}", wrapper.UpdateStock)
-	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/stocks/{symbol}/evaluation", wrapper.GetEvaluation)
-	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/stocks/{symbol}/evaluations", wrapper.ListEvaluations)
-	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/stocks/{symbol}/evaluations", wrapper.CreateEvaluation)
-	m.HandleFunc(http.MethodPut+" "+options.BaseURL+"/stocks/{symbol}/facts", wrapper.ReplaceFacts)
-	m.HandleFunc(http.MethodPut+" "+options.BaseURL+"/stocks/{symbol}/qualitative", wrapper.ReplaceQualitative)
-	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/stocks/{symbol}/refresh", wrapper.RefreshStock)
+	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/api/v1/imports/xlsx", wrapper.ImportXlsx)
+	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/api/v1/imports/{id}", wrapper.GetImport)
+	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/api/v1/rules", wrapper.GetRules)
+	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/api/v1/stocks", wrapper.ListStocks)
+	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/api/v1/stocks", wrapper.AddStock)
+	m.HandleFunc(http.MethodDelete+" "+options.BaseURL+"/api/v1/stocks/{symbol}", wrapper.DeleteStock)
+	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/api/v1/stocks/{symbol}", wrapper.GetStock)
+	m.HandleFunc(http.MethodPatch+" "+options.BaseURL+"/api/v1/stocks/{symbol}", wrapper.UpdateStock)
+	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/api/v1/stocks/{symbol}/evaluation", wrapper.GetEvaluation)
+	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/api/v1/stocks/{symbol}/evaluations", wrapper.ListEvaluations)
+	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/api/v1/stocks/{symbol}/evaluations", wrapper.CreateEvaluation)
+	m.HandleFunc(http.MethodPut+" "+options.BaseURL+"/api/v1/stocks/{symbol}/facts", wrapper.ReplaceFacts)
+	m.HandleFunc(http.MethodPut+" "+options.BaseURL+"/api/v1/stocks/{symbol}/qualitative", wrapper.ReplaceQualitative)
+	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/api/v1/stocks/{symbol}/refresh", wrapper.RefreshStock)
 
 	return m
 }
@@ -2448,46 +2448,46 @@ func (response RefreshStock501ApplicationProblemPlusJSONResponse) VisitRefreshSt
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
 	// Importer la feuille xlsx
-	// (POST /imports/xlsx)
+	// (POST /api/v1/imports/xlsx)
 	ImportXlsx(ctx context.Context, request ImportXlsxRequestObject) (ImportXlsxResponseObject, error)
 	// État d'un import
-	// (GET /imports/{id})
+	// (GET /api/v1/imports/{id})
 	GetImport(ctx context.Context, request GetImportRequestObject) (GetImportResponseObject, error)
 	// Version et seuils des règles
-	// (GET /rules)
+	// (GET /api/v1/rules)
 	GetRules(ctx context.Context, request GetRulesRequestObject) (GetRulesResponseObject, error)
 	// Liste de suivi
-	// (GET /stocks)
+	// (GET /api/v1/stocks)
 	ListStocks(ctx context.Context, request ListStocksRequestObject) (ListStocksResponseObject, error)
 	// Ajouter une action
-	// (POST /stocks)
+	// (POST /api/v1/stocks)
 	AddStock(ctx context.Context, request AddStockRequestObject) (AddStockResponseObject, error)
 	// Retirer de la liste de suivi
-	// (DELETE /stocks/{symbol})
+	// (DELETE /api/v1/stocks/{symbol})
 	DeleteStock(ctx context.Context, request DeleteStockRequestObject) (DeleteStockResponseObject, error)
 	// Fiche d'une action
-	// (GET /stocks/{symbol})
+	// (GET /api/v1/stocks/{symbol})
 	GetStock(ctx context.Context, request GetStockRequestObject) (GetStockResponseObject, error)
 	// Modifier les métadonnées et l'instantané
-	// (PATCH /stocks/{symbol})
+	// (PATCH /api/v1/stocks/{symbol})
 	UpdateStock(ctx context.Context, request UpdateStockRequestObject) (UpdateStockResponseObject, error)
 	// Évaluation à la volée
-	// (GET /stocks/{symbol}/evaluation)
+	// (GET /api/v1/stocks/{symbol}/evaluation)
 	GetEvaluation(ctx context.Context, request GetEvaluationRequestObject) (GetEvaluationResponseObject, error)
 	// Historique archivé
-	// (GET /stocks/{symbol}/evaluations)
+	// (GET /api/v1/stocks/{symbol}/evaluations)
 	ListEvaluations(ctx context.Context, request ListEvaluationsRequestObject) (ListEvaluationsResponseObject, error)
 	// Calculer et archiver
-	// (POST /stocks/{symbol}/evaluations)
+	// (POST /api/v1/stocks/{symbol}/evaluations)
 	CreateEvaluation(ctx context.Context, request CreateEvaluationRequestObject) (CreateEvaluationResponseObject, error)
 	// Remplacer des valeurs annuelles
-	// (PUT /stocks/{symbol}/facts)
+	// (PUT /api/v1/stocks/{symbol}/facts)
 	ReplaceFacts(ctx context.Context, request ReplaceFactsRequestObject) (ReplaceFactsResponseObject, error)
 	// Saisir le jugement qualitatif
-	// (PUT /stocks/{symbol}/qualitative)
+	// (PUT /api/v1/stocks/{symbol}/qualitative)
 	ReplaceQualitative(ctx context.Context, request ReplaceQualitativeRequestObject) (ReplaceQualitativeResponseObject, error)
 	// Rafraîchir depuis le fournisseur de données
-	// (POST /stocks/{symbol}/refresh)
+	// (POST /api/v1/stocks/{symbol}/refresh)
 	RefreshStock(ctx context.Context, request RefreshStockRequestObject) (RefreshStockResponseObject, error)
 }
 

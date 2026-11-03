@@ -21,8 +21,8 @@ info:
     name: Propriétaire
     identifier: LicenseRef-Proprietary
 servers:
-  - url: /api/v1
-    description: Préfixe de l'API
+  - url: /
+    description: Même origine ; les chemins portent le préfixe /api/v1 (Traefik en production, Prism en local).
 security:
   - bearerAuth: []
 tags:
@@ -35,7 +35,7 @@ tags:
   - name: rules
     description: Référentiel des règles versionné.
 paths:
-  /stocks:
+  /api/v1/stocks:
     get:
       operationId: listStocks
       tags: [stocks]
@@ -88,7 +88,7 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '409':
           $ref: '#/components/responses/Conflict'
-  /stocks/{symbol}:
+  /api/v1/stocks/{symbol}:
     parameters:
       - $ref: '#/components/parameters/Symbol'
     get:
@@ -152,7 +152,7 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
-  /stocks/{symbol}/facts:
+  /api/v1/stocks/{symbol}/facts:
     parameters:
       - $ref: '#/components/parameters/Symbol'
     put:
@@ -185,7 +185,7 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
-  /stocks/{symbol}/qualitative:
+  /api/v1/stocks/{symbol}/qualitative:
     parameters:
       - $ref: '#/components/parameters/Symbol'
     put:
@@ -218,7 +218,7 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
-  /stocks/{symbol}/evaluation:
+  /api/v1/stocks/{symbol}/evaluation:
     parameters:
       - $ref: '#/components/parameters/Symbol'
     get:
@@ -244,7 +244,7 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
-  /stocks/{symbol}/evaluations:
+  /api/v1/stocks/{symbol}/evaluations:
     parameters:
       - $ref: '#/components/parameters/Symbol'
     get:
@@ -296,7 +296,7 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
-  /stocks/{symbol}/refresh:
+  /api/v1/stocks/{symbol}/refresh:
     parameters:
       - $ref: '#/components/parameters/Symbol'
     post:
@@ -320,7 +320,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '501':
           $ref: '#/components/responses/NotImplemented'
-  /imports/xlsx:
+  /api/v1/imports/xlsx:
     post:
       operationId: importXlsx
       tags: [imports]
@@ -346,7 +346,7 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
-  /imports/{id}:
+  /api/v1/imports/{id}:
     get:
       operationId: getImport
       tags: [imports]
@@ -375,7 +375,7 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
-  /rules:
+  /api/v1/rules:
     get:
       operationId: getRules
       tags: [rules]

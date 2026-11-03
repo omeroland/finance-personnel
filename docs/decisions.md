@@ -1,6 +1,6 @@
 # Journal des décisions
 
-Une nouvelle ambiguïté s'ajoute à la suite. D1 à D16 : `docs/architecture.md` (journal MVP). D23 à D34 : `docs/tasks/README.md`. D40 et suivantes : ce fichier.
+Une nouvelle ambiguïté s'ajoute à la suite. D1 à D16 : `docs/architecture.md` (journal MVP). D23 à D34 : `docs/tasks/README.md`. D35 à D39 et D40 et suivantes : ce fichier.
 
 **D17 à D22 : non fournies** dans le document d'architecture ; à compléter par le propriétaire (voir PR).
 
@@ -46,3 +46,13 @@ Une nouvelle ambiguïté s'ajoute à la suite. D1 à D16 : `docs/architecture.md
 | D40 | Unicité du symbole | `core.instrument.symbol` unique par propriétaire (`UNIQUE (owner_id, symbol)`) ; `owner_id NOT NULL` sur toutes les tables, `core.instrument` comprise (D1) | Instruments partagés entre ménages (phase 7) |
 | D41 | Rôle `finance_app` | Créé `NOLOGIN` par la migration 0003 ; le déploiement lui donne `LOGIN` et un mot de passe hors dépôt. Le `down` retire les droits mais conserve le rôle (global au serveur). `SELECT, INSERT` seulement sur `stockeval.evaluation` et `core.audit_log`, tous droits DML sur les autres tables | Rôle distinct pour la lecture seule |
 | D42 | Directive `go` de `go.mod` | Passée de 1.24 à 1.26.0 : goose, pgx et testcontainers tirent des dépendances (`golang.org/x/*`) qui l'exigent. Le CI utilise `go-version: stable`. `.golangci.yml` (`run.go: 1.24`) est à aligner par l'agent Plateforme | Épingler des versions plus anciennes des dépendances pour revenir à 1.24 |
+
+## D35 à D39 — Contrat OpenAPI (P1-03)
+
+| # | Sujet | Décision MVP | À réévaluer |
+| --- | --- | --- | --- |
+| D35 | Préfixe de l'API | Les chemins du contrat portent `/api/v1` et le serveur déclaré est `/` : Prism ignore le chemin d'un serveur et ne servirait pas le préfixe, et le client généré reste relatif à l'origine | Préfixe dans `servers` si Prism le gère |
+| D36 | Montants et séries annuelles | Chaînes décimales (`Decimal`) avec devise, y compris `annual_return` (fraction en chaîne), pour ne jamais passer par un `float64`. Ratios, scores, seuils et valeurs de critères restent des `number` (fraction, 0.70 = 70 %) | `number` pour `annual_return` si le client le réclame |
+| D37 | Valeur inconnue | Propriété absente, jamais `null` ; OpenAPI 3.1 sans `exclusiveMinimum` numérique ni `type` en tableau, que oapi-codegen 2.7 ne lit pas | `nullable` explicite avec un générateur 3.1 complet |
+| D38 | Outils de génération | oapi-codegen v2.7.0 (directive `tool`; la v2.8 n'est pas adoptée, pour ne pas changer le code généré sans raison), Spectral 6.17.0, Prism 5.16.0 et openapi-generator-cli 2.42.0 (générateur 7.21.0) épinglés dans `api/package.json` et `api/openapitools.json`. Node et Java 11+ requis pour `make gen` | Image Docker par digest |
+| D39 | Vocabulaire du contrat | Modes `corrected` et `compat`; horizons 5, 10, 15, 20; verdict `excluded`, `candidate`, `watch`, `rejected` porté par horizon et absent à 5 ans (D9); `Conflict` de sources nommé `SourceConflict`; liste de suivi et historique sans pagination | Pagination si la liste dépasse quelques centaines d'actions |

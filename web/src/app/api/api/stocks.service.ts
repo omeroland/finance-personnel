@@ -58,7 +58,7 @@ export class StocksService extends BaseService {
     /**
      * Ajouter une action
      * Ajoute une action à la liste de suivi. Le symbole est canonique, au format &#x60;BOURSE:SYMBOLE&#x60;.
-     * @endpoint post /stocks
+     * @endpoint post /api/v1/stocks
      * @param stockCreate 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -110,7 +110,7 @@ export class StocksService extends BaseService {
             }
         }
 
-        let localVarPath = `/stocks`;
+        let localVarPath = `/api/v1/stocks`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Stock>('post', `${basePath}${localVarPath}`,
             {
@@ -129,7 +129,7 @@ export class StocksService extends BaseService {
     /**
      * Retirer de la liste de suivi
      * Retire l\&#39;action de la liste. L\&#39;archive des évaluations reste.
-     * @endpoint delete /stocks/{symbol}
+     * @endpoint delete /api/v1/stocks/{symbol}
      * @param symbol Symbole canonique &#x60;BOURSE:SYMBOLE&#x60;.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -171,7 +171,7 @@ export class StocksService extends BaseService {
             }
         }
 
-        let localVarPath = `/stocks/${this.configuration.encodeParam({name: "symbol", value: symbol, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
+        let localVarPath = `/api/v1/stocks/${this.configuration.encodeParam({name: "symbol", value: symbol, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('delete', `${basePath}${localVarPath}`,
             {
@@ -189,7 +189,7 @@ export class StocksService extends BaseService {
     /**
      * Fiche d\&#39;une action
      * Séries annuelles, instantané, qualitatif, sources et conflits entre sources.
-     * @endpoint get /stocks/{symbol}
+     * @endpoint get /api/v1/stocks/{symbol}
      * @param symbol Symbole canonique &#x60;BOURSE:SYMBOLE&#x60;.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -232,7 +232,7 @@ export class StocksService extends BaseService {
             }
         }
 
-        let localVarPath = `/stocks/${this.configuration.encodeParam({name: "symbol", value: symbol, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
+        let localVarPath = `/api/v1/stocks/${this.configuration.encodeParam({name: "symbol", value: symbol, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<StockDetail>('get', `${basePath}${localVarPath}`,
             {
@@ -250,7 +250,7 @@ export class StocksService extends BaseService {
     /**
      * Liste de suivi
      * Actions suivies avec score, sous-scores et verdict pour le mode et l\&#39;horizon demandés.
-     * @endpoint get /stocks
+     * @endpoint get /api/v1/stocks
      * @param mode Mode de calcul. &#x60;corrected&#x60; par défaut.
      * @param horizon Horizon en années. 10 par défaut.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -311,7 +311,7 @@ export class StocksService extends BaseService {
             }
         }
 
-        let localVarPath = `/stocks`;
+        let localVarPath = `/api/v1/stocks`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<StockList>('get', `${basePath}${localVarPath}`,
             {
@@ -330,7 +330,7 @@ export class StocksService extends BaseService {
     /**
      * Remplacer des valeurs annuelles
      * Saisie manuelle. Remplace les valeurs de chaque couple (année, mesure) fourni ; les autres restent intactes.
-     * @endpoint put /stocks/{symbol}/facts
+     * @endpoint put /api/v1/stocks/{symbol}/facts
      * @param symbol Symbole canonique &#x60;BOURSE:SYMBOLE&#x60;.
      * @param factsReplace 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -386,7 +386,7 @@ export class StocksService extends BaseService {
             }
         }
 
-        let localVarPath = `/stocks/${this.configuration.encodeParam({name: "symbol", value: symbol, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/facts`;
+        let localVarPath = `/api/v1/stocks/${this.configuration.encodeParam({name: "symbol", value: symbol, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/facts`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<FactList>('put', `${basePath}${localVarPath}`,
             {
@@ -405,7 +405,7 @@ export class StocksService extends BaseService {
     /**
      * Saisir le jugement qualitatif
      * Règles 1 à 4 et rachat manuel. Remplace l\&#39;ensemble du jugement.
-     * @endpoint put /stocks/{symbol}/qualitative
+     * @endpoint put /api/v1/stocks/{symbol}/qualitative
      * @param symbol Symbole canonique &#x60;BOURSE:SYMBOLE&#x60;.
      * @param qualitative 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -461,7 +461,7 @@ export class StocksService extends BaseService {
             }
         }
 
-        let localVarPath = `/stocks/${this.configuration.encodeParam({name: "symbol", value: symbol, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/qualitative`;
+        let localVarPath = `/api/v1/stocks/${this.configuration.encodeParam({name: "symbol", value: symbol, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/qualitative`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Qualitative>('put', `${basePath}${localVarPath}`,
             {
@@ -480,7 +480,7 @@ export class StocksService extends BaseService {
     /**
      * Modifier les métadonnées et l\&#39;instantané
      * Saisie manuelle. Seules les propriétés fournies sont modifiées.
-     * @endpoint patch /stocks/{symbol}
+     * @endpoint patch /api/v1/stocks/{symbol}
      * @param symbol Symbole canonique &#x60;BOURSE:SYMBOLE&#x60;.
      * @param stockUpdate 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -536,7 +536,7 @@ export class StocksService extends BaseService {
             }
         }
 
-        let localVarPath = `/stocks/${this.configuration.encodeParam({name: "symbol", value: symbol, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
+        let localVarPath = `/api/v1/stocks/${this.configuration.encodeParam({name: "symbol", value: symbol, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<StockDetail>('patch', `${basePath}${localVarPath}`,
             {

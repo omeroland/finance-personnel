@@ -48,7 +48,7 @@ export class EvaluationsService extends BaseService {
     /**
      * Calculer et archiver
      * Calcule l\&#39;évaluation et l\&#39;ajoute à l\&#39;archive immuable avec ses entrées et la version des règles.
-     * @endpoint post /stocks/{symbol}/evaluations
+     * @endpoint post /api/v1/stocks/{symbol}/evaluations
      * @param symbol Symbole canonique &#x60;BOURSE:SYMBOLE&#x60;.
      * @param evaluationCreate 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -104,7 +104,7 @@ export class EvaluationsService extends BaseService {
             }
         }
 
-        let localVarPath = `/stocks/${this.configuration.encodeParam({name: "symbol", value: symbol, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/evaluations`;
+        let localVarPath = `/api/v1/stocks/${this.configuration.encodeParam({name: "symbol", value: symbol, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/evaluations`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<EvaluationRecord>('post', `${basePath}${localVarPath}`,
             {
@@ -123,7 +123,7 @@ export class EvaluationsService extends BaseService {
     /**
      * Évaluation à la volée
      * Calcule l\&#39;évaluation courante sans l\&#39;archiver. Les deux profils de seuils sortent en une seule passe.
-     * @endpoint get /stocks/{symbol}/evaluation
+     * @endpoint get /api/v1/stocks/{symbol}/evaluation
      * @param symbol Symbole canonique &#x60;BOURSE:SYMBOLE&#x60;.
      * @param mode Mode de calcul. &#x60;corrected&#x60; par défaut.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -178,7 +178,7 @@ export class EvaluationsService extends BaseService {
             }
         }
 
-        let localVarPath = `/stocks/${this.configuration.encodeParam({name: "symbol", value: symbol, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/evaluation`;
+        let localVarPath = `/api/v1/stocks/${this.configuration.encodeParam({name: "symbol", value: symbol, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/evaluation`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Evaluation>('get', `${basePath}${localVarPath}`,
             {
@@ -197,7 +197,7 @@ export class EvaluationsService extends BaseService {
     /**
      * Historique archivé
      * Évaluations archivées, de la plus récente à la plus ancienne.
-     * @endpoint get /stocks/{symbol}/evaluations
+     * @endpoint get /api/v1/stocks/{symbol}/evaluations
      * @param symbol Symbole canonique &#x60;BOURSE:SYMBOLE&#x60;.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -240,7 +240,7 @@ export class EvaluationsService extends BaseService {
             }
         }
 
-        let localVarPath = `/stocks/${this.configuration.encodeParam({name: "symbol", value: symbol, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/evaluations`;
+        let localVarPath = `/api/v1/stocks/${this.configuration.encodeParam({name: "symbol", value: symbol, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/evaluations`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<EvaluationRecordList>('get', `${basePath}${localVarPath}`,
             {
