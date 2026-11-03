@@ -205,6 +205,9 @@ test('navigation clavier : filtres, en-têtes de tri, boutons de retrait et dial
     'Verdict',
     'Plus long horizon à 10/10',
   ]);
+  // Chaque ligne : le lien vers la fiche, puis le bouton de retrait.
+  await page.keyboard.press('Tab');
+  await expect(page.getByTestId('fiche-NASDAQ:CCC')).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(page.getByTestId('retirer-NASDAQ:CCC')).toBeFocused();
   await page.keyboard.press('Enter');

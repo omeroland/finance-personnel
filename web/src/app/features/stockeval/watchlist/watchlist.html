@@ -71,7 +71,9 @@
     >
       <ng-container matColumnDef="symbole">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'col.symbole' | t }}</th>
-        <td mat-cell *matCellDef="let l">{{ l.stock.symbol }}</td>
+        <td mat-cell *matCellDef="let l">
+          <a [routerLink]="['/stocks', l.stock.symbol]" [attr.data-testid]="'fiche-' + l.stock.symbol">{{ l.stock.symbol }}</a>
+        </td>
       </ng-container>
       <ng-container matColumnDef="nom">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'col.nom' | t }}</th>

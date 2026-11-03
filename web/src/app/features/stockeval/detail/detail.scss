@@ -1,0 +1,62 @@
+.entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.horizon,
+.comparaison {
+  margin-block: 1.5rem;
+}
+
+.scores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+}
+
+.tableau {
+  width: 100%;
+}
+
+.actions {
+  margin-block: 1rem;
+}
+
+.statut {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.statut:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+.verdict,
+.ecart {
+  font-weight: 600;
+}
+
+.badge {
+  margin-inline-start: 0.5rem;
+  padding: 0.1rem 0.5rem;
+  border: 1px solid currentColor;
+  border-radius: 1rem;
+  font: var(--mat-sys-label-medium);
+}
+
+.icone {
+  display: inline-block;
+  width: 1.25em;
+  text-align: center;
+}
+
+.alerte {
+  font-weight: 600;
+}
+
+.note {
+  font: var(--mat-sys-body-small);
+}

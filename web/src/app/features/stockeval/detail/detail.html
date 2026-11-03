@@ -1,0 +1,205 @@
+<header class="entete">
+  <h1 data-testid="titre">{{ 'detail.titre' | t: { symbole: symbole } }}</h1>
+  <a mat-stroked-button routerLink="/stocks" data-testid="retour">{{ 'detail.retour' | t }}</a>
+</header>
+
+<mat-tab-group animationDuration="0ms">
+  <mat-tab [label]="'detail.onglet.resultat' | t">
+    @switch (etat()) {
+      @case ('chargement') {
+        <p role="status" data-testid="chargement">{{ 'detail.chargement' | t }}</p>
+      }
+      @case ('erreur') {
+        <p role="alert" data-testid="erreur">{{ 'detail.erreur' | t }}</p>
+        <button mat-stroked-button type="button" (click)="charger()">{{ 'liste.reessayer' | t }}</button>
+      }
+      @default {
+        @if (evaluation(); as ev) {
+          <p class="note" data-testid="meta">
+            {{ 'detail.regles' | t: { version: ev.rulesVersion } }} · {{ libelleMode(ev.mode) }} ·
+            {{ date(ev.computedAt) }}
+          </p>
+          @if (!ev.qualitativeGatePassed) {
+            <p role="status" class="alerte" data-testid="barriere">
+              <span aria-hidden="true" class="icone">⊘</span> {{ 'detail.barriere' | t }}
+            </p>
+          }
+          @if (ev.warnings?.length) {
+            <section data-testid="avertissements" [attr.aria-label]="'detail.avertissements' | t">
+              <h2>{{ 'detail.avertissements' | t }}</h2>
+              <ul>
+                @for (a of ev.warnings; track a) {
+                  <li>{{ a }}</li>
+                }
+              </ul>
+            </section>
+          }
+
+          @for (h of ev.horizons; track h.horizon) {
+            <section class="horizon" [attr.data-testid]="'horizon-' + h.horizon" [attr.aria-labelledby]="'h-' + h.horizon">
+              <h2 [id]="'h-' + h.horizon">
+                {{ 'horizon.valeur' | t: { n: '' + h.horizon } }}
+                @if (h.indicative) {
+                  <span class="badge" data-testid="indicatif">{{ 'detail.indicatif' | t }}</span>
+                }
+                @if (h.insufficientHistory) {
+                  <span class="badge">{{ 'score.insuffisant' | t }}</span>
+                }
+              </h2>
+              <p class="scores" data-testid="scores">
+                <span>{{ 'col.strict' | t }} : {{ 'score.sur' | t: { n: '' + h.strict, total: '' + h.outOf } }}</span>
+                <span>{{ 'col.assoupli' | t }} : {{ 'score.sur' | t: { n: '' + h.relaxed, total: '' + h.outOf } }}</span>
+                <span>{{ 'detail.qualite' | t }} : {{ 'score.sur' | t: { n: '' + h.quality.strict, total: '' + h.quality.outOf } }} ({{ 'detail.assoupli' | t }} {{ h.quality.relaxed }})</span>
+                <span>{{ 'detail.prix' | t }} : {{ 'score.sur' | t: { n: '' + h.price.strict, total: '' + h.price.outOf } }} ({{ 'detail.assoupli' | t }} {{ h.price.relaxed }})</span>
+                <span class="verdict" data-testid="verdict"
+                  ><span aria-hidden="true" class="icone">{{ iconeVerdict(h.verdict) }}</span> {{ libelleVerdict(h.verdict) }}</span
+                >
+              </p>
+              <table mat-table [dataSource]="h.criteria" class="tableau" data-testid="criteres" [attr.aria-label]="'detail.criteres' | t">
+                <ng-container matColumnDef="critere">
+                  <th mat-header-cell *matHeaderCellDef>{{ 'detail.col.critere' | t }}</th>
+                  <td mat-cell *matCellDef="let c">{{ libelleCritere(c) }}</td>
+                </ng-container>
+                <ng-container matColumnDef="valeur">
+                  <th mat-header-cell *matHeaderCellDef>{{ 'detail.col.valeur' | t }}</th>
+                  <td mat-cell *matCellDef="let c" data-col="valeur">{{ valeur(c) }}</td>
+                </ng-container>
+                <ng-container matColumnDef="strict">
+                  <th mat-header-cell *matHeaderCellDef>{{ 'detail.col.strict' | t }}</th>
+                  <td mat-cell *matCellDef="let c" data-col="strict">{{ c.strictThreshold.description }}</td>
+                </ng-container>
+                <ng-container matColumnDef="assoupli">
+                  <th mat-header-cell *matHeaderCellDef>{{ 'detail.col.assoupli' | t }}</th>
+                  <td mat-cell *matCellDef="let c" data-col="assoupli">
+                    {{ c.relaxedThreshold ? c.relaxedThreshold.description : ('detail.aucunAssoupli' | t) }}
+                  </td>
+                </ng-container>
+                <ng-container matColumnDef="statut">
+                  <th mat-header-cell *matHeaderCellDef>{{ 'detail.col.statut' | t }}</th>
+                  <td mat-cell *matCellDef="let c" data-col="statut">
+                    <span
+                      class="statut"
+                      tabindex="0"
+                      [matTooltip]="explicationStatut(c.status)"
+                      matTooltipShowDelay="0"
+                      ><span aria-hidden="true" class="icone">{{ iconeStatut(c.status) }}</span> {{ libelleStatut(c.status) }}</span
+                    >
+                    @if (c.note) {
+                      <span class="note">{{ c.note }}</span>
+                    }
+                  </td>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="colonnes"></tr>
+                <tr mat-row *matRowDef="let row; columns: colonnes" data-testid="critere"></tr>
+              </table>
+            </section>
+          }
+
+          @for (cmp of comparaisons(); track cmp.corrige.horizon) {
+            <section class="comparaison" data-testid="comparaison" [attr.aria-labelledby]="'cmp-' + cmp.corrige.horizon">
+              <h2 [id]="'cmp-' + cmp.corrige.horizon">
+                {{ 'detail.comparaison' | t: { n: '' + cmp.corrige.horizon } }}
+              </h2>
+              <p class="note" data-testid="nb-ecarts">{{ 'detail.nbEcarts' | t: { n: '' + cmp.nbEcarts } }}</p>
+              <table mat-table [dataSource]="cmp.lignes" class="tableau" [attr.aria-label]="'detail.comparaison' | t: { n: '' + cmp.corrige.horizon }">
+                <ng-container matColumnDef="critere">
+                  <th mat-header-cell *matHeaderCellDef>{{ 'detail.col.critere' | t }}</th>
+                  <td mat-cell *matCellDef="let l">{{ libelleCritere(l.corrige) }}</td>
+                </ng-container>
+                <ng-container matColumnDef="corrige">
+                  <th mat-header-cell *matHeaderCellDef>
+                    {{ 'mode.corrected' | t }} ({{ 'score.sur' | t: { n: '' + cmp.corrige.strict, total: '' + cmp.corrige.outOf } }})
+                  </th>
+                  <td mat-cell *matCellDef="let l" data-col="corrige">
+                    {{ valeur(l.corrige) }} ·
+                    <span aria-hidden="true" class="icone">{{ iconeStatut(l.corrige.status) }}</span> {{ libelleStatut(l.corrige.status) }}
+                  </td>
+                </ng-container>
+                <ng-container matColumnDef="compat">
+                  <th mat-header-cell *matHeaderCellDef>
+                    {{ 'mode.compat' | t }} ({{ 'score.sur' | t: { n: '' + cmp.compat.strict, total: '' + cmp.compat.outOf } }})
+                  </th>
+                  <td mat-cell *matCellDef="let l" data-col="compat">
+                    @if (l.compat) {
+                      {{ valeur(l.compat) }} ·
+                      <span aria-hidden="true" class="icone">{{ iconeStatut(l.compat.status) }}</span> {{ libelleStatut(l.compat.status) }}
+                    } @else {
+                      {{ 'detail.sansValeur' | t }}
+                    }
+                  </td>
+                </ng-container>
+                <ng-container matColumnDef="ecart">
+                  <th mat-header-cell *matHeaderCellDef>{{ 'detail.col.ecart' | t }}</th>
+                  <td mat-cell *matCellDef="let l" data-col="ecart">
+                    <span [class.ecart]="l.ecart && l.ecart !== 'identique'"
+                      ><span aria-hidden="true" class="icone">{{ l.ecart && l.ecart !== 'identique' ? '≠' : '=' }}</span>
+                      {{ libelleEcart(l.ecart) }}</span
+                    >
+                  </td>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="colonnesComparaison"></tr>
+                <tr mat-row *matRowDef="let row; columns: colonnesComparaison" data-testid="ligne-comparaison"></tr>
+              </table>
+            </section>
+          } @empty {
+            @if (!compat()) {
+              <p class="note" data-testid="compat-indisponible">{{ 'detail.compatIndisponible' | t }}</p>
+            }
+          }
+        }
+      }
+    }
+  </mat-tab>
+
+  <mat-tab [label]="'detail.onglet.historique' | t">
+    <div class="actions">
+      <button mat-flat-button type="button" data-testid="archiver" [disabled]="archivage()" (click)="archiver()">
+        {{ 'detail.archiver' | t }}
+      </button>
+    </div>
+    @switch (etatHistorique()) {
+      @case ('chargement') {
+        <p role="status">{{ 'detail.chargementHistorique' | t }}</p>
+      }
+      @case ('erreur') {
+        <p role="alert" data-testid="erreur-historique">{{ 'detail.erreurHistorique' | t }}</p>
+        <button mat-stroked-button type="button" (click)="chargerHistorique()">{{ 'liste.reessayer' | t }}</button>
+      }
+      @default {
+        @if (historique().length === 0) {
+          <p role="status" data-testid="historique-vide">{{ 'detail.historiqueVide' | t }}</p>
+        } @else {
+          <table mat-table [dataSource]="historique()" class="tableau" data-testid="historique" [attr.aria-label]="'detail.onglet.historique' | t">
+            <ng-container matColumnDef="date">
+              <th mat-header-cell *matHeaderCellDef>{{ 'detail.col.date' | t }}</th>
+              <td mat-cell *matCellDef="let r">{{ date(r.createdAt) }}</td>
+            </ng-container>
+            <ng-container matColumnDef="mode">
+              <th mat-header-cell *matHeaderCellDef>{{ 'filtre.mode' | t }}</th>
+              <td mat-cell *matCellDef="let r">{{ libelleMode(r.mode) }}</td>
+            </ng-container>
+            <ng-container matColumnDef="regles">
+              <th mat-header-cell *matHeaderCellDef>{{ 'detail.col.regles' | t }}</th>
+              <td mat-cell *matCellDef="let r">{{ r.rulesVersion }}</td>
+            </ng-container>
+            <ng-container matColumnDef="scores">
+              <th mat-header-cell *matHeaderCellDef>{{ 'detail.col.scores' | t }}</th>
+              <td mat-cell *matCellDef="let r">
+                @for (h of r.evaluation.horizons; track h.horizon) {
+                  <div>
+                    {{ 'horizon.valeur' | t: { n: '' + h.horizon } }} :
+                    {{ 'score.sur' | t: { n: '' + h.strict, total: '' + h.outOf } }} /
+                    {{ 'score.sur' | t: { n: '' + h.relaxed, total: '' + h.outOf } }} —
+                    <span aria-hidden="true" class="icone">{{ iconeVerdict(h.verdict) }}</span> {{ libelleVerdict(h.verdict) }}
+                  </div>
+                }
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="colonnesHistorique"></tr>
+            <tr mat-row *matRowDef="let row; columns: colonnesHistorique" data-testid="ligne-historique"></tr>
+          </table>
+        }
+      }
+    }
+  </mat-tab>
+</mat-tab-group>
