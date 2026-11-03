@@ -3,6 +3,7 @@ package ingest
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"strings"
 	"testing"
@@ -89,6 +90,9 @@ func TestUnitNormalizationD31(t *testing.T) {
 	if !hasWarning(rep.Rows[1], "pourcentage") {
 		t.Fatalf("avertissement manquant: %v", rep.Rows[1].Warnings)
 	}
+	if !hasKind(rep.Rows[1], KindNormalized) || !hasKind(rep.Rows[1], KindImported) {
+		t.Fatalf("kind normalized/imported manquant: %+v", rep.Rows[1].Entries)
+	}
 	ko := repos.snaps[repos.insts["NYSE:KO"].ID]
 	if !ko.PayoutRatioImported.Decimal.Equal(d("0.684")) {
 		t.Fatalf("ratio de distribution KO = %s", ko.PayoutRatioImported.Decimal)
@@ -162,6 +166,21 @@ func TestManualValueNotOverwritten(t *testing.T) {
 	if *repos.quals[id].BuybackManual {
 		t.Fatal("rachat manuel écrasé")
 	}
+	if !hasKind(rep.Rows[0], KindConflict) || !hasKind(rep.Rows[0], KindProtected) {
+		t.Fatalf("kind conflict/protected manquant: %+v", rep.Rows[0].Entries)
+	}
+	if len(rep.Entries) < 2 || !json.Valid(rep.JSON()) {
+		t.Fatalf("entrées du compte rendu: %+v", rep.Entries)
+	}
+}
+
+func hasKind(rr RowReport, kind string) bool {
+	for _, e := range rr.Entries {
+		if e.Kind == kind && (e.Level == LevelInfo || e.Level == LevelWarning) && e.Line == rr.Row && e.Message != "" {
+			return true
+		}
+	}
+	return false
 }
 
 func TestMissingSheetsRefused(t *testing.T) {
