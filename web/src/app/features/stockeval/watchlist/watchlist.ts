@@ -70,7 +70,7 @@ export class Watchlist {
         case 'verdict':
           return l.score.verdict ? ORDRE_VERDICT[l.score.verdict] : 99;
         case 'horizon':
-          return l.plusLongHorizon10sur10 ?? 0;
+          return l.score.perfectHorizon ?? 0;
         default:
           return '';
       }

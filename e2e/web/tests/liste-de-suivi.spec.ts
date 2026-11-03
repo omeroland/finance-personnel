@@ -37,7 +37,8 @@ async function simulerApi(page: Page): Promise<void> {
   definir('NASDAQ:CCC', 'Gamma', 'NASDAQ');
 
   const score = (symbol: string, horizon: number): Ligne['score'] => {
-    const s = { ...base.score, horizon, insufficientHistory: false };
+    // perfectHorizon est calculé par l'API (D160) : 20 pour AAA seulement, absent ailleurs.
+    const s = { ...base.score, horizon, insufficientHistory: false, perfectHorizon: symbol === 'NYSE:AAA' ? 20 : undefined };
     const sous = (strict: number, relaxed: number, outOf: number) => ({ strict, relaxed, outOf });
     switch (symbol) {
       case 'NYSE:AAA':

@@ -30,6 +30,8 @@
               }
             ],
             "styles": [
+              { "input": "node_modules/ag-grid-community/styles/ag-grid.css", "bundleName": "ag-grid", "inject": false },
+              { "input": "node_modules/ag-grid-community/styles/ag-theme-quartz-no-font.css", "bundleName": "ag-grid", "inject": false },
               "src/styles.scss"
             ]
           },

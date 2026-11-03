@@ -1,0 +1,55 @@
+<header class="entete">
+  <h1 data-testid="titre">{{ 'edit.titre' | t: { symbole: symbole } }}</h1>
+  <a mat-stroked-button [routerLink]="['/stocks', symbole]" data-testid="retour-fiche">{{ 'edit.retourFiche' | t }}</a>
+</header>
+
+@switch (etat()) {
+  @case ('chargement') {
+    <p role="status" data-testid="chargement">{{ 'edit.chargement' | t }}</p>
+  }
+  @case ('erreur') {
+    <p role="alert" data-testid="erreur">{{ 'edit.erreur.chargement' | t }}</p>
+    <button mat-stroked-button type="button" (click)="charger()">{{ 'liste.reessayer' | t }}</button>
+  }
+  @default {
+    @if (fiche(); as f) {
+      <section class="score" data-testid="score" aria-live="polite" [attr.aria-label]="'edit.score.titre' | t">
+        <h2>{{ 'edit.score.titre' | t }}</h2>
+        @if (evaluation(); as ev) {
+          <ul>
+            @for (h of ev.horizons; track h.horizon) {
+              <li [attr.data-testid]="'score-' + h.horizon">
+                <strong>{{ 'horizon.valeur' | t: { n: '' + h.horizon } }}</strong> :
+                {{ 'col.strict' | t }} {{ 'score.sur' | t: { n: '' + h.strict, total: '' + h.outOf } }} ·
+                {{ 'col.assoupli' | t }} {{ 'score.sur' | t: { n: '' + h.relaxed, total: '' + h.outOf } }} ·
+                <span aria-hidden="true">{{ iconeVerdict(h.verdict) }}</span> {{ libelleVerdict(h.verdict) }}
+              </li>
+            }
+          </ul>
+        } @else {
+          <p>{{ 'edit.score.indisponible' | t }}</p>
+        }
+      </section>
+
+      <app-grille-annuelle
+        [lignes]="lignes()"
+        [annees]="annees()"
+        [deviseDefaut]="f.stock.quoteCurrency"
+        [enregistrement]="enregistrement()"
+        (enregistrerFaits)="enregistrerFaits($event)"
+        (resoudre)="resoudre($event)"
+      />
+      <app-instantane
+        [snapshot]="f.snapshot"
+        [deviseDefaut]="f.stock.quoteCurrency"
+        [enregistrement]="enregistrement()"
+        (enregistrerInstantane)="enregistrerInstantane($event)"
+      />
+      <app-qualitatif
+        [qualitatif]="f.qualitative"
+        [enregistrement]="enregistrement()"
+        (enregistrerQualitatif)="enregistrerQualitatif($event)"
+      />
+    }
+  }
+}
