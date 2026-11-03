@@ -1,6 +1,6 @@
 # Journal des décisions
 
-Une nouvelle ambiguïté s'ajoute à la suite. D1 à D16 : `docs/architecture.md` (journal MVP). D23 à D34 : `docs/tasks/README.md`.
+Une nouvelle ambiguïté s'ajoute à la suite. D1 à D16 : `docs/architecture.md` (journal MVP). D23 à D34 : `docs/tasks/README.md`. D40 et suivantes : ce fichier.
 
 **D17 à D22 : non fournies** dans le document d'architecture ; à compléter par le propriétaire (voir PR).
 
@@ -43,3 +43,6 @@ Une nouvelle ambiguïté s'ajoute à la suite. D1 à D16 : `docs/architecture.md
 | D32 | Rafraîchissement par fournisseur | Route au contrat, répond 501 jusqu'à la phase 3 | — |
 | D33 | Données de test xlsx | Ta feuille fournie est un gabarit vide ; les tests remplissent une copie par programme | Une copie réelle anonymisée |
 | D34 | Limitation de débit et audit | Débit limité par Traefik ; journal d'audit écrit par les dépôts | Limitation dans l'API |
+| D40 | Unicité du symbole | `core.instrument.symbol` unique par propriétaire (`UNIQUE (owner_id, symbol)`) ; `owner_id NOT NULL` sur toutes les tables, `core.instrument` comprise (D1) | Instruments partagés entre ménages (phase 7) |
+| D41 | Rôle `finance_app` | Créé `NOLOGIN` par la migration 0003 ; le déploiement lui donne `LOGIN` et un mot de passe hors dépôt. Le `down` retire les droits mais conserve le rôle (global au serveur). `SELECT, INSERT` seulement sur `stockeval.evaluation` et `core.audit_log`, tous droits DML sur les autres tables | Rôle distinct pour la lecture seule |
+| D42 | Directive `go` de `go.mod` | Passée de 1.24 à 1.26.0 : goose, pgx et testcontainers tirent des dépendances (`golang.org/x/*`) qui l'exigent. Le CI utilise `go-version: stable`. `.golangci.yml` (`run.go: 1.24`) est à aligner par l'agent Plateforme | Épingler des versions plus anciennes des dépendances pour revenir à 1.24 |

@@ -34,8 +34,8 @@ test-engine: ## Tests du moteur de règles
 		echo "test-engine : non configurée (P1-05)"; \
 	fi
 
-test-int: ## Tests d'intégration (testcontainers)
-	@echo "test-int : non configurée (P1-10)"
+test-int: ## Tests d'intégration (testcontainers ; Docker requis)
+	cd $(BACKEND) && go test -tags integration -race -count=1 ./...
 
 e2e: ## Playwright
 	@echo "e2e : non configurée (P1-22)"
