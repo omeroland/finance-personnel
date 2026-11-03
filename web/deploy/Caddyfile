@@ -1,0 +1,12 @@
+{
+	admin off
+	auto_https off
+	storage file_system /tmp/caddy
+}
+
+:8080 {
+	root * /srv
+	encode zstd gzip
+	try_files {path} /index.html
+	file_server
+}
