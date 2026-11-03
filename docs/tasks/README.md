@@ -8,7 +8,7 @@ Une tâche passe à « prête » quand toutes ses dépendances sont « terminée
 | [P1-02](P1-02.md) | Documents et données de test dans le dépôt | Orchestrateur | P1-01 | à faire |
 | [P1-03](P1-03.md) | Contrat OpenAPI du module 1 et génération | Backend Go | P1-01 | terminée |
 | [P1-04](P1-04.md) | Référentiel `rules.yaml` et son chargeur | Backend Go | P1-02 | terminée |
-| [P1-05](P1-05.md) | Moteur : calcul des mesures | Backend Go | P1-04 | à faire |
+| [P1-05](P1-05.md) | Moteur : calcul des mesures | Backend Go | P1-04 | terminée |
 | [P1-06](P1-06.md) | Moteur : pointage, statuts, profils et verdict | Backend Go | P1-04, P1-05 | à faire |
 | [P1-07](P1-07.md) | Oracle LibreOffice | Vérificateur | P1-02 | à faire |
 | [P1-08](P1-08.md) | Moteur : mode compat | Backend Go | P1-05, P1-07 | à faire |
