@@ -114,3 +114,14 @@ Une nouvelle ambiguïté s'ajoute à la suite. D1 à D16 : `docs/architecture.md
 | D130 | Cible des données importées (xlsx) | Instantané : G ratio de distribution, H dette/capitaux propres, K P/E, O P/B, P dividende prévu, Q prix, fusionnés avec l'existant (source `xlsx`), réécrit seulement si une valeur change ; un instantané `manual` n'est pas touché (avertissement). Rachat (J oui/non) : `qualitative.buyback_manual`, seulement s'il est vide. EPS/DPS : devise de cotation déduite du préfixe (`NYSE`/`NASDAQ`/`AMEX` = USD, sinon `Options.Currency`, CAD par défaut) ; rendement sans devise | Colonne de devise de déclaration dans la feuille |
 | D131 | Atomicité de l'import xlsx | Pas de transaction globale : chaque écriture est transactionnelle, un échec interrompt l'import et un nouvel import reprend sans doublon (idempotent). Ligne en double ou symbole > 32 caractères : ignorée avec avertissement. Plausibilité : année manquante, BPA > 10x l'année précédente | Transaction unique par import dans `store/` |
 | D132 | Dépendance excelize | `github.com/xuri/excelize/v2` v2.11.1 (BSD-3-Clause), lecture en mémoire d'un .xlsx <= 10 Mo, valeurs en cache seulement (ni macro ni recalcul). Écartés : `tealeg/xlsx` (lecture des types moins fiable, peu maintenu) ; conversion par LibreOffice (processus externe lourd) | — |
+
+
+
+## D140 à D143 — Liste de suivi web (P1-15)
+
+| # | Sujet | Décision MVP | À réévaluer |
+| --- | --- | --- | --- |
+| D140 | Colonne « plus long horizon à 10/10 » | Le contrat renvoie un seul horizon par appel de `listStocks`. Le web interroge les 4 horizons en parallèle (1 seul en mode compat) et retient, par action, le plus long horizon dont la réponse de l'API déclare `strict = outOf` (sans historique insuffisant). Sélection d'une valeur fournie par l'API, aucun score recalculé | Champ dédié dans `ScoreSummary` côté API (une requête au lieu de quatre) |
+| D141 | Mode compat et horizon | Le contrat limite `compat` à l'horizon de 20 ans : choisir `compat` fixe l'horizon à 20 et désactive le sélecteur d'horizon | Voir si l'API accepte d'autres horizons |
+| D142 | Filtres bourse et verdict | Filtres côté client sur les champs reçus (`stock.exchange`, `score.verdict`) ; mode et horizon sont des paramètres de requête. Verdict absent (horizon de 5 ans) affiché « Indicatif seulement » | Filtres serveur si la liste grandit |
+| D143 | Icônes de verdict et tests e2e de la liste | Pictogrammes textuels (✔ ◐ ✖ ⊘, `aria-hidden`) toujours accompagnés du libellé : aucune police d'icônes externe (CSP, D114). Les scénarios Playwright simulent `/api/v1/stocks` par `page.route` (liste en mémoire dérivée de l'exemple du contrat servi par Prism), car l'exemple statique de Prism ne permet ni tri, ni filtre, ni ajout/retrait | Prism avec exemples multiples ou API réelle (P1-22) |
