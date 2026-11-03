@@ -108,3 +108,44 @@ func (q *Queries) InsertInstrument(ctx context.Context, arg InsertInstrumentPara
 	)
 	return i, err
 }
+
+const updateInstrument = `-- name: UpdateInstrument :one
+UPDATE core.instrument
+SET name = $1, quote_currency = $2, report_currency = $3, is_financial = $4
+WHERE owner_id = $5 AND id = $6
+RETURNING id, owner_id, symbol, name, exchange, kind, quote_currency, report_currency, is_financial, created_at
+`
+
+type UpdateInstrumentParams struct {
+	Name           string
+	QuoteCurrency  string
+	ReportCurrency string
+	IsFinancial    bool
+	OwnerID        uuid.UUID
+	ID             uuid.UUID
+}
+
+func (q *Queries) UpdateInstrument(ctx context.Context, arg UpdateInstrumentParams) (CoreInstrument, error) {
+	row := q.db.QueryRow(ctx, updateInstrument,
+		arg.Name,
+		arg.QuoteCurrency,
+		arg.ReportCurrency,
+		arg.IsFinancial,
+		arg.OwnerID,
+		arg.ID,
+	)
+	var i CoreInstrument
+	err := row.Scan(
+		&i.ID,
+		&i.OwnerID,
+		&i.Symbol,
+		&i.Name,
+		&i.Exchange,
+		&i.Kind,
+		&i.QuoteCurrency,
+		&i.ReportCurrency,
+		&i.IsFinancial,
+		&i.CreatedAt,
+	)
+	return i, err
+}

@@ -144,6 +144,16 @@ func Score(ms []Metrics, r *Rules, ctx Context) (Evaluation, error) {
 	return ev, nil
 }
 
+// HorizonVerdict donne le verdict d'un seul horizon (D39 : le contrat le porte par horizon).
+// ok est faux pour un horizon indicatif, qui n'a pas de verdict (D9). Mêmes règles que Evaluation.Verdict.
+func HorizonVerdict(h HorizonResult, g Gate) (v Verdict, ok bool) {
+	if h.Indicative {
+		return "", false
+	}
+	v, _ = verdict([]HorizonResult{h}, g)
+	return v, true
+}
+
 func verdict(hs []HorizonResult, g Gate) (Verdict, *int) {
 	if !g.Open() {
 		return VerdictExcluded, nil

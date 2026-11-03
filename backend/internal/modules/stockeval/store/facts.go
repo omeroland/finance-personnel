@@ -156,3 +156,30 @@ func sameCurrency(a, b *string) bool {
 	}
 	return *a == *b
 }
+
+// ResolveConflicts marque résolus les conflits ouverts d'un (année, mesure) : la valeur manuelle
+// qui vient d'être saisie tranche. Une ligne d'audit si au moins un conflit était ouvert.
+func (s *Store) ResolveConflicts(ctx context.Context, owner, instrumentID uuid.UUID, fiscalYear int, metric string) (int, error) {
+	if fiscalYear < 1900 || fiscalYear > 2200 || !validMetric(metric) {
+		return 0, fmt.Errorf("année ou mesure: %w", ErrInvalid)
+	}
+	n := 0
+	err := s.inTx(ctx, func(q *storedb.Queries) error {
+		if err := requireInstrument(ctx, q, owner, instrumentID); err != nil {
+			return err
+		}
+		rows, err := q.ResolveOpenConflicts(ctx, storedb.ResolveOpenConflictsParams{
+			OwnerID: owner, InstrumentID: instrumentID, FiscalYear: int32(fiscalYear), Metric: metric, //nolint:gosec // bornée ci-dessus
+		})
+		if err != nil {
+			return fmt.Errorf("résoudre les conflits: %w", err)
+		}
+		n = int(rows)
+		if n == 0 {
+			return nil
+		}
+		return audit(ctx, q, owner, "fact.conflict.resolve", "stockeval.fact_conflict", nil,
+			map[string]any{"instrument_id": instrumentID, "fiscal_year": fiscalYear, "metric": metric, "resolved": n})
+	})
+	return n, err
+}

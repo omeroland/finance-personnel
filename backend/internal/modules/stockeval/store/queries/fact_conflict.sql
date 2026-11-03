@@ -15,3 +15,8 @@ RETURNING *;
 SELECT * FROM stockeval.fact_conflict
 WHERE owner_id = @owner_id AND instrument_id = @instrument_id AND resolved_at IS NULL
 ORDER BY created_at, id;
+
+-- name: ResolveOpenConflicts :execrows
+UPDATE stockeval.fact_conflict SET resolved_at = now()
+WHERE owner_id = @owner_id AND instrument_id = @instrument_id AND fiscal_year = @fiscal_year AND metric = @metric
+  AND resolved_at IS NULL;
