@@ -239,6 +239,15 @@ func TestFactsAndQualitative(t *testing.T) {
 		t.Fatalf("avertissement de conflit absent: %s", r.Body)
 	}
 
+	// Saisir la valeur manuelle de ce couple tranche le conflit (le web s'y fie, D215).
+	if r := a.doJSON("PUT", path+"/facts", facts); r.Status != 200 {
+		t.Fatalf("faits: %d", r.Status)
+	}
+	a.doJSON("GET", path, nil).json(t, &d)
+	if len(d.Conflicts) != 0 {
+		t.Fatalf("conflit toujours ouvert: %+v", d.Conflicts)
+	}
+
 	note := strings.Repeat("é", 2001)
 	q := gen.Qualitative{
 		Rule1: gen.RuleAnswer{Answer: gen.Yes}, Rule2: gen.RuleAnswer{Answer: gen.No, Note: ptrS("non")},

@@ -301,6 +301,10 @@ func (h *Handler) ReplaceFacts(ctx context.Context, req gen.ReplaceFactsRequestO
 		if _, err := h.repos.WriteFact(ctx, owner(ctx), w); err != nil {
 			return nil, fmt.Errorf("écrire le fait %s/%d de %s: %w", w.Metric, w.FiscalYear, inst.Symbol, err)
 		}
+		// La valeur manuelle tranche : les conflits ouverts de ce couple sont résolus (D209).
+		if _, err := h.repos.ResolveConflicts(ctx, owner(ctx), inst.ID, w.FiscalYear, w.Metric); err != nil {
+			return nil, fmt.Errorf("résoudre les conflits %s/%d de %s: %w", w.Metric, w.FiscalYear, inst.Symbol, err)
+		}
 	}
 	facts, err := h.repos.ListFacts(ctx, owner(ctx), inst.ID)
 	if err != nil {

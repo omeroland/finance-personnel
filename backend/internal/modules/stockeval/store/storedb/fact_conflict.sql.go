@@ -147,3 +147,29 @@ func (q *Queries) ListOpenConflicts(ctx context.Context, arg ListOpenConflictsPa
 	}
 	return items, nil
 }
+
+const resolveOpenConflicts = `-- name: ResolveOpenConflicts :execrows
+UPDATE stockeval.fact_conflict SET resolved_at = now()
+WHERE owner_id = $1 AND instrument_id = $2 AND fiscal_year = $3 AND metric = $4
+  AND resolved_at IS NULL
+`
+
+type ResolveOpenConflictsParams struct {
+	OwnerID      uuid.UUID
+	InstrumentID uuid.UUID
+	FiscalYear   int32
+	Metric       string
+}
+
+func (q *Queries) ResolveOpenConflicts(ctx context.Context, arg ResolveOpenConflictsParams) (int64, error) {
+	result, err := q.db.Exec(ctx, resolveOpenConflicts,
+		arg.OwnerID,
+		arg.InstrumentID,
+		arg.FiscalYear,
+		arg.Metric,
+	)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}

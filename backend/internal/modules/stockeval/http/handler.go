@@ -43,6 +43,7 @@ type Repos interface {
 	store.QualitativeRepository
 	store.EvaluationRepository
 	store.ImportJobRepository
+	ResolveConflicts(ctx context.Context, owner, instrumentID uuid.UUID, fiscalYear int, metric string) (int, error)
 	UpdateInstrument(ctx context.Context, owner, instrumentID uuid.UUID, u store.InstrumentUpdate) (store.Instrument, error)
 }
 

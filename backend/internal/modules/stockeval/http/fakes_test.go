@@ -154,6 +154,21 @@ func (f *fakeRepos) ListOpenConflicts(_ context.Context, _, id uuid.UUID) ([]sto
 	return out, nil
 }
 
+func (f *fakeRepos) ResolveConflicts(_ context.Context, _, id uuid.UUID, year int, metric string) (int, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	kept, n := f.conflicts[:0], 0
+	for _, c := range f.conflicts {
+		if c.InstrumentID == id && c.FiscalYear == year && c.Metric == metric {
+			n++
+			continue
+		}
+		kept = append(kept, c)
+	}
+	f.conflicts = kept
+	return n, nil
+}
+
 func (f *fakeRepos) GetSnapshot(_ context.Context, _, id uuid.UUID) (store.Snapshot, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
