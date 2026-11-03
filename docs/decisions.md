@@ -125,3 +125,12 @@ Une nouvelle ambiguïté s'ajoute à la suite. D1 à D16 : `docs/architecture.md
 | D141 | Mode compat et horizon | Le contrat limite `compat` à l'horizon de 20 ans : choisir `compat` fixe l'horizon à 20 et désactive le sélecteur d'horizon | Voir si l'API accepte d'autres horizons |
 | D142 | Filtres bourse et verdict | Filtres côté client sur les champs reçus (`stock.exchange`, `score.verdict`) ; mode et horizon sont des paramètres de requête. Verdict absent (horizon de 5 ans) affiché « Indicatif seulement » | Filtres serveur si la liste grandit |
 | D143 | Icônes de verdict et tests e2e de la liste | Pictogrammes textuels (✔ ◐ ✖ ⊘, `aria-hidden`) toujours accompagnés du libellé : aucune police d'icônes externe (CSP, D114). Les scénarios Playwright simulent `/api/v1/stocks` par `page.route` (liste en mémoire dérivée de l'exemple du contrat servi par Prism), car l'exemple statique de Prism ne permet ni tri, ni filtre, ni ajout/retrait | Prism avec exemples multiples ou API réelle (P1-22) |
+
+## D150 à D153 — Écran d'import (P1-18)
+
+| ID | Sujet | Décision | À réévaluer |
+| --- | --- | --- | --- |
+| D150 | Compte rendu d'import | Le contrat (`JobEntry.level` : info, warning, error) n'a ni « importé », ni « ignoré », ni « conflit » : l'écran affiche le statut du job, `stocksImported`, des compteurs par niveau et le tableau ligne à ligne (niveau en texte et en glyphe, jamais en couleur seule). Les conflits se lisent dans les messages | Ajouter un champ `kind` à `JobEntry` (changement de contrat) |
+| D151 | Icônes de l'interface | Glyphes Unicode dans un `<span aria-hidden>` plutôt que `mat-icon` : aucune police d'icônes n'est chargée (CSP, D114) | Police Material Symbols auto-hébergée |
+| D152 | Suivi du job | `timer(2 s, 2 s)` + `getImport`, arrêt à `succeeded`/`failed` ou après 2 min (message « suivi arrêté »). Une erreur réseau d'une interrogation est ignorée jusqu'à l'échéance | Backoff exponentiel |
+| D153 | Tests e2e contre Prism | `apiUrl` vide vise l'origine du web, sans proxy : les scénarios relaient `/api/v1/**` vers Prism (4010) avec `page.route`. Le classeur de test est `testdata/xlsx/simply_investing_template.xlsx` ; Prism ne lit pas son contenu | Proxy `ng serve` vers Prism |

@@ -1,0 +1,121 @@
+<h1>{{ 'import.titre' | t }}</h1>
+<p>{{ 'import.intro' | t }}</p>
+
+<form class="formulaire" (ngSubmit)="envoyer()">
+  <div class="champ">
+    <label for="fichier">{{ 'import.fichier' | t }}</label>
+    <input
+      id="fichier"
+      type="file"
+      accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      data-testid="fichier"
+      [attr.aria-describedby]="erreurFichier() ? 'erreur-fichier' : 'aide-fichier'"
+      [attr.aria-invalid]="erreurFichier() ? 'true' : null"
+      (change)="choisirFichier($event)"
+    />
+    <small id="aide-fichier">{{ 'import.aideFichier' | t }}</small>
+    @if (erreurFichier(); as cle) {
+      <p id="erreur-fichier" class="erreur" role="alert" data-testid="erreur-fichier">
+        <span class="icone" aria-hidden="true">✖</span>{{ cle | t }}
+      </p>
+    }
+  </div>
+
+  <mat-form-field>
+    <mat-label>{{ 'import.annee' | t }}</mat-label>
+    <input
+      matInput
+      type="number"
+      name="annee"
+      min="1980"
+      max="2100"
+      step="1"
+      data-testid="annee"
+      [ngModel]="annee()"
+      (ngModelChange)="annee.set($event)"
+    />
+    <mat-hint>{{ 'import.aideAnnee' | t }}</mat-hint>
+  </mat-form-field>
+  @if (!anneeValide()) {
+    <p class="erreur" role="alert" data-testid="erreur-annee">
+      <span class="icone" aria-hidden="true">✖</span>{{ 'import.erreur.annee' | t }}
+    </p>
+  }
+
+  <div>
+    <button mat-flat-button type="submit" data-testid="envoyer" [disabled]="!peutEnvoyer()">
+      {{ 'import.envoyer' | t }}
+    </button>
+  </div>
+</form>
+
+<section class="etat" aria-live="polite" data-testid="etat">
+  @if (phase() === 'envoi') {
+    <p>{{ 'import.envoiEnCours' | t }}</p>
+    <mat-progress-bar mode="indeterminate" />
+  }
+  @if (phase() === 'suivi') {
+    <p data-testid="suivi">
+      {{ 'import.suiviEnCours' | t }}
+      @if (statutJob(); as s) {
+        ({{ s | t }})
+      }
+    </p>
+    <mat-progress-bar mode="indeterminate" />
+  }
+  @if (phase() === 'delai') {
+    <p class="erreur" role="alert" data-testid="delai">
+      <span class="icone" aria-hidden="true">⏱</span>{{ 'import.delai' | t }}
+    </p>
+  }
+  @if (phase() === 'echec' && messageErreur(); as m) {
+    <p class="erreur" role="alert" data-testid="echec"><span class="icone" aria-hidden="true">✖</span>{{ m }}</p>
+  }
+</section>
+
+@if (job(); as j) {
+  <section class="rapport" data-testid="rapport" aria-labelledby="titre-rapport">
+    <h2 id="titre-rapport">{{ 'import.rapport' | t }}</h2>
+    @if (statutJob(); as s) {
+      <p data-testid="statut">
+        <span class="icone" aria-hidden="true">{{ iconeStatut() }}</span>
+        <strong>{{ s | t }}</strong>
+      </p>
+    }
+    @if (j.stocksImported !== undefined) {
+      <p data-testid="importees">{{ 'import.importees' | t: { n: j.stocksImported.toString() } }}</p>
+    }
+    <ul class="compteurs">
+      <li data-testid="nb-warning">{{ 'import.compte.warning' | t: { n: nombres().warning.toString() } }}</li>
+      <li data-testid="nb-error">{{ 'import.compte.error' | t: { n: nombres().error.toString() } }}</li>
+      <li data-testid="nb-info">{{ 'import.compte.info' | t: { n: nombres().info.toString() } }}</li>
+    </ul>
+    @if (entrees().length === 0) {
+      <p>{{ 'import.aucuneLigne' | t }}</p>
+    } @else {
+      <table data-testid="lignes">
+        <caption class="sr-only">
+          {{ 'import.rapport' | t }}
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">{{ 'import.col.niveau' | t }}</th>
+            <th scope="col">{{ 'import.col.ligne' | t }}</th>
+            <th scope="col">{{ 'import.col.symbole' | t }}</th>
+            <th scope="col">{{ 'import.col.message' | t }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (e of entrees(); track $index) {
+            <tr [attr.data-niveau]="e.level">
+              <td class="niveau"><span class="icone" aria-hidden="true">{{ icone(e) }}</span>{{ libelle(e) | t }}</td>
+              <td>{{ e.line ?? '' }}</td>
+              <td>{{ e.symbol ?? '' }}</td>
+              <td>{{ e.message }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </section>
+}
