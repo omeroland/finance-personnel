@@ -43,3 +43,7 @@ venv/
 *.iml
 .DS_Store
 Thumbs.db
+
+# binaire du serveur et worktrees des agents
+/backend/server
+/.claude/worktrees/
