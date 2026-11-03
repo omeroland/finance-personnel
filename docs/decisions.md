@@ -87,3 +87,13 @@ Une nouvelle ambiguïté s'ajoute à la suite. D1 à D16 : `docs/architecture.md
 | D83 | Année courante | `Inputs.CurrentYear` ne sert qu'à un avertissement (dernier exercice plus ancien que année - 2) ; elle ne change aucune valeur | Exclure les séries périmées |
 | D90 | Image de l'oracle | `debian:bookworm-slim` épinglée par digest + LibreOffice Calc 7.4.7 et python3-uno épinglés par version apt (`4:7.4.7-1+deb12u14`) ; openpyxl 3.1.5 (MIT) pour écrire/lire les xlsx, écarté : xlsxwriter (ne relit pas), lecture par UNO (plus de code). Si Debian retire la version du miroir, remonter le pin | Instantané snapshot.debian.org si le pin casse |
 | D91 | Format et exécution de l'oracle | `testdata/oracle/cases.json` : par cas `eps`/`dividends` (20 valeurs, `null` = vide) et `attendu_eps`/`attendu_dividendes` (`moyenne`, compte, `erreur`). Résultats relus dans le xlsx enregistré après `calculateAll()`. `make oracle` (Docker) hors `make ci`, qui reste sans conteneur ; le fichier est versionné et régénéré à la demande | Étape CI Plateforme quand un runner l'accepte |
+
+## D110 à D114 — Client web (P1-14)
+
+| # | Sujet | Décision MVP | À réévaluer |
+| --- | --- | --- | --- |
+| D110 | Traductions du web | Fichier `web/src/app/i18n/fr-CA.json` importé à la compilation, tube `t` typé sur les clés ; pas d'`@angular/localize` (une seule langue, aucune image par langue) | `@angular/localize` + xlf si une 2e langue arrive |
+| D111 | Configuration d'exécution du web | `config.json` lu par `fetch` avant tout autre initialiseur (`apiUrl`, `oidc.issuer`, `oidc.clientId`). `web/public/config.json` porte les valeurs de développement (Keycloak sur 8180) ; la production le remplace (volume ou génération au démarrage, côté Plateforme) | Génération par l'image Caddy |
+| D112 | Session OIDC du web | Jetons dans `sessionStorage` (défaut de la bibliothèque), jamais `localStorage`. Renouvellement par jeton de rafraîchissement sans `offline_access` (session SSO Keycloak). Intercepteur de la bibliothèque limité à `{apiUrl}/api/` | Mémoire seule (BFF) |
+| D113 | Pile de test Playwright | `e2e/web/compose.yaml` : Keycloak 26.4 `start-dev` avec `realm-finance-test.json`, port 8180 ; Prism (port 4010) et `ng serve` (4200) lancés par `playwright.config.ts`. Prérequis : `npm ci` dans `api/` et `web/` | Pile branchée sur `make e2e` (P1-22) |
+| D114 | CSP et styles Angular | Build de production avec `inlineCritical: false` (pas de script `onload`). Angular et Material injectent encore des éléments `<style>` à l'exécution : `style-src 'self'` de D74 peut les bloquer, à vérifier sur la pile `make up` (nonce `CSP_NONCE` ou `style-src 'unsafe-inline'`) | Nonce par requête dans Traefik/Caddy |

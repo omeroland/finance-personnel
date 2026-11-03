@@ -1,0 +1,34 @@
+<mat-toolbar>
+  <span class="titre">{{ 'app.titre' | t }}</span>
+  <span class="espace"></span>
+  @if (nom()) {
+    <span class="utilisateur" data-testid="utilisateur">{{ 'auth.connecte' | t: { nom: nom() } }}</span>
+  }
+  <button mat-stroked-button type="button" data-testid="deconnexion" (click)="deconnexion()">
+    {{ 'auth.deconnexion' | t }}
+  </button>
+</mat-toolbar>
+
+<mat-sidenav-container class="conteneur">
+  <mat-sidenav mode="side" opened role="navigation" [attr.aria-label]="'menu.navigation' | t">
+    <mat-nav-list>
+      <a mat-list-item routerLink="/stocks" routerLinkActive="actif" ariaCurrentWhenActive="page" data-testid="menu-stockeval">
+        {{ 'menu.stockeval' | t }}
+      </a>
+      <!-- Module 2 : désactivé jusqu'à la phase 2. L'état est dit en texte, pas par la couleur seule. -->
+      <a
+        mat-list-item
+        class="desactive"
+        [disabled]="true"
+        data-testid="menu-etf"
+        [attr.aria-label]="'menu.etfDesactive' | t"
+      >
+        {{ 'menu.etf' | t }}
+        <span class="phase">({{ 'menu.etfPhase' | t }})</span>
+      </a>
+    </mat-nav-list>
+  </mat-sidenav>
+  <mat-sidenav-content class="contenu">
+    <router-outlet />
+  </mat-sidenav-content>
+</mat-sidenav-container>
