@@ -56,3 +56,9 @@ Une nouvelle ambiguïté s'ajoute à la suite. D1 à D16 : `docs/architecture.md
 | D37 | Valeur inconnue | Propriété absente, jamais `null` ; OpenAPI 3.1 sans `exclusiveMinimum` numérique ni `type` en tableau, que oapi-codegen 2.7 ne lit pas | `nullable` explicite avec un générateur 3.1 complet |
 | D38 | Outils de génération | oapi-codegen v2.7.0 (directive `tool`; la v2.8 n'est pas adoptée, pour ne pas changer le code généré sans raison), Spectral 6.17.0, Prism 5.16.0 et openapi-generator-cli 2.42.0 (générateur 7.21.0) épinglés dans `api/package.json` et `api/openapitools.json`. Node et Java 11+ requis pour `make gen` | Image Docker par digest |
 | D39 | Vocabulaire du contrat | Modes `corrected` et `compat`; horizons 5, 10, 15, 20; verdict `excluded`, `candidate`, `watch`, `rejected` porté par horizon et absent à 5 ans (D9); `Conflict` de sources nommé `SourceConflict`; liste de suivi et historique sans pagination | Pagination si la liste dépasse quelques centaines d'actions |
+
+## D50 — Référentiel `rules.yaml` (P1-04)
+
+| # | Sujet | Décision MVP | À réévaluer |
+| --- | --- | --- | --- |
+| D50 | Format de `rules.yaml` | `version: "1"` (chaîne, à incrémenter à chaque changement de seuil) ; empreinte SHA-256 des octets du fichier ; analyseur `go.yaml.in/yaml/v3` en mode strict (champ inconnu refusé) ; le chargeur exige un seuil assoupli pour 5a, 5b, 6, 7, 8, 11a, 11c et aucun pour 9, 10, 11b, et refuse un assoupli qui change la borne basse d'un intervalle (7, 8, 11a, 11c) | Schéma de version sémantique |
