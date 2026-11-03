@@ -1,0 +1,7 @@
+{
+  "apiUrl": "",
+  "oidc": {
+    "issuer": "http://localhost:8180/auth/realms/finance",
+    "clientId": "finance-web"
+  }
+}

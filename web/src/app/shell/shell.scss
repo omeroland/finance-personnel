@@ -1,0 +1,41 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.espace {
+  flex: 1;
+}
+
+.utilisateur {
+  margin-inline-end: 1rem;
+  font: var(--mat-sys-body-medium);
+}
+
+.conteneur {
+  flex: 1;
+}
+
+mat-sidenav {
+  width: 16rem;
+}
+
+.contenu {
+  padding: 1.5rem;
+}
+
+.actif {
+  font-weight: 600;
+}
+
+.desactive {
+  pointer-events: none;
+  cursor: default;
+  opacity: 0.7;
+  font-style: italic;
+}
+
+.phase {
+  margin-inline-start: 0.25rem;
+}

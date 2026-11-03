@@ -1,0 +1,13 @@
+{
+  "app.titre": "Finance privée",
+  "app.chargement": "Chargement…",
+  "menu.navigation": "Navigation principale",
+  "menu.stockeval": "Évaluation d'actions",
+  "menu.etf": "Portefeuille de FNB",
+  "menu.etfPhase": "phase 2",
+  "menu.etfDesactive": "Portefeuille de FNB, disponible en phase 2",
+  "auth.deconnexion": "Se déconnecter",
+  "auth.connecte": "Connecté en tant que {{nom}}",
+  "stockeval.titre": "Évaluation d'actions",
+  "stockeval.intro": "La liste de suivi arrive dans une prochaine étape."
+}

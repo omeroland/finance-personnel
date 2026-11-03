@@ -1,0 +1,22 @@
+# Pile de test du client web : Keycloak (realm de test de P1-13) seulement.
+# Le serveur simulé (Prism) et le serveur de développement Angular sont lancés par playwright.config.ts.
+# Aucun secret : le realm de test contient un mot de passe factice.
+name: finance-e2e-web
+services:
+  keycloak:
+    # Même image que deploy/compose.yaml.
+    image: quay.io/keycloak/keycloak:26.4@sha256:9409c59bdfb65dbffa20b11e6f18b8abb9281d480c7ca402f51ed3d5977e6007
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KC_HTTP_RELATIVE_PATH: /auth
+      KC_HEALTH_ENABLED: "true"
+    ports:
+      - "127.0.0.1:8180:8080"
+    volumes:
+      - ../../deploy/keycloak/realm-finance-test.json:/opt/keycloak/data/import/realm-finance-test.json:ro
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/9000 && printf 'GET /auth/health/ready HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n' >&3 && grep -q '200 OK' <&3"]
+      interval: 5s
+      timeout: 5s
+      retries: 40
+      start_period: 20s
