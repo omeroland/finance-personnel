@@ -124,3 +124,43 @@ func (s *Store) RemoveFromWatchlist(ctx context.Context, owner, instrumentID uui
 		return audit(ctx, q, owner, "watchlist.remove", "watchlist", toInstrument(inst), nil)
 	})
 }
+
+// InstrumentUpdate remplace les métadonnées modifiables d'un instrument.
+type InstrumentUpdate struct {
+	Name           string
+	QuoteCurrency  string
+	ReportCurrency string
+	IsFinancial    bool
+}
+
+// UpdateInstrument modifie les métadonnées d'un instrument du propriétaire ;
+// une modification identique n'écrit rien (ni audit).
+func (s *Store) UpdateInstrument(ctx context.Context, owner, instrumentID uuid.UUID, u InstrumentUpdate) (Instrument, error) {
+	in := InstrumentInput{Symbol: "-", Name: u.Name, QuoteCurrency: u.QuoteCurrency, ReportCurrency: u.ReportCurrency}
+	if err := validateInstrument(&in); err != nil {
+		return Instrument{}, err
+	}
+	var out Instrument
+	err := s.inTx(ctx, func(q *storedb.Queries) error {
+		cur, err := q.GetInstrument(ctx, storedb.GetInstrumentParams{OwnerID: owner, ID: instrumentID})
+		if err != nil {
+			return notFound(err, "instrument "+instrumentID.String())
+		}
+		before := toInstrument(cur)
+		if before.Name == u.Name && before.QuoteCurrency == u.QuoteCurrency &&
+			before.ReportCurrency == u.ReportCurrency && before.IsFinancial == u.IsFinancial {
+			out = before
+			return nil
+		}
+		row, err := q.UpdateInstrument(ctx, storedb.UpdateInstrumentParams{
+			OwnerID: owner, ID: instrumentID, Name: u.Name, QuoteCurrency: u.QuoteCurrency,
+			ReportCurrency: u.ReportCurrency, IsFinancial: u.IsFinancial,
+		})
+		if err != nil {
+			return fmt.Errorf("modifier l'instrument %s: %w", instrumentID, err)
+		}
+		out = toInstrument(row)
+		return audit(ctx, q, owner, "instrument.update", "core.instrument", before, out)
+	})
+	return out, err
+}

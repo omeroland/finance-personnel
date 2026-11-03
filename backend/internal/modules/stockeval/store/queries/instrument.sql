@@ -8,3 +8,9 @@ SELECT * FROM core.instrument WHERE owner_id = @owner_id AND symbol = @symbol;
 INSERT INTO core.instrument (owner_id, symbol, name, exchange, kind, quote_currency, report_currency, is_financial)
 VALUES (@owner_id, @symbol, @name, @exchange, @kind, @quote_currency, @report_currency, @is_financial)
 RETURNING *;
+
+-- name: UpdateInstrument :one
+UPDATE core.instrument
+SET name = @name, quote_currency = @quote_currency, report_currency = @report_currency, is_financial = @is_financial
+WHERE owner_id = @owner_id AND id = @id
+RETURNING *;
