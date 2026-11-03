@@ -1,0 +1,1641 @@
+openapi: 3.1.0
+info:
+  title: Finance privée — API du module 1 (évaluation d'actions)
+  version: 1.0.0
+  summary: Contrat REST du module 1, grille d'évaluation Simply Investing.
+  description: |
+    Source unique du contrat (CLAUDE.md). Serveur Go, client Angular et serveur simulé en sont générés.
+
+    Conventions :
+
+    - Ratios et taux : `number` en **fraction, 0.70 = 70 %**. Jamais d'échelle 0 à 100.
+    - Montants, prix et valeurs annuelles : chaîne décimale (`"152.40"`) accompagnée de sa devise, jamais un nombre à virgule flottante.
+    - Dates ISO 8601 (`date` ou `date-time`).
+    - Une valeur inconnue est une propriété absente, jamais `null`.
+    - Erreurs au format RFC 9457 (`application/problem+json`), sans trace interne.
+    - Traitements longs : réponse `202` et un `Job` à interroger.
+  contact:
+    name: Propriétaire de Finance privée
+    url: https://github.com/omeroland/finance-personnel
+  license:
+    name: Propriétaire
+    identifier: LicenseRef-Proprietary
+servers:
+  - url: /api/v1
+    description: Préfixe de l'API
+security:
+  - bearerAuth: []
+tags:
+  - name: stocks
+    description: Liste de suivi, fiche et saisie des données d'une action.
+  - name: evaluations
+    description: Évaluation par le moteur de règles et archive immuable.
+  - name: imports
+    description: Imports de la feuille xlsx et rafraîchissements.
+  - name: rules
+    description: Référentiel des règles versionné.
+paths:
+  /stocks:
+    get:
+      operationId: listStocks
+      tags: [stocks]
+      summary: Liste de suivi
+      description: Actions suivies avec score, sous-scores et verdict pour le mode et l'horizon demandés.
+      parameters:
+        - $ref: '#/components/parameters/Mode'
+        - $ref: '#/components/parameters/Horizon'
+      responses:
+        '200':
+          description: Liste de suivi.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StockList'
+              examples:
+                default:
+                  $ref: '#/components/examples/StockListExample'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      operationId: addStock
+      tags: [stocks]
+      summary: Ajouter une action
+      description: Ajoute une action à la liste de suivi. Le symbole est canonique, au format `BOURSE:SYMBOLE`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StockCreate'
+            examples:
+              default:
+                $ref: '#/components/examples/StockCreateExample'
+      responses:
+        '201':
+          description: Action ajoutée.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stock'
+              examples:
+                default:
+                  $ref: '#/components/examples/StockExample'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /stocks/{symbol}:
+    parameters:
+      - $ref: '#/components/parameters/Symbol'
+    get:
+      operationId: getStock
+      tags: [stocks]
+      summary: Fiche d'une action
+      description: Séries annuelles, instantané, qualitatif, sources et conflits entre sources.
+      responses:
+        '200':
+          description: Fiche complète.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StockDetail'
+              examples:
+                default:
+                  $ref: '#/components/examples/StockDetailExample'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      operationId: updateStock
+      tags: [stocks]
+      summary: Modifier les métadonnées et l'instantané
+      description: Saisie manuelle. Seules les propriétés fournies sont modifiées.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StockUpdate'
+            examples:
+              default:
+                $ref: '#/components/examples/StockUpdateExample'
+      responses:
+        '200':
+          description: Fiche mise à jour.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StockDetail'
+              examples:
+                default:
+                  $ref: '#/components/examples/StockDetailExample'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      operationId: deleteStock
+      tags: [stocks]
+      summary: Retirer de la liste de suivi
+      description: Retire l'action de la liste. L'archive des évaluations reste.
+      responses:
+        '204':
+          description: Action retirée.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /stocks/{symbol}/facts:
+    parameters:
+      - $ref: '#/components/parameters/Symbol'
+    put:
+      operationId: replaceFacts
+      tags: [stocks]
+      summary: Remplacer des valeurs annuelles
+      description: Saisie manuelle. Remplace les valeurs de chaque couple (année, mesure) fourni ; les autres restent intactes.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FactsReplace'
+            examples:
+              default:
+                $ref: '#/components/examples/FactsReplaceExample'
+      responses:
+        '200':
+          description: Séries annuelles après remplacement.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FactList'
+              examples:
+                default:
+                  $ref: '#/components/examples/FactListExample'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /stocks/{symbol}/qualitative:
+    parameters:
+      - $ref: '#/components/parameters/Symbol'
+    put:
+      operationId: replaceQualitative
+      tags: [stocks]
+      summary: Saisir le jugement qualitatif
+      description: Règles 1 à 4 et rachat manuel. Remplace l'ensemble du jugement.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Qualitative'
+            examples:
+              default:
+                $ref: '#/components/examples/QualitativeExample'
+      responses:
+        '200':
+          description: Jugement enregistré.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Qualitative'
+              examples:
+                default:
+                  $ref: '#/components/examples/QualitativeExample'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /stocks/{symbol}/evaluation:
+    parameters:
+      - $ref: '#/components/parameters/Symbol'
+    get:
+      operationId: getEvaluation
+      tags: [evaluations]
+      summary: Évaluation à la volée
+      description: Calcule l'évaluation courante sans l'archiver. Les deux profils de seuils sortent en une seule passe.
+      parameters:
+        - $ref: '#/components/parameters/Mode'
+      responses:
+        '200':
+          description: Évaluation calculée.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Evaluation'
+              examples:
+                default:
+                  $ref: '#/components/examples/EvaluationExample'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /stocks/{symbol}/evaluations:
+    parameters:
+      - $ref: '#/components/parameters/Symbol'
+    get:
+      operationId: listEvaluations
+      tags: [evaluations]
+      summary: Historique archivé
+      description: Évaluations archivées, de la plus récente à la plus ancienne.
+      responses:
+        '200':
+          description: Historique.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvaluationRecordList'
+              examples:
+                default:
+                  $ref: '#/components/examples/EvaluationRecordListExample'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      operationId: createEvaluation
+      tags: [evaluations]
+      summary: Calculer et archiver
+      description: Calcule l'évaluation et l'ajoute à l'archive immuable avec ses entrées et la version des règles.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EvaluationCreate'
+            examples:
+              default:
+                $ref: '#/components/examples/EvaluationCreateExample'
+      responses:
+        '201':
+          description: Évaluation archivée.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvaluationRecord'
+              examples:
+                default:
+                  $ref: '#/components/examples/EvaluationRecordExample'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /stocks/{symbol}/refresh:
+    parameters:
+      - $ref: '#/components/parameters/Symbol'
+    post:
+      operationId: refreshStock
+      tags: [imports]
+      summary: Rafraîchir depuis le fournisseur de données
+      description: Réponse 501 jusqu'à la phase 3 (D32). Ensuite, 202 et un job à interroger.
+      responses:
+        '202':
+          description: Rafraîchissement accepté.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+              examples:
+                default:
+                  $ref: '#/components/examples/JobExample'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+  /imports/xlsx:
+    post:
+      operationId: importXlsx
+      tags: [imports]
+      summary: Importer la feuille xlsx
+      description: Import multipart (fichier de 10 Mo au plus et année de « Year 1 »). Répond 202 avec un job.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ImportXlsxRequest'
+      responses:
+        '202':
+          description: Import accepté.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+              examples:
+                default:
+                  $ref: '#/components/examples/JobExample'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /imports/{id}:
+    get:
+      operationId: getImport
+      tags: [imports]
+      summary: État d'un import
+      description: État et compte rendu ligne par ligne d'un import ou d'un rafraîchissement.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Identifiant du job.
+          schema:
+            type: string
+            format: uuid
+          example: 0b9c1f0e-6d52-4c1b-9f1d-3c8f5a2e7a10
+      responses:
+        '200':
+          description: État du job.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+              examples:
+                default:
+                  $ref: '#/components/examples/JobExample'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /rules:
+    get:
+      operationId: getRules
+      tags: [rules]
+      summary: Version et seuils des règles
+      description: Référentiel des règles, pour les libellés des clients. Les clients n'en tirent aucun calcul.
+      responses:
+        '200':
+          description: Référentiel des règles.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rules'
+              examples:
+                default:
+                  $ref: '#/components/examples/RulesExample'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Jeton d'accès JWT émis par Keycloak.
+  parameters:
+    Symbol:
+      name: symbol
+      in: path
+      required: true
+      description: Symbole canonique `BOURSE:SYMBOLE`.
+      schema:
+        $ref: '#/components/schemas/Symbol'
+    Mode:
+      name: mode
+      in: query
+      required: false
+      description: Mode de calcul. `corrected` par défaut.
+      schema:
+        $ref: '#/components/schemas/Mode'
+    Horizon:
+      name: horizon
+      in: query
+      required: false
+      description: Horizon en années. 10 par défaut.
+      schema:
+        $ref: '#/components/schemas/Horizon'
+  responses:
+    BadRequest:
+      description: Requête invalide.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          examples:
+            default:
+              $ref: '#/components/examples/BadRequestExample'
+    Unauthorized:
+      description: Jeton absent ou invalide.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          examples:
+            default:
+              $ref: '#/components/examples/UnauthorizedExample'
+    NotFound:
+      description: Ressource introuvable.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          examples:
+            default:
+              $ref: '#/components/examples/NotFoundExample'
+    Conflict:
+      description: La ressource existe déjà.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          examples:
+            default:
+              $ref: '#/components/examples/ConflictExample'
+    NotImplemented:
+      description: Fonction prévue pour une phase ultérieure.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          examples:
+            default:
+              $ref: '#/components/examples/NotImplementedExample'
+  schemas:
+    Symbol:
+      type: string
+      description: Symbole canonique `BOURSE:SYMBOLE`, en majuscules.
+      pattern: '^[A-Z]{2,10}:[A-Z0-9.\-]{1,15}$'
+      example: 'TSX:CNR'
+    Mode:
+      type: string
+      description: |
+        `corrected` : mode corrigé, qui suit le référentiel consolidé.
+        `compat` : reproduit la feuille d'origine, sur l'horizon de 20 ans seulement.
+      enum: [corrected, compat]
+      default: corrected
+    Horizon:
+      type: integer
+      description: Horizon en années. L'horizon de 5 ans est indicatif et sans verdict.
+      enum: [5, 10, 15, 20]
+      default: 10
+    Decimal:
+      type: string
+      description: Nombre décimal exact en chaîne (jamais de virgule flottante).
+      pattern: '^-?[0-9]+(\.[0-9]+)?$'
+      example: '152.40'
+    Currency:
+      type: string
+      description: Code de devise ISO 4217.
+      enum: [CAD, USD]
+      example: CAD
+    Exchange:
+      type: string
+      description: Bourse de cotation.
+      enum: [TSX, NYSE, NASDAQ]
+      example: TSX
+    Metric:
+      type: string
+      description: |
+        Mesure annuelle. `diluted_eps` : BPA dilué (montant). `dividend_per_share` : dividende par action ordinaire (montant).
+        `annual_return` : rendement annuel, fraction en chaîne décimale (0.70 = 70 %). `diluted_shares` : actions en circulation diluées (nombre d'actions).
+      enum: [diluted_eps, dividend_per_share, annual_return, diluted_shares]
+      example: diluted_eps
+    Verdict:
+      type: string
+      description: |
+        `excluded` : une des règles 1 à 4 n'est pas à « oui ». `candidate` : 10/10 au seuil strict sur un horizon d'au moins 10 ans.
+        `watch` : 10/10 seulement au seuil assoupli. `rejected` : autrement.
+      enum: [excluded, candidate, watch, rejected]
+      example: watch
+    CriterionId:
+      type: string
+      description: Identifiant du critère, 5a à 11c.
+      enum: ['5a', '5b', '6', '7', '8', '9', '10', '11a', '11b', '11c']
+      example: '5a'
+    CriterionStatus:
+      type: string
+      description: |
+        `passed` : réussi au seuil strict. `borderline` : réussi seulement au seuil assoupli. `failed` : échoué.
+        `missing` : donnée manquante (compte comme un échec en mode corrigé). `insufficient` : historique insuffisant.
+        `exempt` : exempté (règle 8 pour une financière).
+      enum: [passed, borderline, failed, missing, insufficient, exempt]
+      example: passed
+    Problem:
+      type: object
+      description: Erreur au format RFC 9457 (`application/problem+json`).
+      required: [type, title, status]
+      properties:
+        type:
+          type: string
+          format: uri-reference
+          description: Identifiant de la famille d'erreur.
+          example: 'https://finance-privee.local/problems/not-found'
+        title:
+          type: string
+          description: Résumé court, stable d'une occurrence à l'autre.
+          example: Ressource introuvable
+        status:
+          type: integer
+          description: Code HTTP.
+          example: 404
+        detail:
+          type: string
+          description: Explication propre à cette occurrence, sans trace interne.
+          example: Aucune action TSX:CNR dans la liste de suivi.
+        instance:
+          type: string
+          format: uri-reference
+          description: Chemin de la requête fautive.
+          example: /api/v1/stocks/TSX:CNR
+        errors:
+          type: array
+          description: Erreurs de validation champ par champ.
+          items:
+            $ref: '#/components/schemas/FieldError'
+    FieldError:
+      type: object
+      description: Erreur de validation sur un champ.
+      required: [field, message]
+      properties:
+        field:
+          type: string
+          description: Chemin du champ fautif.
+          example: symbol
+        message:
+          type: string
+          description: Description de l'erreur.
+          example: Le symbole doit suivre le format BOURSE:SYMBOLE.
+    Stock:
+      type: object
+      description: Action de la liste de suivi.
+      required: [symbol, name, exchange, quoteCurrency, reportingCurrency, isFinancial, createdAt]
+      properties:
+        symbol:
+          $ref: '#/components/schemas/Symbol'
+        name:
+          type: string
+          description: Nom de la compagnie.
+          example: Chemin de fer Canadien National
+        exchange:
+          $ref: '#/components/schemas/Exchange'
+        quoteCurrency:
+          $ref: '#/components/schemas/Currency'
+        reportingCurrency:
+          $ref: '#/components/schemas/Currency'
+        isFinancial:
+          type: boolean
+          description: Banque ou assureur. Met la règle 8 à `exempt` (D3). Faux par défaut.
+          example: false
+        createdAt:
+          type: string
+          format: date-time
+          description: Date d'ajout à la liste.
+          example: '2026-03-02T14:05:00Z'
+    StockCreate:
+      type: object
+      description: Données pour ajouter une action.
+      required: [symbol, name, quoteCurrency, reportingCurrency]
+      properties:
+        symbol:
+          $ref: '#/components/schemas/Symbol'
+        name:
+          type: string
+          description: Nom de la compagnie.
+          minLength: 1
+          maxLength: 200
+          example: Chemin de fer Canadien National
+        quoteCurrency:
+          $ref: '#/components/schemas/Currency'
+        reportingCurrency:
+          $ref: '#/components/schemas/Currency'
+        isFinancial:
+          type: boolean
+          description: Banque ou assureur. Faux par défaut.
+          default: false
+    StockUpdate:
+      type: object
+      description: Métadonnées et instantané à modifier. Toute propriété absente reste inchangée.
+      minProperties: 1
+      properties:
+        name:
+          type: string
+          description: Nom de la compagnie.
+          minLength: 1
+          maxLength: 200
+        quoteCurrency:
+          $ref: '#/components/schemas/Currency'
+        reportingCurrency:
+          $ref: '#/components/schemas/Currency'
+        isFinancial:
+          type: boolean
+          description: Banque ou assureur.
+        snapshot:
+          $ref: '#/components/schemas/Snapshot'
+    Snapshot:
+      type: object
+      description: Valeurs courantes de l'action. Chaque montant est dans la devise indiquée.
+      required: [currency]
+      properties:
+        currency:
+          $ref: '#/components/schemas/Currency'
+        price:
+          $ref: '#/components/schemas/Decimal'
+        annualDividend:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          description: Dividende annuel prévu par action.
+        longTermDebt:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          description: Dette à long terme.
+        equity:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          description: Capitaux propres.
+        bookValuePerShare:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          description: Valeur comptable par action.
+        fxRate:
+          type: number
+          description: Taux de change de la devise de déclaration vers la devise de cotation (1.0 = parité).
+          minimum: 0
+          example: 1.0
+        asOf:
+          type: string
+          format: date
+          description: Date des valeurs.
+          example: '2026-10-30'
+        source:
+          type: string
+          description: Origine des valeurs (`manual`, `xlsx`, nom du fournisseur).
+          example: manual
+    AnnualFact:
+      type: object
+      description: Valeur annuelle d'une mesure pour une année fiscale.
+      required: [fiscalYear, metric, value, currency, source]
+      properties:
+        fiscalYear:
+          type: integer
+          description: Année fiscale.
+          minimum: 1980
+          maximum: 2100
+          example: 2025
+        metric:
+          $ref: '#/components/schemas/Metric'
+        value:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          description: Valeur exacte. Pour `annual_return`, fraction (0.70 = 70 %).
+        currency:
+          $ref: '#/components/schemas/Currency'
+        source:
+          type: string
+          description: Origine de la valeur (`manual`, `xlsx`, nom du fournisseur).
+          example: manual
+        fetchedAt:
+          type: string
+          format: date-time
+          description: Moment de saisie ou de récupération.
+          example: '2026-10-30T12:00:00Z'
+    FactsReplace:
+      type: object
+      description: Valeurs annuelles à remplacer.
+      required: [facts]
+      properties:
+        facts:
+          type: array
+          description: Valeurs à écrire, au plus une par couple (année, mesure).
+          minItems: 1
+          maxItems: 400
+          items:
+            $ref: '#/components/schemas/AnnualFact'
+    FactList:
+      type: object
+      description: Séries annuelles d'une action.
+      required: [facts]
+      properties:
+        facts:
+          type: array
+          description: Valeurs triées par mesure puis par année.
+          items:
+            $ref: '#/components/schemas/AnnualFact'
+    Answer:
+      type: string
+      description: Réponse à une règle qualitative.
+      enum: ['yes', 'no', unanswered]
+      example: 'yes'
+    RuleAnswer:
+      type: object
+      description: Réponse et note pour une règle qualitative.
+      required: [answer]
+      properties:
+        answer:
+          $ref: '#/components/schemas/Answer'
+        note:
+          type: string
+          description: Note libre.
+          maxLength: 2000
+          example: Franchise ferroviaire difficile à reproduire.
+    Qualitative:
+      type: object
+      description: Jugement du propriétaire. Les quatre règles doivent être à `yes` pour éviter l'exclusion.
+      required: [rule1, rule2, rule3, rule4]
+      properties:
+        rule1:
+          $ref: '#/components/schemas/RuleAnswer'
+        rule2:
+          $ref: '#/components/schemas/RuleAnswer'
+        rule3:
+          $ref: '#/components/schemas/RuleAnswer'
+        rule4:
+          $ref: '#/components/schemas/RuleAnswer'
+        manualBuyback:
+          type: boolean
+          description: Rachat d'actions saisi à la main pour la règle 10 (oui ou non). Absent si non saisi.
+          example: true
+        reviewedAt:
+          type: string
+          format: date-time
+          description: Dernière révision, fixée par le serveur.
+          readOnly: true
+          example: '2026-10-30T12:05:00Z'
+    SourceSummary:
+      type: object
+      description: Résumé des valeurs venant d'une source.
+      required: [source, factCount]
+      properties:
+        source:
+          type: string
+          description: Nom de la source.
+          example: xlsx
+        factCount:
+          type: integer
+          description: Nombre de valeurs annuelles provenant de cette source.
+          minimum: 0
+          example: 80
+        lastFetchedAt:
+          type: string
+          format: date-time
+          description: Dernière récupération.
+          example: '2026-10-30T12:00:00Z'
+    SourceValue:
+      type: object
+      description: Valeur proposée par une source.
+      required: [source, value]
+      properties:
+        source:
+          type: string
+          description: Nom de la source.
+          example: xlsx
+        value:
+          $ref: '#/components/schemas/Decimal'
+    SourceConflict:
+      type: object
+      description: Deux sources donnent des valeurs différentes pour la même mesure et la même année.
+      required: [fiscalYear, metric, values]
+      properties:
+        fiscalYear:
+          type: integer
+          description: Année fiscale.
+          example: 2024
+        metric:
+          $ref: '#/components/schemas/Metric'
+        values:
+          type: array
+          description: Valeurs en désaccord, une par source.
+          minItems: 2
+          items:
+            $ref: '#/components/schemas/SourceValue'
+    StockDetail:
+      type: object
+      description: Fiche complète d'une action.
+      required: [stock, facts, qualitative, sources, conflicts]
+      properties:
+        stock:
+          $ref: '#/components/schemas/Stock'
+        facts:
+          type: array
+          description: Séries annuelles.
+          items:
+            $ref: '#/components/schemas/AnnualFact'
+        snapshot:
+          $ref: '#/components/schemas/Snapshot'
+        qualitative:
+          $ref: '#/components/schemas/Qualitative'
+        sources:
+          type: array
+          description: Sources des valeurs.
+          items:
+            $ref: '#/components/schemas/SourceSummary'
+        conflicts:
+          type: array
+          description: Conflits entre sources, à trancher à la main.
+          items:
+            $ref: '#/components/schemas/SourceConflict'
+    SubScore:
+      type: object
+      description: Sous-score (qualité sur 7, prix sur 3), aux deux profils de seuils.
+      required: [strict, relaxed, outOf]
+      properties:
+        strict:
+          type: integer
+          description: Critères réussis au seuil strict.
+          minimum: 0
+          example: 6
+        relaxed:
+          type: integer
+          description: Critères réussis au seuil assoupli (inclut les réussis au strict).
+          minimum: 0
+          example: 7
+        outOf:
+          type: integer
+          description: Total possible (moins un par critère exempté).
+          minimum: 0
+          example: 7
+    ScoreSummary:
+      type: object
+      description: Score d'un horizon, tel qu'affiché dans la liste de suivi.
+      required: [horizon, mode, strict, relaxed, outOf, failureCount, quality, price]
+      properties:
+        horizon:
+          $ref: '#/components/schemas/Horizon'
+        mode:
+          $ref: '#/components/schemas/Mode'
+        strict:
+          type: integer
+          description: Score au seuil strict.
+          minimum: 0
+          example: 8
+        relaxed:
+          type: integer
+          description: Score au seuil assoupli.
+          minimum: 0
+          example: 10
+        outOf:
+          type: integer
+          description: Total possible, 10 (9 si un critère est exempté).
+          minimum: 0
+          example: 10
+        failureCount:
+          type: integer
+          description: Compte d'échecs de la feuille (0 = parfait).
+          minimum: 0
+          example: 2
+        quality:
+          $ref: '#/components/schemas/SubScore'
+        price:
+          $ref: '#/components/schemas/SubScore'
+        verdict:
+          allOf:
+            - $ref: '#/components/schemas/Verdict'
+          description: Absent pour l'horizon de 5 ans, indicatif seulement (D9).
+        insufficientHistory:
+          type: boolean
+          description: Vrai si l'horizon manque de données (jamais extrapolé).
+          example: false
+    StockSummary:
+      type: object
+      description: Une ligne de la liste de suivi.
+      required: [stock, score]
+      properties:
+        stock:
+          $ref: '#/components/schemas/Stock'
+        score:
+          $ref: '#/components/schemas/ScoreSummary'
+    StockList:
+      type: object
+      description: Liste de suivi.
+      required: [items]
+      properties:
+        items:
+          type: array
+          description: Actions suivies, triées par symbole.
+          items:
+            $ref: '#/components/schemas/StockSummary'
+    Threshold:
+      type: object
+      description: |
+        Seuil d'un critère. Les bornes sont des nombres : fraction pour un ratio (0.75 = 75 %), nombre pour un compte ou un multiple (P/E).
+        Une borne absente n'existe pas ; `description` porte les critères sans borne numérique.
+      required: [description]
+      properties:
+        description:
+          type: string
+          description: Texte lisible du seuil, pour l'affichage.
+          example: 0 < x ≤ 75 %
+        min:
+          type: number
+          description: Borne basse.
+          example: 0
+        max:
+          type: number
+          description: Borne haute (fraction, 0.75 = 75 %).
+          example: 0.75
+        minInclusive:
+          type: boolean
+          description: La borne basse est incluse.
+          example: false
+        maxInclusive:
+          type: boolean
+          description: La borne haute est incluse.
+          example: true
+    Criterion:
+      type: object
+      description: Résultat d'un critère, avec ses deux seuils côte à côte. Le seuil assoupli ne remplace jamais le strict.
+      required: [id, status, strictThreshold]
+      properties:
+        id:
+          $ref: '#/components/schemas/CriterionId'
+        label:
+          type: string
+          description: Libellé du critère.
+          example: Croissance du BPA
+        status:
+          $ref: '#/components/schemas/CriterionStatus'
+        value:
+          type: number
+          description: Valeur mesurée. Fraction pour un ratio ou une croissance (fraction, 0.70 = 70 %), nombre pour un compte ou un multiple. Absente si manquante.
+          example: 0.0912
+        strictThreshold:
+          $ref: '#/components/schemas/Threshold'
+        relaxedThreshold:
+          allOf:
+            - $ref: '#/components/schemas/Threshold'
+          description: Absent si le critère n'a pas de seuil assoupli.
+        note:
+          type: string
+          description: Précision (donnée manquante, taux ignoré, exemption).
+          example: Un taux ignoré, division par zéro en 2016.
+    HorizonResult:
+      type: object
+      description: Résultat de l'évaluation pour un horizon.
+      required: [horizon, indicative, insufficientHistory, strict, relaxed, outOf, failureCount, quality, price, criteria]
+      properties:
+        horizon:
+          $ref: '#/components/schemas/Horizon'
+        indicative:
+          type: boolean
+          description: Vrai pour l'horizon de 5 ans, affiché sans verdict (D9).
+          example: false
+        insufficientHistory:
+          type: boolean
+          description: Vrai si l'horizon manque de données.
+          example: false
+        strict:
+          type: integer
+          description: Score au seuil strict.
+          minimum: 0
+          example: 8
+        relaxed:
+          type: integer
+          description: Score au seuil assoupli.
+          minimum: 0
+          example: 10
+        outOf:
+          type: integer
+          description: Total possible, 10 (9 si un critère est exempté).
+          minimum: 0
+          example: 10
+        failureCount:
+          type: integer
+          description: Compte d'échecs de la feuille (0 = parfait).
+          minimum: 0
+          example: 2
+        quality:
+          $ref: '#/components/schemas/SubScore'
+        price:
+          $ref: '#/components/schemas/SubScore'
+        verdict:
+          allOf:
+            - $ref: '#/components/schemas/Verdict'
+          description: Absent pour l'horizon indicatif.
+        criteria:
+          type: array
+          description: Les 10 critères, de 5a à 11c.
+          items:
+            $ref: '#/components/schemas/Criterion'
+    Evaluation:
+      type: object
+      description: Évaluation d'une action, aux deux profils de seuils.
+      required: [symbol, mode, rulesVersion, computedAt, qualitativeGatePassed, horizons]
+      properties:
+        symbol:
+          $ref: '#/components/schemas/Symbol'
+        mode:
+          $ref: '#/components/schemas/Mode'
+        rulesVersion:
+          type: string
+          description: Version des règles utilisée (règle 12).
+          example: '2026.1'
+        computedAt:
+          type: string
+          format: date-time
+          description: Moment du calcul.
+          example: '2026-10-30T12:10:00Z'
+        qualitativeGatePassed:
+          type: boolean
+          description: Vrai si les règles 1 à 4 sont toutes à `yes`. Sinon le verdict est `excluded`.
+          example: true
+        warnings:
+          type: array
+          description: Avertissements du calcul (taux ignoré, unité convertie, conflit de sources).
+          items:
+            type: string
+        horizons:
+          type: array
+          description: Un résultat par horizon.
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/HorizonResult'
+    EvaluationCreate:
+      type: object
+      description: Paramètres du calcul à archiver.
+      properties:
+        mode:
+          $ref: '#/components/schemas/Mode'
+    EvaluationRecord:
+      type: object
+      description: Évaluation archivée, immuable, avec de quoi la recalculer à l'identique.
+      required: [id, createdAt, mode, rulesVersion, inputsFingerprint, evaluation]
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Identifiant de l'archive.
+          example: 5d0e8f46-2a3b-4f0c-8a55-6c1d9d3b7e21
+        createdAt:
+          type: string
+          format: date-time
+          description: Moment de l'archivage.
+          example: '2026-10-30T12:10:00Z'
+        mode:
+          $ref: '#/components/schemas/Mode'
+        rulesVersion:
+          type: string
+          description: Version des règles archivée.
+          example: '2026.1'
+        inputsFingerprint:
+          type: string
+          description: Empreinte SHA-256 des entrées archivées, en hexadécimal.
+          pattern: '^[0-9a-f]{64}$'
+          example: 3b7c1e9d5a2f48b6c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3
+        evaluation:
+          $ref: '#/components/schemas/Evaluation'
+    EvaluationRecordList:
+      type: object
+      description: Historique archivé.
+      required: [items]
+      properties:
+        items:
+          type: array
+          description: Archives, de la plus récente à la plus ancienne.
+          items:
+            $ref: '#/components/schemas/EvaluationRecord'
+    JobStatus:
+      type: string
+      description: État d'un job.
+      enum: [queued, running, succeeded, failed]
+      example: succeeded
+    JobEntry:
+      type: object
+      description: Ligne du compte rendu d'un import.
+      required: [level, message]
+      properties:
+        level:
+          type: string
+          description: Gravité.
+          enum: [info, warning, error]
+          example: warning
+        line:
+          type: integer
+          description: Ligne ou rangée de la feuille.
+          minimum: 1
+          example: 14
+        symbol:
+          type: string
+          description: Symbole concerné, si connu.
+          example: 'TSX:CNR'
+        message:
+          type: string
+          description: Description.
+          example: Dette sur capitaux propres lue comme un pourcentage, divisée par 100.
+    Job:
+      type: object
+      description: Traitement long (import ou rafraîchissement).
+      required: [id, type, status, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Identifiant du job.
+          example: 0b9c1f0e-6d52-4c1b-9f1d-3c8f5a2e7a10
+        type:
+          type: string
+          description: Nature du job.
+          enum: [xlsx, provider]
+          example: xlsx
+        status:
+          $ref: '#/components/schemas/JobStatus'
+        createdAt:
+          type: string
+          format: date-time
+          description: Création du job.
+          example: '2026-10-30T12:00:00Z'
+        finishedAt:
+          type: string
+          format: date-time
+          description: Fin du job. Absent tant qu'il n'est pas terminé.
+          example: '2026-10-30T12:00:04Z'
+        stocksImported:
+          type: integer
+          description: Nombre d'actions importées.
+          minimum: 0
+          example: 12
+        entries:
+          type: array
+          description: Compte rendu ligne par ligne.
+          items:
+            $ref: '#/components/schemas/JobEntry'
+    ImportXlsxRequest:
+      type: object
+      description: Import de la feuille xlsx.
+      required: [file, year1]
+      properties:
+        file:
+          type: string
+          format: binary
+          description: Fichier xlsx, 10 Mo au plus.
+        year1:
+          type: integer
+          description: Année fiscale de la colonne « Year 1 » de la feuille.
+          minimum: 1980
+          maximum: 2100
+          example: 2006
+    RuleDefinition:
+      type: object
+      description: Définition d'un critère et de ses seuils.
+      required: [id, label, formula, period, strict]
+      properties:
+        id:
+          $ref: '#/components/schemas/CriterionId'
+        label:
+          type: string
+          description: Libellé du critère.
+          example: Ratio de distribution
+        formula:
+          type: string
+          description: Formule en mots.
+          example: Dividende annuel par action / BPA
+        period:
+          type: string
+          description: Période observée.
+          example: Dernier exercice
+        strict:
+          $ref: '#/components/schemas/Threshold'
+        relaxed:
+          allOf:
+            - $ref: '#/components/schemas/Threshold'
+          description: Absent si le critère n'a pas de seuil assoupli.
+        byHorizon:
+          type: array
+          description: Seuils par horizon, pour la règle 5b seulement.
+          items:
+            $ref: '#/components/schemas/HorizonThreshold'
+    HorizonThreshold:
+      type: object
+      description: Seuils d'un critère pour un horizon donné.
+      required: [horizon, strict]
+      properties:
+        horizon:
+          $ref: '#/components/schemas/Horizon'
+        strict:
+          $ref: '#/components/schemas/Threshold'
+        relaxed:
+          $ref: '#/components/schemas/Threshold'
+    Rules:
+      type: object
+      description: Référentiel des règles versionné (règle 12).
+      required: [version, criteria]
+      properties:
+        version:
+          type: string
+          description: Version du fichier de règles.
+          example: '2026.1'
+        criteria:
+          type: array
+          description: Les 10 critères de 5a à 11c.
+          items:
+            $ref: '#/components/schemas/RuleDefinition'
+  examples:
+    BadRequestExample:
+      summary: Requête invalide
+      value:
+        type: 'https://finance-privee.local/problems/validation'
+        title: Requête invalide
+        status: 400
+        detail: Un ou plusieurs champs sont invalides.
+        instance: /api/v1/stocks
+        errors:
+          - field: symbol
+            message: Le symbole doit suivre le format BOURSE:SYMBOLE.
+    UnauthorizedExample:
+      summary: Jeton absent
+      value:
+        type: 'https://finance-privee.local/problems/unauthorized'
+        title: Non authentifié
+        status: 401
+        detail: Jeton d'accès absent ou invalide.
+    NotFoundExample:
+      summary: Action introuvable
+      value:
+        type: 'https://finance-privee.local/problems/not-found'
+        title: Ressource introuvable
+        status: 404
+        detail: Aucune action TSX:CNR dans la liste de suivi.
+        instance: /api/v1/stocks/TSX:CNR
+    ConflictExample:
+      summary: Action déjà suivie
+      value:
+        type: 'https://finance-privee.local/problems/conflict'
+        title: Ressource existante
+        status: 409
+        detail: L'action TSX:CNR est déjà dans la liste de suivi.
+        instance: /api/v1/stocks
+    NotImplementedExample:
+      summary: Fournisseur non disponible
+      value:
+        type: 'https://finance-privee.local/problems/not-implemented'
+        title: Non implémenté
+        status: 501
+        detail: Le rafraîchissement par fournisseur arrive en phase 3.
+        instance: /api/v1/stocks/TSX:CNR/refresh
+    StockExample:
+      summary: Action ajoutée
+      value:
+        symbol: 'TSX:CNR'
+        name: Chemin de fer Canadien National
+        exchange: TSX
+        quoteCurrency: CAD
+        reportingCurrency: CAD
+        isFinancial: false
+        createdAt: '2026-03-02T14:05:00Z'
+    StockCreateExample:
+      summary: Ajout d'une action
+      value:
+        symbol: 'TSX:CNR'
+        name: Chemin de fer Canadien National
+        quoteCurrency: CAD
+        reportingCurrency: CAD
+        isFinancial: false
+    StockUpdateExample:
+      summary: Mise à jour de l'instantané
+      value:
+        snapshot:
+          currency: CAD
+          price: '152.40'
+          annualDividend: '3.38'
+          longTermDebt: '15200.000000'
+          equity: '17400.000000'
+          bookValuePerShare: '27.80'
+          fxRate: 1.0
+          asOf: '2026-10-30'
+          source: manual
+    StockListExample:
+      summary: Liste de suivi à l'horizon de 10 ans
+      value:
+        items:
+          - stock:
+              symbol: 'TSX:CNR'
+              name: Chemin de fer Canadien National
+              exchange: TSX
+              quoteCurrency: CAD
+              reportingCurrency: CAD
+              isFinancial: false
+              createdAt: '2026-03-02T14:05:00Z'
+            score:
+              horizon: 10
+              mode: corrected
+              strict: 8
+              relaxed: 10
+              outOf: 10
+              failureCount: 2
+              quality:
+                strict: 6
+                relaxed: 7
+                outOf: 7
+              price:
+                strict: 2
+                relaxed: 3
+                outOf: 3
+              verdict: watch
+              insufficientHistory: false
+    FactListExample:
+      summary: Séries annuelles
+      value:
+        facts:
+          - fiscalYear: 2025
+            metric: diluted_eps
+            value: '7.55'
+            currency: CAD
+            source: manual
+            fetchedAt: '2026-10-30T12:00:00Z'
+          - fiscalYear: 2025
+            metric: dividend_per_share
+            value: '3.38'
+            currency: CAD
+            source: manual
+            fetchedAt: '2026-10-30T12:00:00Z'
+    FactsReplaceExample:
+      summary: Correction de deux valeurs
+      value:
+        facts:
+          - fiscalYear: 2025
+            metric: diluted_eps
+            value: '7.55'
+            currency: CAD
+            source: manual
+          - fiscalYear: 2025
+            metric: diluted_shares
+            value: '640000000'
+            currency: CAD
+            source: manual
+    QualitativeExample:
+      summary: Quatre oui
+      value:
+        rule1:
+          answer: 'yes'
+          note: Franchise ferroviaire difficile à reproduire.
+        rule2:
+          answer: 'yes'
+        rule3:
+          answer: 'yes'
+        rule4:
+          answer: 'yes'
+        manualBuyback: true
+        reviewedAt: '2026-10-30T12:05:00Z'
+    StockDetailExample:
+      summary: Fiche complète
+      value:
+        stock:
+          symbol: 'TSX:CNR'
+          name: Chemin de fer Canadien National
+          exchange: TSX
+          quoteCurrency: CAD
+          reportingCurrency: CAD
+          isFinancial: false
+          createdAt: '2026-03-02T14:05:00Z'
+        facts:
+          - fiscalYear: 2025
+            metric: diluted_eps
+            value: '7.55'
+            currency: CAD
+            source: xlsx
+            fetchedAt: '2026-10-30T12:00:00Z'
+          - fiscalYear: 2025
+            metric: dividend_per_share
+            value: '3.38'
+            currency: CAD
+            source: xlsx
+            fetchedAt: '2026-10-30T12:00:00Z'
+        snapshot:
+          currency: CAD
+          price: '152.40'
+          annualDividend: '3.38'
+          longTermDebt: '15200.000000'
+          equity: '17400.000000'
+          bookValuePerShare: '27.80'
+          fxRate: 1.0
+          asOf: '2026-10-30'
+          source: manual
+        qualitative:
+          rule1:
+            answer: 'yes'
+          rule2:
+            answer: 'yes'
+          rule3:
+            answer: 'yes'
+          rule4:
+            answer: 'yes'
+          manualBuyback: true
+          reviewedAt: '2026-10-30T12:05:00Z'
+        sources:
+          - source: xlsx
+            factCount: 80
+            lastFetchedAt: '2026-10-30T12:00:00Z'
+          - source: manual
+            factCount: 2
+            lastFetchedAt: '2026-10-30T12:03:00Z'
+        conflicts:
+          - fiscalYear: 2024
+            metric: diluted_eps
+            values:
+              - source: xlsx
+                value: '7.10'
+              - source: manual
+                value: '7.01'
+    EvaluationExample:
+      summary: Évaluation à l'horizon de 10 ans
+      value:
+        symbol: 'TSX:CNR'
+        mode: corrected
+        rulesVersion: '2026.1'
+        computedAt: '2026-10-30T12:10:00Z'
+        qualitativeGatePassed: true
+        warnings:
+          - Un taux ignoré, division par zéro en 2016.
+        horizons:
+          - horizon: 10
+            indicative: false
+            insufficientHistory: false
+            strict: 8
+            relaxed: 10
+            outOf: 10
+            failureCount: 2
+            quality:
+              strict: 6
+              relaxed: 7
+              outOf: 7
+            price:
+              strict: 2
+              relaxed: 3
+              outOf: 3
+            verdict: watch
+            criteria:
+              - id: '5a'
+                label: Croissance du BPA
+                status: passed
+                value: 0.0912
+                strictThreshold: {description: '≥ 8 %', min: 0.08, minInclusive: true}
+                relaxedThreshold: {description: '≥ 6 %', min: 0.06, minInclusive: true}
+              - id: '5b'
+                label: Hausses du BPA
+                status: passed
+                value: 8
+                strictThreshold: {description: '≥ 4 hausses sur 10 ans', min: 4, minInclusive: true}
+                relaxedThreshold: {description: '≥ 3 hausses sur 10 ans', min: 3, minInclusive: true}
+              - id: '6'
+                label: Croissance du dividende
+                status: passed
+                value: 0.0954
+                strictThreshold: {description: '≥ 8 %', min: 0.08, minInclusive: true}
+                relaxedThreshold: {description: '≥ 6 %', min: 0.06, minInclusive: true}
+              - id: '7'
+                label: Ratio de distribution
+                status: borderline
+                value: 0.80
+                strictThreshold: {description: '0 < x ≤ 75 %', min: 0, max: 0.75, minInclusive: false, maxInclusive: true}
+                relaxedThreshold: {description: '0 < x ≤ 85 %', min: 0, max: 0.85, minInclusive: false, maxInclusive: true}
+              - id: '8'
+                label: Dette
+                status: passed
+                value: 0.87
+                strictThreshold: {description: '0 ≤ x ≤ 70 %', min: 0, max: 0.70, minInclusive: true, maxInclusive: true}
+                relaxedThreshold: {description: '0 ≤ x ≤ 95 %', min: 0, max: 0.95, minInclusive: true, maxInclusive: true}
+              - id: '9'
+                label: Coupe de dividende
+                status: passed
+                strictThreshold: {description: Aucune baisse ni annulation}
+              - id: '10'
+                label: Rachats d'actions
+                status: passed
+                strictThreshold: {description: Actions en circulation en baisse}
+              - id: '11a'
+                label: P/E
+                status: borderline
+                value: 20.2
+                strictThreshold: {description: '0 < x ≤ 25', min: 0, max: 25, minInclusive: false, maxInclusive: true}
+                relaxedThreshold: {description: '0 < x ≤ 35', min: 0, max: 35, minInclusive: false, maxInclusive: true}
+              - id: '11b'
+                label: Rendement vs moyenne
+                status: passed
+                value: 0.0222
+                strictThreshold: {description: Rendement actuel supérieur au rendement moyen}
+              - id: '11c'
+                label: P/B
+                status: passed
+                value: 5.48
+                strictThreshold: {description: '0 < x ≤ 3', min: 0, max: 3, minInclusive: false, maxInclusive: true}
+                relaxedThreshold: {description: '0 < x ≤ 6', min: 0, max: 6, minInclusive: false, maxInclusive: true}
+    EvaluationCreateExample:
+      summary: Archiver en mode corrigé
+      value:
+        mode: corrected
+    EvaluationRecordExample:
+      summary: Évaluation archivée
+      value:
+        id: 5d0e8f46-2a3b-4f0c-8a55-6c1d9d3b7e21
+        createdAt: '2026-10-30T12:10:00Z'
+        mode: corrected
+        rulesVersion: '2026.1'
+        inputsFingerprint: 3b7c1e9d5a2f48b6c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3
+        evaluation:
+          symbol: 'TSX:CNR'
+          mode: corrected
+          rulesVersion: '2026.1'
+          computedAt: '2026-10-30T12:10:00Z'
+          qualitativeGatePassed: true
+          horizons:
+            - horizon: 10
+              indicative: false
+              insufficientHistory: false
+              strict: 8
+              relaxed: 10
+              outOf: 10
+              failureCount: 2
+              quality:
+                strict: 6
+                relaxed: 7
+                outOf: 7
+              price:
+                strict: 2
+                relaxed: 3
+                outOf: 3
+              verdict: watch
+              criteria:
+                - id: '5a'
+                  label: Croissance du BPA
+                  status: passed
+                  value: 0.0912
+                  strictThreshold: {description: '≥ 8 %', min: 0.08, minInclusive: true}
+                  relaxedThreshold: {description: '≥ 6 %', min: 0.06, minInclusive: true}
+    EvaluationRecordListExample:
+      summary: Historique
+      value:
+        items:
+          - id: 5d0e8f46-2a3b-4f0c-8a55-6c1d9d3b7e21
+            createdAt: '2026-10-30T12:10:00Z'
+            mode: corrected
+            rulesVersion: '2026.1'
+            inputsFingerprint: 3b7c1e9d5a2f48b6c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3
+            evaluation:
+              symbol: 'TSX:CNR'
+              mode: corrected
+              rulesVersion: '2026.1'
+              computedAt: '2026-10-30T12:10:00Z'
+              qualitativeGatePassed: true
+              horizons:
+                - horizon: 10
+                  indicative: false
+                  insufficientHistory: false
+                  strict: 8
+                  relaxed: 10
+                  outOf: 10
+                  failureCount: 2
+                  quality:
+                    strict: 6
+                    relaxed: 7
+                    outOf: 7
+                  price:
+                    strict: 2
+                    relaxed: 3
+                    outOf: 3
+                  verdict: watch
+                  criteria:
+                    - id: '5a'
+                      label: Croissance du BPA
+                      status: passed
+                      value: 0.0912
+                      strictThreshold: {description: '≥ 8 %', min: 0.08, minInclusive: true}
+    JobExample:
+      summary: Import terminé
+      value:
+        id: 0b9c1f0e-6d52-4c1b-9f1d-3c8f5a2e7a10
+        type: xlsx
+        status: succeeded
+        createdAt: '2026-10-30T12:00:00Z'
+        finishedAt: '2026-10-30T12:00:04Z'
+        stocksImported: 12
+        entries:
+          - level: warning
+            line: 14
+            symbol: 'TSX:CNR'
+            message: Dette sur capitaux propres lue comme un pourcentage, divisée par 100.
+    RulesExample:
+      summary: Référentiel des règles
+      value:
+        version: '2026.1'
+        criteria:
+          - id: '7'
+            label: Ratio de distribution
+            formula: Dividende annuel par action / BPA
+            period: Dernier exercice
+            strict: {description: '0 < x ≤ 75 %', min: 0, max: 0.75, minInclusive: false, maxInclusive: true}
+            relaxed: {description: '0 < x ≤ 85 %', min: 0, max: 0.85, minInclusive: false, maxInclusive: true}
+          - id: '5b'
+            label: Hausses du BPA
+            formula: Nombre de taux de croissance positifs dans la fenêtre
+            period: 5, 10, 15, 20 ans
+            strict: {description: '≥ 2, 4, 6, 8 hausses selon l''horizon'}
+            byHorizon:
+              - horizon: 10
+                strict: {description: '≥ 4 hausses', min: 4, minInclusive: true}
+                relaxed: {description: '≥ 3 hausses', min: 3, minInclusive: true}

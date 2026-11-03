@@ -3,25 +3,43 @@ SHELL := /bin/bash
 
 BACKEND := backend
 ENGINE  := ./internal/modules/stockeval/engine/
+API     := api
+WEB_API := web/src/app/api
+# Chemins générés : gen-check échoue si l'un d'eux dérive.
+GENERATED := $(BACKEND)/internal/api/gen $(WEB_API)
 
-.PHONY: help gen gen-check lint test test-engine test-int e2e oracle mock up down ci govulncheck
+.PHONY: help gen gen-api gen-check lint test test-engine test-int e2e oracle mock up down ci govulncheck
 
 help: ## Liste les cibles
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-12s %s\n", $$1, $$2}'
 
-gen: ## Régénère le code issu du contrat et de sqlc
-	@echo "gen : non configurée (P1-03)"
+# Outils Node du contrat (Spectral, openapi-generator, Prism) : versions exactes dans api/package.json.
+$(API)/node_modules/.package-lock.json: $(API)/package.json $(API)/package-lock.json
+	cd $(API) && npm ci --no-audit --no-fund
 
-gen-check: ## Régénère puis échoue si le dépôt change
-	@echo "gen-check : non configurée (P1-03)"
+gen-api: $(API)/node_modules/.package-lock.json
+	cd $(BACKEND) && go tool oapi-codegen -config ../$(API)/oapi-codegen.yaml ../$(API)/openapi.yaml
+	rm -rf $(WEB_API)
+	cd $(API) && npx openapi-generator-cli generate -i openapi.yaml -g typescript-angular -o ../$(WEB_API) \
+		--additional-properties=providedInRoot=true,stringEnums=true,enumPropertyNaming=original,fileNaming=kebab-case
+	rm -f $(WEB_API)/git_push.sh $(WEB_API)/.gitignore $(WEB_API)/.openapi-generator-ignore
 
-lint: ## golangci-lint, Spectral, ESLint
+gen: gen-api ## Régénère le code issu du contrat et de sqlc
+
+gen-check: gen ## Régénère puis échoue si le dépôt change
+	@git diff --exit-code -- $(GENERATED)
+	@if [ -n "$$(git ls-files --others --exclude-standard -- $(GENERATED))" ]; then \
+		echo "gen-check : fichiers générés non suivis par git :" >&2; \
+		git ls-files --others --exclude-standard -- $(GENERATED) >&2; exit 1; \
+	fi
+
+lint: $(API)/node_modules/.package-lock.json ## golangci-lint, Spectral, ESLint
 	@if command -v golangci-lint >/dev/null 2>&1; then \
 		cd $(BACKEND) && golangci-lint run ./... ; \
 	else \
 		echo "lint : golangci-lint absent, installe-le (voir .github/workflows/ci.yml)" >&2; exit 1; \
 	fi
-	@echo "lint (Spectral) : non configurée (P1-03)"
+	cd $(API) && npx spectral lint openapi.yaml --ruleset ../.spectral.yaml --fail-severity=info
 	@echo "lint (ESLint) : non configurée (P1-14)"
 
 test: ## Tests unitaires, sans Docker ni réseau
@@ -43,8 +61,8 @@ e2e: ## Playwright
 oracle: ## Recalcule l'oracle avec LibreOffice
 	@echo "oracle : non configurée (P1-07)"
 
-mock: ## Serveur simulé Prism
-	@echo "mock : non configurée (P1-03)"
+mock: $(API)/node_modules/.package-lock.json ## Serveur simulé Prism (port 4010)
+	cd $(API) && npx prism mock --host 127.0.0.1 --port 4010 openapi.yaml
 
 up: ## Pile locale (Compose)
 	@echo "up : non configurée (P1-19)"

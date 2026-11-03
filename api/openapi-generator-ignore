@@ -1,0 +1,3 @@
+# Fichiers du client Angular que make gen ne produit pas.
+git_push.sh
+.gitignore

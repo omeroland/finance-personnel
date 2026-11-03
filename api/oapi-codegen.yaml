@@ -1,0 +1,10 @@
+# Configuration d'oapi-codegen : serveur net/http (Go 1.22+), mode strict, modèles.
+# Lancé par `make gen` depuis backend/ : go tool oapi-codegen -config ../api/oapi-codegen.yaml ../api/openapi.yaml
+package: gen
+output: internal/api/gen/api.gen.go
+generate:
+  std-http-server: true
+  strict-server: true
+  models: true
+output-options:
+  skip-prune: true
