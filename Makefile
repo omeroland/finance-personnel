@@ -6,9 +6,10 @@ ENGINE  := ./internal/modules/stockeval/engine/
 API     := api
 WEB_API := web/src/app/api
 # Chemins générés : gen-check échoue si l'un d'eux dérive.
-GENERATED := $(BACKEND)/internal/api/gen $(WEB_API)
+SQLC_OUT := $(BACKEND)/internal/modules/stockeval/store/storedb
+GENERATED := $(BACKEND)/internal/api/gen $(WEB_API) $(SQLC_OUT)
 
-.PHONY: help gen gen-api gen-check lint test test-engine test-int e2e oracle mock up down ci govulncheck test-headers scan-images
+.PHONY: help gen gen-api gen-sqlc gen-check lint test test-engine test-int e2e oracle mock up down ci govulncheck test-headers scan-images
 
 help: ## Liste les cibles
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-12s %s\n", $$1, $$2}'
@@ -24,7 +25,10 @@ gen-api: $(API)/node_modules/.package-lock.json
 		--additional-properties=providedInRoot=true,stringEnums=true,enumPropertyNaming=original,fileNaming=kebab-case
 	rm -f $(WEB_API)/git_push.sh $(WEB_API)/.gitignore $(WEB_API)/.openapi-generator-ignore
 
-gen: gen-api ## Régénère le code issu du contrat et de sqlc
+gen-sqlc:
+	cd $(BACKEND) && go tool sqlc generate
+
+gen: gen-api gen-sqlc ## Régénère le code issu du contrat et de sqlc
 
 gen-check: gen ## Régénère puis échoue si le dépôt change
 	@git diff --exit-code -- $(GENERATED)

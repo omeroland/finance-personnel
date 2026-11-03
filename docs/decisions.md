@@ -97,3 +97,14 @@ Une nouvelle ambiguïté s'ajoute à la suite. D1 à D16 : `docs/architecture.md
 | D112 | Session OIDC du web | Jetons dans `sessionStorage` (défaut de la bibliothèque), jamais `localStorage`. Renouvellement par jeton de rafraîchissement sans `offline_access` (session SSO Keycloak). Intercepteur de la bibliothèque limité à `{apiUrl}/api/` | Mémoire seule (BFF) |
 | D113 | Pile de test Playwright | `e2e/web/compose.yaml` : Keycloak 26.4 `start-dev` avec `realm-finance-test.json`, port 8180 ; Prism (port 4010) et `ng serve` (4200) lancés par `playwright.config.ts`. Prérequis : `npm ci` dans `api/` et `web/` | Pile branchée sur `make e2e` (P1-22) |
 | D114 | CSP et styles Angular | Build de production avec `inlineCritical: false` (pas de script `onload`). Angular et Material injectent encore des éléments `<style>` à l'exécution : `style-src 'self'` de D74 peut les bloquer, à vérifier sur la pile `make up` (nonce `CSP_NONCE` ou `style-src 'unsafe-inline'`) | Nonce par requête dans Traefik/Caddy |
+
+## D100 à D105 — Dépôts PostgreSQL (P1-10)
+
+| # | Sujet | Décision MVP | À réévaluer |
+| --- | --- | --- | --- |
+| D100 | Priorité des sources des faits | Seule une valeur `manual` est protégée : `xlsx` ou `provider` de valeur différente la laissent en place et créent une ligne `fact_conflict` (une seule par divergence ouverte). Entre sources non manuelles, la valeur entrante remplace l'existante ; une valeur `manual` remplace tout. Une valeur identique de source moins fiable est ignorée ; la même valeur saisie à la main promeut la source en `manual` | Ordre `xlsx` > `provider` si le fournisseur écrase l'import à tort |
+| D101 | Instantané et priorité | Même protection que D100 pour `snapshot`, sans table de conflit : `SaveSnapshot` renvoie `written=false` quand une ligne manuelle protège la valeur | Table de conflits d'instantané si l'usage l'exige |
+| D102 | Audit des écritures | Une ligne `core.audit_log` par écriture effective, dans la même transaction ; aucune pour une écriture sans effet. L'ajout à la liste de suivi (instrument + suivi) est une seule écriture. L'acteur vient du contexte (`store.ContextWithActor`, le `sub` du JWT), `system` sinon | Acteur passé par paramètre |
+| D103 | Empreinte des entrées | SHA-256 du JSON canonique : décodage avec `json.Number`, réencodage à clés triées, sans espaces ni échappement HTML. Entrées et résultat sont archivés sous cette forme canonique | JSON canonique RFC 8785 |
+| D104 | sqlc | `backend/sqlc.yaml` lit `backend/migrations` comme schéma ; code généré dans `store/storedb` (suivi par git, contrôlé par `make gen-check`, cible `gen-sqlc`). Types : `uuid` -> `google/uuid`, `numeric` -> `shopspring/decimal`, booléens et `char(3)` nullables en pointeurs | — |
+| D105 | Conflits | P1-10 crée et liste les conflits ouverts ; leur résolution (colonne `resolved_at`) relève des handlers (P1-12) | Ajouter `ResolveConflict` à P1-12 |
