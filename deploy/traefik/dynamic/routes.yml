@@ -1,0 +1,59 @@
+# Routage et en-têtes de sécurité (fiche P1-19). Les routeurs n'ont pas de Host : le nom d'hôte
+# est géré par le DNS et le certificat, pas par la règle (un seul domaine par instance).
+http:
+  routers:
+    api:
+      entryPoints: [websecure]
+      rule: PathPrefix(`/api`) || Path(`/healthz`) || Path(`/readyz`)
+      priority: 30
+      service: api
+      middlewares: [api-ratelimit, security-headers, csp]
+    keycloak:
+      entryPoints: [websecure]
+      rule: PathPrefix(`/auth`)
+      priority: 20
+      service: keycloak
+      middlewares: [security-headers]
+    web:
+      entryPoints: [websecure]
+      rule: PathPrefix(`/`)
+      priority: 1
+      service: web
+      middlewares: [security-headers, csp]
+
+  services:
+    api:
+      loadBalancer:
+        servers: [{url: "http://api:8080"}]
+    web:
+      loadBalancer:
+        servers: [{url: "http://web:8080"}]
+    keycloak:
+      loadBalancer:
+        servers: [{url: "http://keycloak:8080"}]
+
+  middlewares:
+    # D34 : limitation de débit par Traefik, par adresse source.
+    api-ratelimit:
+      rateLimit:
+        average: 20
+        period: 1s
+        burst: 40
+    security-headers:
+      headers:
+        stsSeconds: 63072000
+        stsIncludeSubdomains: true
+        forceSTSHeader: true
+        contentTypeNosniff: true
+        referrerPolicy: no-referrer
+        customResponseHeaders:
+          Permissions-Policy: "camera=(), microphone=(), geolocation=()"
+    # connect-src : l'API (/api) et Keycloak (/auth) sont servis sur la même origine, donc 'self'.
+    csp:
+      headers:
+        contentSecurityPolicy: "default-src 'self'; connect-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+
+tls:
+  options:
+    default:
+      minVersion: VersionTLS12

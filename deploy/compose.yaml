@@ -1,0 +1,151 @@
+# Pile Finance privée. Profils : `local` (certificat auto-signé, ports sur 127.0.0.1)
+# et `prod` (Let's Encrypt, ports 80/443). Voir `make up` / `make down`.
+# Les mots de passe viennent de deploy/.env (généré, hors git) ; voir .env.example.
+name: finance
+
+x-durci: &durci
+  restart: unless-stopped
+  security_opt: ["no-new-privileges:true"]
+  cap_drop: [ALL]
+
+x-traefik-commun: &traefik
+  <<: *durci
+  # Image : traefik v3.6
+  image: traefik:v3.6@sha256:31267173a15b4944e797a76ffd9c419707c8d8b32fe5b610f80cd0cfa05f372d
+  read_only: true
+  networks: [edge]
+  volumes:
+    - ./traefik/dynamic:/etc/traefik/dynamic:ro
+  healthcheck:
+    # Traefik sonde aussi l'API : l'image distroless n'a ni shell ni client HTTP (D71).
+    test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8081/ping && wget -qO- http://api:8080/healthz"]
+    interval: 10s
+    timeout: 5s
+    retries: 6
+    start_period: 10s
+
+services:
+  api:
+    <<: *durci
+    build:
+      context: ../backend
+    image: finance/api:dev
+    read_only: true
+    user: "65532:65532"
+    environment:
+      HTTP_ADDR: ":8080"
+      # Émetteur public (claim iss) ; les clés sont lues par l'adresse interne de Keycloak (D74).
+      OIDC_ISSUER: ${FINANCE_PUBLIC_ORIGIN:-https://localhost:9443}/auth/realms/finance
+      OIDC_DISCOVERY_URL: http://keycloak:8080/auth/realms/finance/.well-known/openid-configuration
+      OIDC_AUDIENCE: finance-api
+    networks: [edge, internal]
+    expose: ["8080"]
+
+  web:
+    <<: *durci
+    build:
+      context: ../web
+      target: placeholder   # passer à `app` quand P1-14 est fusionnée (D70)
+    image: finance/web:dev
+    read_only: true
+    user: "65532:65532"
+    tmpfs: ["/tmp"]
+    networks: [edge]
+    expose: ["8080"]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/"]
+      interval: 10s
+      timeout: 3s
+      retries: 6
+
+  db:
+    <<: *durci
+    # Image : postgres 16-alpine. cap_drop ALL est incompatible avec l'entrypoint (chown/gosu) :
+    # on rend les capacités strictement nécessaires à l'initialisation.
+    image: postgres:16-alpine@sha256:0cefaabd882e42bcb2a2f3dc56d3ce4770560ba62fd7f197f1a2e008fd5731ab
+    cap_add: [CHOWN, DAC_OVERRIDE, FOWNER, SETGID, SETUID]
+    environment:
+      POSTGRES_USER: finance
+      POSTGRES_DB: finance
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?voir deploy/.env.example}
+      KEYCLOAK_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:?voir deploy/.env.example}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/10-keycloak.sh:/docker-entrypoint-initdb.d/10-keycloak.sh:ro
+    networks: [internal]   # réseau interne : aucun port publié, aucune sortie
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U finance -d finance"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  keycloak:
+    <<: *durci
+    # Image : keycloak 26.4. Realm `finance` importé depuis deploy/keycloak (P1-13).
+    image: quay.io/keycloak/keycloak:26.4@sha256:9409c59bdfb65dbffa20b11e6f18b8abb9281d480c7ca402f51ed3d5977e6007
+    command: ["start", "--import-realm"]
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://db:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:?voir deploy/.env.example}
+      KC_HTTP_ENABLED: "true"            # TLS terminé par Traefik
+      KC_PROXY_HEADERS: xforwarded
+      KC_HTTP_RELATIVE_PATH: /auth
+      KC_HOSTNAME: ${FINANCE_PUBLIC_ORIGIN:-https://localhost:9443}/auth
+      FINANCE_WEB_ORIGIN: ${FINANCE_PUBLIC_ORIGIN:-https://localhost:9443}
+      KC_HEALTH_ENABLED: "true"
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?voir deploy/.env.example}
+    volumes:
+      - ./keycloak/realm-finance.json:/opt/keycloak/data/import/realm-finance.json:ro
+    depends_on:
+      db: {condition: service_healthy}
+    networks: [edge, internal]
+    expose: ["8080"]
+    healthcheck:
+      # Pas de curl dans l'image : sonde TCP/HTTP en bash sur le port de gestion.
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/9000 && printf 'GET /auth/health/ready HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n' >&3 && grep -q '200 OK' <&3"]
+      interval: 10s
+      timeout: 5s
+      retries: 18
+      start_period: 40s
+
+  traefik-local:
+    <<: *traefik
+    profiles: [local]
+    user: "65532:65532"
+    ports:
+      - "127.0.0.1:${LOCAL_HTTP_PORT:-9080}:8000"
+      - "127.0.0.1:${LOCAL_HTTPS_PORT:-9443}:8443"
+    volumes:
+      - ./traefik/dynamic:/etc/traefik/dynamic:ro
+      - ./traefik/traefik.local.yml:/etc/traefik/traefik.yml:ro
+    depends_on:
+      web: {condition: service_healthy}
+      keycloak: {condition: service_healthy}
+
+  traefik-prod:
+    <<: *traefik
+    profiles: [prod]
+    # Root sans aucune capacité : le volume ACME nommé appartient à root (D71).
+    command: ["--certificatesresolvers.letsencrypt.acme.email=${TRAEFIK_ACME_EMAIL:-}"]
+    ports:
+      - "80:8000"
+      - "443:8443"
+    volumes:
+      - ./traefik/dynamic:/etc/traefik/dynamic:ro
+      - ./traefik/traefik.prod.yml:/etc/traefik/traefik.yml:ro
+      - acme:/letsencrypt
+    depends_on:
+      web: {condition: service_healthy}
+      keycloak: {condition: service_healthy}
+
+networks:
+  edge: {}
+  internal:
+    internal: true   # sans route vers l'extérieur ; la base n'y est joignable que par api et keycloak
+
+volumes:
+  pgdata: {}
+  acme: {}

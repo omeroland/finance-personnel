@@ -1,0 +1,40 @@
+# Configuration statique Traefik, profil local : certificat auto-signé (défaut de Traefik).
+# Aucun tableau de bord, aucun accès au socket Docker : routage par fichiers (dynamic/).
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+log:
+  level: INFO
+  format: json
+accessLog:
+  format: json
+  fields:
+    headers:
+      defaultMode: drop
+api:
+  dashboard: false
+ping:
+  entryPoint: ping
+metrics:
+  prometheus:
+    entryPoint: metrics
+entryPoints:
+  web:
+    address: ":8000"
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+  websecure:
+    address: ":8443"
+    http:
+      tls: {}
+  ping:
+    address: ":8081"      # interne, jamais publié
+  metrics:
+    address: ":8082"      # interne, jamais publié (D72)
+providers:
+  file:
+    directory: /etc/traefik/dynamic
+    watch: false

@@ -8,7 +8,7 @@ WEB_API := web/src/app/api
 # Chemins générés : gen-check échoue si l'un d'eux dérive.
 GENERATED := $(BACKEND)/internal/api/gen $(WEB_API)
 
-.PHONY: help gen gen-api gen-check lint test test-engine test-int e2e oracle mock up down ci govulncheck
+.PHONY: help gen gen-api gen-check lint test test-engine test-int e2e oracle mock up down ci govulncheck test-headers scan-images
 
 help: ## Liste les cibles
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-12s %s\n", $$1, $$2}'
@@ -64,11 +64,33 @@ oracle: ## Recalcule l'oracle avec LibreOffice
 mock: $(API)/node_modules/.package-lock.json ## Serveur simulé Prism (port 4010)
 	cd $(API) && npx prism mock --host 127.0.0.1 --port 4010 openapi.yaml
 
-up: ## Pile locale (Compose)
-	@echo "up : non configurée (P1-19)"
+COMPOSE := docker compose -f deploy/compose.yaml
+PROFILE ?= local
+
+# Génère deploy/.env (hors git) avec des mots de passe aléatoires s'il est absent.
+deploy/.env:
+	@umask 077 && { \
+		echo "POSTGRES_PASSWORD=$$(openssl rand -hex 24)"; \
+		echo "KEYCLOAK_DB_PASSWORD=$$(openssl rand -hex 24)"; \
+		echo "KEYCLOAK_ADMIN_PASSWORD=$$(openssl rand -hex 24)"; \
+	} > $@
+	@echo "up : deploy/.env généré (secrets aléatoires, ignoré par git)"
+
+up: deploy/.env ## Pile locale (Compose) ; PROFILE=prod pour la production
+	$(COMPOSE) --env-file deploy/.env --profile $(PROFILE) up -d --build --wait --wait-timeout 120
 
 down: ## Arrête la pile locale
-	@echo "down : non configurée (P1-19)"
+	$(COMPOSE) --env-file deploy/.env --profile local --profile prod down
+
+test-headers: ## En-têtes de sécurité sur / et /api (pile démarrée par make up)
+	deploy/tests/headers.sh
+
+scan-images: ## Trivy sur les images construites (HIGH/CRITICAL) ; Docker requis
+	@for img in finance/api:dev finance/web:dev; do \
+		docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v $(CURDIR)/.trivyignore:/.trivyignore:ro \
+			aquasec/trivy:latest@sha256:790fd66d1697395d8693d1acaa1ea702406a20f109b6fc7bac8db623eca6c06c \
+			image --severity HIGH,CRITICAL --exit-code 1 --ignore-unfixed --ignorefile /.trivyignore $$img || exit 1; \
+	done
 
 govulncheck: ## Vulnérabilités connues des dépendances
 	cd $(BACKEND) && govulncheck ./...

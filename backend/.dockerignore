@@ -1,0 +1,6 @@
+server
+bin
+*.test
+*.out
+Dockerfile
+.dockerignore
