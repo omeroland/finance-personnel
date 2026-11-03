@@ -1,0 +1,45 @@
+# Binaires Go
+/backend/bin/
+/bin/
+*.exe
+*.test
+*.out
+coverage.out
+coverage.html
+
+# Node / Angular
+node_modules/
+dist/
+.angular/
+web/coverage/
+playwright-report/
+test-results/
+
+# Secrets et environnement (garder l'exemple)
+.env
+.env.*
+!.env.example
+
+# Fichiers déchiffrés et sauvegardes en clair
+*.dec
+*.decrypted
+*.sql.dump
+*.dump
+*.bak
+secrets/
+!secrets/README.md
+
+# Python (outils oracle)
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# IDE et système
+.idea/
+.vscode/
+*.swp
+*.iml
+.DS_Store
+Thumbs.db
