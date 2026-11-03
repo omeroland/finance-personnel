@@ -902,6 +902,13 @@ components:
           type: boolean
           description: Vrai si l'horizon manque de données (jamais extrapolé).
           example: false
+        perfectHorizon:
+          allOf:
+            - $ref: '#/components/schemas/Horizon'
+          description: >-
+            Plus long horizon (5, 10, 15 ou 20 ans) auquel l'action atteint 10/10 au seuil strict.
+            Calculé par le serveur ; absent si aucun horizon n'atteint 10/10 (D37). Évite au client
+            d'interroger les quatre horizons.
     StockSummary:
       type: object
       description: Une ligne de la liste de suivi.
@@ -1115,6 +1122,16 @@ components:
           description: Gravité.
           enum: [info, warning, error]
           example: warning
+        kind:
+          type: string
+          description: >-
+            Catégorie de l'entrée, en plus du niveau. imported : ligne importée ; skipped : ligne
+            ignorée ; conflict : valeur en conflit avec une donnée existante, non écrasée ;
+            normalized : valeur corrigée à la lecture (ex. pourcentage divisé par 100) ;
+            protected : instantané existant protégé, non remplacé. Absent pour les entrées sans
+            catégorie.
+          enum: [imported, skipped, conflict, normalized, protected]
+          example: normalized
         line:
           type: integer
           description: Ligne ou rangée de la feuille.
@@ -1338,6 +1355,7 @@ components:
                 outOf: 3
               verdict: watch
               insufficientHistory: false
+              perfectHorizon: 5
     FactListExample:
       summary: Séries annuelles
       value:
@@ -1616,6 +1634,7 @@ components:
         stocksImported: 12
         entries:
           - level: warning
+            kind: normalized
             line: 14
             symbol: 'TSX:CNR'
             message: Dette sur capitaux propres lue comme un pourcentage, divisée par 100.
