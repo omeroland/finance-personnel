@@ -1,6 +1,9 @@
 <header class="entete">
   <h1 data-testid="titre">{{ 'detail.titre' | t: { symbole: symbole } }}</h1>
-  <a mat-stroked-button routerLink="/stocks" data-testid="retour">{{ 'detail.retour' | t }}</a>
+  <span>
+    <a mat-flat-button [routerLink]="['/stocks', symbole, 'edit']" data-testid="modifier">{{ 'detail.modifier' | t }}</a>
+    <a mat-stroked-button routerLink="/stocks" data-testid="retour">{{ 'detail.retour' | t }}</a>
+  </span>
 </header>
 
 <mat-tab-group animationDuration="0ms">

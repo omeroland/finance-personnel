@@ -1,0 +1,55 @@
+app-grille-annuelle {
+  .grille {
+    --ag-background-color: var(--mat-sys-surface);
+    --ag-foreground-color: var(--mat-sys-on-surface);
+    --ag-header-background-color: var(--mat-sys-surface-container);
+    --ag-active-color: var(--mat-sys-primary);
+    width: 100%;
+  }
+
+  .cellule {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+    padding-block: 0.25rem;
+  }
+
+  .cellule-source,
+  .cellule-conflit {
+    font: var(--mat-sys-label-small);
+  }
+
+  .cellule-conflit {
+    font-weight: 600;
+  }
+
+  .aide {
+    font: var(--mat-sys-body-small);
+  }
+
+  .erreur {
+    min-height: 1.5rem;
+    font-weight: 600;
+  }
+
+  .conflits ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .conflits li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-block: 0.5rem;
+  }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-block: 1rem;
+  }
+
+}

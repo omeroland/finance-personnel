@@ -1,0 +1,18 @@
+.entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.score ul {
+  list-style: none;
+  padding: 0;
+}
+
+app-grille-annuelle,
+app-instantane,
+app-qualitatif {
+  display: block;
+  margin-block: 2rem;
+}

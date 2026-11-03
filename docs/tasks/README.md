@@ -20,7 +20,7 @@ Une tâche passe à « prête » quand toutes ses dépendances sont « terminée
 | [P1-14](P1-14.md) | Angular : squelette, connexion et coquille multi-modules | Frontend Angular | P1-03, P1-13 | terminée |
 | [P1-15](P1-15.md) | Angular : liste de suivi | Frontend Angular | P1-14 | terminée |
 | [P1-16](P1-16.md) | Angular : fiche d'une action | Frontend Angular | P1-15 | terminée |
-| [P1-17](P1-17.md) | Angular : grille de saisie et règles 1 à 4 | Frontend Angular | P1-16 | à faire |
+| [P1-17](P1-17.md) | Angular : grille de saisie et règles 1 à 4 | Frontend Angular | P1-16 | terminée |
 | [P1-18](P1-18.md) | Angular : import de la feuille | Frontend Angular | P1-14 | terminée |
 | [P1-19](P1-19.md) | Conteneurs, Compose, Traefik et en-têtes de sécurité | Plateforme | P1-01 | terminée |
 | [P1-20](P1-20.md) | Sauvegardes chiffrées et restauration automatisée | Plateforme | P1-09, P1-19 | terminée |
