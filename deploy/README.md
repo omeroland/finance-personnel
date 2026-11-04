@@ -24,6 +24,21 @@ curl -ks https://localhost:9443/auth/realms/finance/protocol/openid-connect/toke
   -d grant_type=password -d client_id=finance-test -d username=test-user -d password=FAUX-mot-de-passe-de-test
 ```
 
+### Administrer Keycloak (P1-13-fix, D280)
+
+Traefik n'expose que `/auth/realms/finance/`, `/auth/resources/` et `/auth/js/` ; la console `/auth/admin`, le realm `master` et l'API d'administration répondent 403 depuis Internet. Pour administrer, depuis le serveur :
+
+```sh
+# 1. publier Keycloak sur 127.0.0.1:8180 du serveur seulement (ajoute compose.prod.yaml si tu es en production)
+docker compose -f deploy/compose.yaml -f deploy/compose.admin.yaml --env-file deploy/.env --profile prod up -d keycloak
+# 2. depuis ton poste : tunnel SSH, puis http://localhost:8180/auth/admin/ (compte admin, KEYCLOAK_ADMIN_PASSWORD)
+ssh -N -L 8180:127.0.0.1:8180 utilisateur@serveur
+# 3. à la fin : retirer la publication
+docker compose -f deploy/compose.yaml --env-file deploy/.env --profile prod up -d keycloak
+```
+
+Rejouer le contrôle (pile démarrée, hors `make ci`) : `make test-keycloak-admin`.
+
 Retour au realm de production : `make down` puis `make up`. Si `deploy/.env` a été régénéré alors qu'un ancien volume `pgdata` existe, la connexion de `migrate` échoue (mot de passe différent) : supprime ce volume de développement.
 
 ## Déploiement en production (P1-23)

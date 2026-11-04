@@ -9,7 +9,7 @@ WEB_API := web/src/app/api
 SQLC_OUT := $(BACKEND)/internal/modules/stockeval/store/storedb
 GENERATED := $(BACKEND)/internal/api/gen $(WEB_API) $(SQLC_OUT)
 
-.PHONY: e2e-full up-test smoke help test-backup gen gen-api gen-sqlc gen-check lint test test-engine test-int e2e oracle mock up down ci govulncheck test-headers scan-images
+.PHONY: test-keycloak-admin e2e-full up-test smoke help test-backup gen gen-api gen-sqlc gen-check lint test test-engine test-int e2e oracle mock up down ci govulncheck test-headers scan-images
 
 help: ## Liste les cibles
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-12s %s\n", $$1, $$2}'
@@ -115,6 +115,9 @@ down: ## Arrête la pile locale
 
 test-headers: ## En-têtes de sécurité sur / et /api (pile démarrée par make up)
 	deploy/tests/headers.sh
+
+test-keycloak-admin: ## Console d'administration Keycloak bloquée, login servi (pile démarrée ; hors make ci)
+	deploy/tests/keycloak-admin.sh
 
 scan-images: ## Trivy sur les images construites (HIGH/CRITICAL) ; Docker requis
 	@for img in finance/api:dev finance/web:dev; do \

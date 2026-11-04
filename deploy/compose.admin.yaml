@@ -1,0 +1,9 @@
+# P1-13-fix : accès TEMPORAIRE à la console d'administration de Keycloak, par tunnel SSH.
+# Traefik refuse /auth/admin et le realm master (routes.yml) ; ce fichier publie Keycloak sur 127.0.0.1:8180
+# du serveur seulement (jamais une adresse publique). Voir deploy/README.md. À retirer après usage.
+services:
+  keycloak:
+    environment:
+      KC_HOSTNAME_ADMIN: http://localhost:8180/auth
+    ports:
+      - "127.0.0.1:8180:8080"
