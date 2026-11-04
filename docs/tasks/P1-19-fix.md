@@ -29,11 +29,11 @@ Changer de produit (autre proxy, autre base).
 
 ## Critères d'acceptation
 
-- [ ] `make scan-images` scanne api, web, traefik, keycloak, db (et backup si construite) et sort 0 : `make scan-images; echo $?`
+- [x] `make scan-images` scanne api, web, traefik, keycloak, db (et backup si construite) et sort 0 : `make scan-images; echo $?`
 - [ ] `e2e/gate/trivy_tierces.sh` sort 0 : `e2e/gate/trivy_tierces.sh; echo $?`
 - [ ] Un job de la CI échoue si une image porte une vulnérabilité HIGH/CRITICAL non justifiée (preuve : lien d'une exécution)
-- [ ] Chaque ligne de `.trivyignore` porte la CVE, la raison et une échéance
-- [ ] `make up` fonctionne avec les nouveaux digests : `make up-test && make smoke && make test-headers`
+- [x] Chaque ligne de `.trivyignore` porte la CVE, la raison et une échéance
+- [x] `make up` fonctionne avec les nouveaux digests : `make up-test && make smoke && make test-headers`
 
 ## Contraintes
 
@@ -50,3 +50,12 @@ grep -n trivy .github/workflows/ci.yml      # aucune ligne
 ## Si c'est ambigu
 
 Applique `docs/decisions.md`. Sinon, prends l'option la plus simple et réversible, ajoute une ligne Dxx dans la même PR et signale-la en tête de la description. Si cette option change un contrat, un schéma ou un résultat de règle, arrête-toi et signale-le.
+
+## Avancement (agent Plateforme)
+
+Fait : critères 1, 4 et 5 (D290). Traefik v3.7.17 et Keycloak 26.8.1 par digest réel ; `make scan-images` couvre api, web, backup, db, keycloak, traefik et sort 0 ; 27 exceptions datées (2026-12-04) dans `.trivyignore`.
+
+Reste, la fiche reste « à faire » :
+
+- Critère 3 (job CI) : attend l'approbation du propriétaire, changement prêt dans `docs/tasks/P1-19-fix-ci.patch.md`.
+- Critère 2 : `e2e/gate/trivy_tierces.sh` (périmètre Vérificateur) ne lit pas `.trivyignore` et sortira donc 1 tant qu'il compte les 26 CVE de gosu et celle de guava ; il doit recevoir `--ignorefile` ou être remplacé par `make scan-images`.
