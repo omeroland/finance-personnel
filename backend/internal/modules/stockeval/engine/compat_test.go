@@ -303,3 +303,27 @@ func TestCompatViewsAndVerdict(t *testing.T) {
 		}
 	}
 }
+
+func TestCompatAverageYield(t *testing.T) {
+	t.Parallel()
+	mk := func(from, n int, v string) Series {
+		var s Series
+		for y := from; y < from+n; y++ {
+			s = append(s, Point{Year: y, Value: decimal.RequireFromString(v)})
+		}
+		return s
+	}
+	if CompatAverageYield(nil) != nil {
+		t.Fatal("série vide: nil attendu")
+	}
+	// 12 ans seulement: la feuille fait la moyenne des cellules présentes.
+	got := CompatAverageYield(mk(2014, 12, "0.04"))
+	if got == nil || *got < 0.0399 || *got > 0.0401 {
+		t.Fatalf("12 ans: %v", got)
+	}
+	// 25 ans: seules les 20 dernières cellules comptent.
+	s := append(mk(2001, 5, "0.50"), mk(2006, 20, "0.02")...)
+	if g := CompatAverageYield(s); g == nil || *g < 0.0199 || *g > 0.0201 {
+		t.Fatalf("25 ans: %v", g)
+	}
+}
