@@ -9,7 +9,7 @@ WEB_API := web/src/app/api
 SQLC_OUT := $(BACKEND)/internal/modules/stockeval/store/storedb
 GENERATED := $(BACKEND)/internal/api/gen $(WEB_API) $(SQLC_OUT)
 
-.PHONY: up-test smoke help test-backup gen gen-api gen-sqlc gen-check lint test test-engine test-int e2e oracle mock up down ci govulncheck test-headers scan-images
+.PHONY: e2e-full up-test smoke help test-backup gen gen-api gen-sqlc gen-check lint test test-engine test-int e2e oracle mock up down ci govulncheck test-headers scan-images
 
 help: ## Liste les cibles
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-12s %s\n", $$1, $$2}'
@@ -62,6 +62,17 @@ test-int: ## Tests d'intégration (testcontainers ; Docker requis)
 
 e2e: ## Playwright
 	cd e2e/web && npm ci --no-audit --no-fund && npx playwright install chromium && npm test
+
+# P1-22 : parcours complet sur la pile réelle (démarrée par `make up-test`) ; hors `make ci`.
+# Produit le classeur de 5 actions et les attendus LibreOffice (conteneur de l'oracle), puis lance Playwright.
+e2e-full: ## Parcours complet Playwright sur la pile réelle (make up-test d'abord ; Docker requis)
+	docker image inspect $(ORACLE_IMAGE) >/dev/null 2>&1 || docker build -q -t $(ORACLE_IMAGE) tools/oracle
+	mkdir -p e2e/web/.generated
+	docker run --rm --user "$$(id -u):$$(id -g)" -e HOME=/tmp --entrypoint python3 \
+		-v "$(CURDIR)/tools/oracle:/oracle:ro" -v "$(CURDIR)/testdata/xlsx:/data/xlsx:ro" \
+		-v "$(CURDIR)/e2e/web/.generated:/data/out" $(ORACLE_IMAGE) \
+		e2e_workbook.py --template /data/xlsx/simply_investing_template.xlsx --out /data/out
+	cd e2e/web && npm ci --no-audit --no-fund && npx playwright install chromium && npx playwright test -c playwright.full.config.ts
 
 ORACLE_IMAGE := finance-oracle:p1-07
 
