@@ -32,6 +32,13 @@ const (
 
 func main() {
 	logger := observability.NewLogger(os.Stdout, slog.LevelInfo)
+	if len(os.Args) > 1 && os.Args[1] == "migrate" {
+		if err := runMigrate(context.Background(), logger, migrateConfigFromEnv(os.Getenv)); err != nil {
+			logger.Error("échec des migrations", slog.String("erreur", err.Error()))
+			os.Exit(1)
+		}
+		return
+	}
 	cfg := config{addr: os.Getenv("HTTP_ADDR"), metricsAddr: os.Getenv("METRICS_ADDR"), databaseURL: os.Getenv("DATABASE_URL"), auth: authConfig()}
 	if err := run(logger, cfg); err != nil {
 		logger.Error("arrêt sur erreur", slog.String("erreur", err.Error()))

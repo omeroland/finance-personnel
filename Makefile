@@ -9,7 +9,7 @@ WEB_API := web/src/app/api
 SQLC_OUT := $(BACKEND)/internal/modules/stockeval/store/storedb
 GENERATED := $(BACKEND)/internal/api/gen $(WEB_API) $(SQLC_OUT)
 
-.PHONY: help test-backup gen gen-api gen-sqlc gen-check lint test test-engine test-int e2e oracle mock up down ci govulncheck test-headers scan-images
+.PHONY: up-test smoke help test-backup gen gen-api gen-sqlc gen-check lint test test-engine test-int e2e oracle mock up down ci govulncheck test-headers scan-images
 
 help: ## Liste les cibles
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-12s %s\n", $$1, $$2}'
@@ -74,7 +74,7 @@ oracle: ## Recalcule l'oracle avec LibreOffice (conteneur épinglé)
 mock: $(API)/node_modules/.package-lock.json ## Serveur simulé Prism (port 4010)
 	cd $(API) && npx prism mock --host 127.0.0.1 --port 4010 openapi.yaml
 
-COMPOSE := docker compose -f deploy/compose.yaml
+COMPOSE := docker compose -f deploy/compose.yaml $(COMPOSE_EXTRA)
 PROFILE ?= local
 
 # Génère deploy/.env (hors git) avec des mots de passe aléatoires s'il est absent.
@@ -83,11 +83,21 @@ deploy/.env:
 		echo "POSTGRES_PASSWORD=$$(openssl rand -hex 24)"; \
 		echo "KEYCLOAK_DB_PASSWORD=$$(openssl rand -hex 24)"; \
 		echo "KEYCLOAK_ADMIN_PASSWORD=$$(openssl rand -hex 24)"; \
+		echo "FINANCE_APP_PASSWORD=$$(openssl rand -hex 24)"; \
 	} > $@
 	@echo "up : deploy/.env généré (secrets aléatoires, ignoré par git)"
 
 up: deploy/.env ## Pile locale (Compose) ; PROFILE=prod pour la production
+	@grep -q '^FINANCE_APP_PASSWORD=' deploy/.env || { umask 077; echo "FINANCE_APP_PASSWORD=$$(openssl rand -hex 24)" >> deploy/.env; echo "up : FINANCE_APP_PASSWORD ajouté à deploy/.env"; }
+	@origin="$${FINANCE_PUBLIC_ORIGIN:-$$(sed -n 's/^FINANCE_PUBLIC_ORIGIN=//p' deploy/.env)}"; origin="$${origin:-https://localhost:9443}"; \
+		printf '{"apiUrl": "", "oidc": {"issuer": "%s/auth/realms/finance", "clientId": "finance-web"}}\n' "$$origin" > deploy/web-config.json
 	$(COMPOSE) --env-file deploy/.env --profile $(PROFILE) up -d --build --wait --wait-timeout 120
+
+up-test: ## Pile locale avec le realm de TEST (client finance-test) ; jamais en production
+	$(MAKE) up PROFILE=local COMPOSE_EXTRA="-f deploy/compose.test-realm.yaml"
+
+smoke: ## Test de fumée de bout en bout (pile démarrée par make up-test)
+	deploy/tests/smoke.sh
 
 down: ## Arrête la pile locale
 	$(COMPOSE) --env-file deploy/.env --profile local --profile prod down

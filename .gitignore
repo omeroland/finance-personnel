@@ -19,6 +19,8 @@ test-results/
 .env
 .env.*
 !.env.example
+# Configuration du client web générée par `make up`
+deploy/web-config.json
 
 # Fichiers déchiffrés et sauvegardes en clair
 *.dec

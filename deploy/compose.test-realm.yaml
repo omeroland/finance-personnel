@@ -1,0 +1,7 @@
+# SURCHARGE POUR LES VÉRIFICATIONS LOCALES SEULEMENT : remplace le realm de production par le
+# realm de test (client `finance-test`, mot de passe factice). Ne jamais l'utiliser en production (D222).
+# Usage : voir deploy/README.md (smoke.sh).
+services:
+  keycloak:
+    volumes:
+      - ./keycloak/realm-finance-test.json:/opt/keycloak/data/import/realm-finance.json:ro
