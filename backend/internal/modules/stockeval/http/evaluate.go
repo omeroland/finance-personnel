@@ -115,7 +115,7 @@ func (h *Handler) compatInputs(d stockData, in engine.Inputs) engine.CompatInput
 		EPS: engine.CompatCellsFromSeries(in.EPS), DPS: engine.CompatCellsFromSeries(in.DPS),
 		PayoutRatio: imported(s.PayoutRatioImported, m.PayoutRatio), DebtToEquity: imported(s.DebtToEquity, m.DebtToEquity),
 		PE: imported(s.PEImported, m.PE), PB: imported(s.PBImported, m.PB),
-		DividendChange: measurePtr(m.DividendChange), CurrentYield: measurePtr(m.CurrentYield), AverageYield: measurePtr(m.AverageYield),
+		DividendChange: measurePtr(m.DividendChange), CurrentYield: measurePtr(m.CurrentYield), AverageYield: engine.CompatAverageYield(in.AnnualYield),
 	}
 	if q := d.qual; q != nil && q.BuybackManual != nil {
 		ci.Buyback = "no"

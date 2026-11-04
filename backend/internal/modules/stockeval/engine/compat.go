@@ -41,6 +41,26 @@ func CompatCellsFromSeries(s Series) CompatCells {
 	return cells
 }
 
+// CompatAverageYield reproduit l'onglet « Average Dividend Yield » : moyenne simple des rendements
+// annuels présents dans les 20 cellules (AVERAGE ignore les vides), sans exiger 20 ans. Nil si aucune.
+func CompatAverageYield(s Series) *float64 {
+	sum, n := decimal.Zero, 0
+	for _, c := range CompatCellsFromSeries(s) {
+		if c != nil {
+			sum = sum.Add(*c)
+			n++
+		}
+	}
+	if n == 0 {
+		return nil
+	}
+	f, err := toFloat(sum.Div(decimal.NewFromInt(int64(n))))
+	if err != nil {
+		return nil
+	}
+	return &f
+}
+
 // CompatGrowth est le résultat d'un onglet de croissance (colonnes V et W de la ligne des taux).
 type CompatGrowth struct {
 	Blank   bool    // la feuille affiche "" (dernière cellule vide)
