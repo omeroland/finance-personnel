@@ -1,0 +1,45 @@
+RESULT ok comptes : deux sub distincts dans le realm finance
+RESULT ok jwt.sans_jeton : HTTP 401 application/problem+json
+RESULT ok jwt.autre_realm : HTTP 401 application/problem+json
+RESULT ok jwt.hs256_forge : HTTP 401 application/problem+json
+RESULT ok jwt.alg_none : HTTP 401 application/problem+json
+RESULT ok jwt.signature_alteree : HTTP 401 application/problem+json
+RESULT ok jwt.mauvaise_audience(aud=None) : HTTP 401 application/problem+json
+RESULT ok jwt.jeton_poubelle : HTTP 401 application/problem+json
+RESULT ok jwt.jeton_valide : HTTP 200
+RESULT ok jwt.exception/healthz : HTTP 200 sans jeton
+RESULT ok jwt.exception/readyz : HTTP 200 sans jeton
+RESULT ok jwt.14_routes_sans_jeton : 14 routes -> 401
+RESULT ok audit.addStock POST /stocks : HTTP 201 ; 1 ligne(s) ajoutée(s) à core.audit_log : t|watchlist.add|watchlist
+RESULT ok audit.updateStock PATCH /stocks/{symbol} : HTTP 200 ; 1 ligne(s) ajoutée(s) à core.audit_log : t|snapshot.save|stockeval.snapshot
+RESULT ok audit.replaceFacts PUT /facts : HTTP 200 ; 2 ligne(s) ajoutée(s) à core.audit_log : t|fact.create|stockeval.annual_fact; t|fact.create|stockeval.annual_fact
+RESULT ok audit.replaceQualitative PUT /qualitative : HTTP 200 ; 1 ligne(s) ajoutée(s) à core.audit_log : t|qualitative.save|stockeval.qualitative
+RESULT ok audit.createEvaluation POST /evaluations : HTTP 201 ; 1 ligne(s) ajoutée(s) à core.audit_log : t|evaluation.archive|stockeval.evaluation
+RESULT ok audit.importXlsx POST /imports/xlsx : HTTP 202 ; 3 ligne(s) ajoutée(s) à core.audit_log : t|import_job.create|stockeval.import_job; t|import_job.update|stockeval.import_job; t|import_job.update|stockeval.import_job
+RESULT ok isolement.listStocks GET /stocks : HTTP 200 ; 0 élément(s) vus par B, TSX:GATEA absent
+RESULT ok isolement.getStock GET /stocks/{symbol} : HTTP 404 (B sur un objet de A)
+RESULT ok isolement.updateStock PATCH /stocks/{symbol} : HTTP 404 (B sur un objet de A)
+RESULT ok isolement.replaceFacts PUT /facts : HTTP 404 (B sur un objet de A)
+RESULT ok isolement.replaceQualitative PUT /qualitative : HTTP 404 (B sur un objet de A)
+RESULT ok isolement.getEvaluation GET /evaluation : HTTP 404 (B sur un objet de A)
+RESULT ok isolement.listEvaluations GET /evaluations : HTTP 404 (B sur un objet de A)
+RESULT ok isolement.createEvaluation POST /evaluations : HTTP 404 (B sur un objet de A)
+RESULT ok isolement.refreshStock POST /refresh : HTTP 404 (B sur un objet de A)
+RESULT ok isolement.getImport GET /imports/{id} : HTTP 404 (B sur un objet de A)
+RESULT ok isolement.deleteStock DELETE /stocks/{symbol} : HTTP 404 (B sur un objet de A)
+RESULT ok isolement.getRules GET /rules : HTTP 200 ; référentiel global sans donnée d'utilisateur (n/a)
+RESULT ok isolement.audit_B_inchange : aucune ligne d'audit créée pour B par ses écritures refusées
+RESULT ok isolement.A_intact_facts : diluted_eps 2025 de A = 7.55 après les tentatives de B
+RESULT ok isolement.A_intact_historique : historique de A présent
+RESULT ok isolement.homonyme : B crée son propre TSX:GATEA (UNIQUE(owner_id,symbol), D40) : HTTP 201
+RESULT ok isolement.homonyme_A_intact : la fiche de A n'est pas modifiée par l'homonyme de B
+RESULT ok audit.deleteStock DELETE /stocks/{symbol} : HTTP 204 ; 1 ligne(s) ajoutée(s) à core.audit_log : t|watchlist.remove|watchlist
+RESULT ok isolement.A_lit_son_job : A relit son job d'import : HTTP 200
+RESULT ok debit.rafale_api : 400 requêtes GET /api/v1/rules en rafale : 45 x 200, 355 x 429, autres []
+RESULT ok debit.reprise : après la rafale et une pause : HTTP 200
+RESULT ok debit.keycloak_non_limite : 400 requêtes sur /auth : 0 x 429 (route /auth hors middleware api-ratelimit : observation)
+RESULT ok debit.web_non_limite : 400 requêtes sur / : 0 x 429 (observation)
+attente de l'expiration du jeton : 319 s
+RESULT ok jwt.expire : jeton valide à t0, rejoué 30 s après exp : HTTP 401
+TOTAL 42 vérifications, 0 échec(s)
+EXIT 0

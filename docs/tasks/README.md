@@ -28,6 +28,8 @@ Une tâche passe à « prête » quand toutes ses dépendances sont « terminée
 | [P1-22](P1-22.md) | Intégration bout en bout | Vérificateur | P1-12, P1-17, P1-18 | terminée |
 | [P1-23](P1-23.md) | Déploiement sur le VPS | Plateforme | P1-13, P1-19, P1-20 | à faire |
 | [P1-24](P1-24.md) | Porte de phase 1 | Vérificateur | toutes | à faire |
+| [P1-13-fix](P1-13-fix.md) | Correctif porte P1-24 : console d'administration Keycloak exposée | Plateforme | P1-13, P1-19 | à faire |
+| [P1-19-fix](P1-19-fix.md) | Correctif porte P1-24 : Trivy sur toutes les images et dans la CI | Plateforme | P1-19 | à faire |
 
 ## Décisions techniques à ajouter au journal (D23 à D34)
 
