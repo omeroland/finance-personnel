@@ -27,6 +27,10 @@ Une nouvelle ambiguïté s'ajoute à la suite. D1 à D16 : `docs/architecture.md
 
 ## D17 à D22 — à fournir
 
+| # | Sujet | Décision | À réévaluer |
+| --- | --- | --- | --- |
+| D300 | Clôture de P1-02 avec réserve | P1-02 est close sans D18 à D21 ni le texte intégral des règles 1 à 4, que le document d'architecture ne contient pas. Le moteur traite les règles 1 à 4 comme quatre réponses oui/non saisies à la main (barrière « quatre oui », sinon *exclue*), ce qui suffit à la phase 1. Rien n'est inventé. | Quand le propriétaire fournit D18 à D21 et le texte des règles 1 à 4 : les ajouter ici et dans `docs/rules.md` |
+
 ## D23 à D34 — Techniques
 
 | # | Sujet | Décision MVP | À réévaluer |
