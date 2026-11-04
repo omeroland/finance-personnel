@@ -23,10 +23,12 @@
       "serviceAccountsEnabled": false,
       "fullScopeAllowed": false,
       "redirectUris": [
-        "http://localhost:4200/*"
+        "http://localhost:4200/*",
+        "https://localhost:9443/*"
       ],
       "webOrigins": [
-        "http://localhost:4200"
+        "http://localhost:4200",
+        "https://localhost:9443"
       ],
       "attributes": {
         "pkce.code.challenge.method": "S256",
