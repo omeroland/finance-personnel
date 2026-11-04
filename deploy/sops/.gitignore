@@ -1,0 +1,4 @@
+# Jamais de secret en clair : seul prod.sops.env (chiffré) est versionné.
+prod.env
+*.age.key
+keys.txt

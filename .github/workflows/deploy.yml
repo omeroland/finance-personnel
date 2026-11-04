@@ -1,0 +1,213 @@
+name: deploy
+
+# P1-23 : déclenché UNIQUEMENT par une étiquette vX.Y.Z (jamais par une branche ni une PR).
+# Chaîne : contrôle -> images signées dans GHCR -> déploiement SSH (approbation manuelle) -> test de fumée.
+# Retour arrière : voir deploy/README.md. Ce workflow n'a pas encore été exécuté (VPS non fourni).
+on:
+  push:
+    tags: ['v*']
+
+# Aucune permission par défaut ; chaque job déclare le strict nécessaire.
+permissions: {}
+
+# Un seul déploiement à la fois, jamais interrompu en cours de route.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+env:
+  # Tout ce qui est signé et vérifié l'est pour CE dépôt et CE workflow (voir deploy/scripts/deploy.sh).
+  COSIGN_VERSION: v3.1.4
+  COSIGN_SHA256: 424e2c97d0b45fd7a6b608a87f090f35633f4c23ece5f092d48bba11aaf4bbfa
+  OIDC_ISSUER: https://token.actions.githubusercontent.com
+  TAG_RE: '^v[0-9]+\.[0-9]+\.[0-9]+$'
+
+jobs:
+  controle:
+    name: Contrôle de l'étiquette et du realm
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Étiquette vX.Y.Z, commit présent sur main
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          [[ $TAG =~ $TAG_RE ]] || { echo "::error::étiquette $TAG invalide (attendu vX.Y.Z)"; exit 1; }
+          git merge-base --is-ancestor HEAD origin/main \
+            || { echo "::error::le commit de l'étiquette n'est pas dans main"; exit 1; }
+      - name: Realm de production sans client de test
+        run: |
+          set -euo pipefail
+          if grep -rn 'finance-test' deploy/keycloak/realm-finance.json; then
+            echo "::error::realm-finance.json contient finance-test"; exit 1
+          fi
+          test -f deploy/sops/prod.sops.env || { echo "::error::deploy/sops/prod.sops.env absent (secrets sops, voir deploy/README.md)"; exit 1; }
+          grep -q '^sops_' deploy/sops/prod.sops.env || { echo "::error::prod.sops.env n'est pas chiffré par sops"; exit 1; }
+
+  images:
+    name: Images signées (api, web)
+    needs: controle
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write     # envoi vers GHCR avec GITHUB_TOKEN
+      id-token: write     # jeton OIDC pour la signature cosign sans clé (seul job qui en a besoin)
+    outputs:
+      api_ref: ${{ steps.refs.outputs.api_ref }}
+      web_ref: ${{ steps.refs.outputs.web_ref }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Installer cosign (version et empreinte épinglées)
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -fsSL -o "$RUNNER_TEMP/cosign" \
+            "https://github.com/sigstore/cosign/releases/download/${COSIGN_VERSION}/cosign-linux-amd64"
+          echo "${COSIGN_SHA256}  $RUNNER_TEMP/cosign" | sha256sum -c --quiet -
+          install -D -m 0755 "$RUNNER_TEMP/cosign" "$RUNNER_TEMP/bin/cosign"
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+      - uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Nom de l'image (minuscules)
+        id: nom
+        env:
+          REPO: ${{ github.repository }}
+        run: echo "base=ghcr.io/${REPO,,}" >> "$GITHUB_OUTPUT"
+      - name: Construire et envoyer api
+        id: api
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: backend
+          platforms: linux/amd64
+          push: true
+          provenance: false
+          sbom: false
+          tags: ${{ steps.nom.outputs.base }}/api:${{ github.ref_name }}
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.version=${{ github.ref_name }}
+      - name: Construire et envoyer web
+        id: web
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: web
+          target: app
+          platforms: linux/amd64
+          push: true
+          provenance: false
+          sbom: false
+          tags: ${{ steps.nom.outputs.base }}/web:${{ github.ref_name }}
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.version=${{ github.ref_name }}
+      - name: Références par digest
+        id: refs
+        env:
+          BASE: ${{ steps.nom.outputs.base }}
+          API_DIGEST: ${{ steps.api.outputs.digest }}
+          WEB_DIGEST: ${{ steps.web.outputs.digest }}
+        run: |
+          set -euo pipefail
+          re='^sha256:[0-9a-f]{64}$'
+          [[ $API_DIGEST =~ $re && $WEB_DIGEST =~ $re ]] || { echo "::error::digest d'image invalide"; exit 1; }
+          echo "api_ref=${BASE}/api@${API_DIGEST}" >> "$GITHUB_OUTPUT"
+          echo "web_ref=${BASE}/web@${WEB_DIGEST}" >> "$GITHUB_OUTPUT"
+      - name: Signer sans clé (OIDC GitHub) puis vérifier
+        env:
+          API_REF: ${{ steps.refs.outputs.api_ref }}
+          WEB_REF: ${{ steps.refs.outputs.web_ref }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          for ref in "$API_REF" "$WEB_REF"; do
+            cosign sign --yes "$ref"
+            # Même contrainte d'identité que sur le serveur (deploy/scripts/deploy.sh) : dépôt et workflow explicites.
+            cosign verify \
+              --certificate-oidc-issuer "$OIDC_ISSUER" \
+              --certificate-identity "${GITHUB_SERVER_URL}/${REPO}/.github/workflows/deploy.yml@${GITHUB_REF}" \
+              --certificate-github-workflow-repository "$REPO" \
+              --certificate-github-workflow-trigger push \
+              "$ref" > /dev/null
+          done
+
+  deploiement:
+    name: Déploiement SSH et test de fumée
+    needs: images
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Environnement GitHub `production` : approbation manuelle recommandée (relecteurs requis), secrets du déploiement.
+    environment:
+      name: production
+    permissions:
+      contents: read
+    env:
+      TAG: ${{ github.ref_name }}
+      API_REF: ${{ needs.images.outputs.api_ref }}
+      WEB_REF: ${{ needs.images.outputs.web_ref }}
+      FINANCE_ROOT: /opt/finance
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Préparer SSH (hôte vérifié, aucune confiance au premier contact)
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          umask 077
+          for v in DEPLOY_HOST DEPLOY_USER DEPLOY_SSH_KEY DEPLOY_KNOWN_HOSTS; do
+            [[ -n ${!v} ]] || { echo "::error::secret $v absent de l'environnement production"; exit 1; }
+          done
+          echo "::add-mask::$DEPLOY_HOST"
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/id_deploy
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          {
+            echo "Host vps"
+            echo "  HostName $DEPLOY_HOST"
+            echo "  Port ${DEPLOY_PORT:-22}"
+            echo "  User $DEPLOY_USER"
+            echo "  IdentityFile ~/.ssh/id_deploy"
+            echo "  IdentitiesOnly yes"
+            echo "  BatchMode yes"
+            echo "  StrictHostKeyChecking yes"
+            echo "  UserKnownHostsFile ~/.ssh/known_hosts"
+          } > ~/.ssh/config
+      - name: Envoyer la version (arbre deploy/ de l'étiquette)
+        run: |
+          set -euo pipefail
+          [[ $TAG =~ $TAG_RE ]] || { echo "::error::étiquette invalide"; exit 1; }
+          dir="$FINANCE_ROOT/releases/$TAG"
+          # shellcheck disable=SC2029  # expansion côté client voulue : TAG validé par regex
+          git archive --format=tar HEAD deploy | ssh vps "set -e; rm -rf '$dir'; mkdir -p '$dir'; tar -x -C '$dir'"
+      - name: Vérifier les signatures sur le serveur puis déployer (pull, up)
+        run: |
+          set -euo pipefail
+          # shellcheck disable=SC2029  # expansion côté client voulue : valeurs validées par regex
+          ssh vps "FINANCE_ROOT='$FINANCE_ROOT' '$FINANCE_ROOT/releases/$TAG/deploy/scripts/deploy.sh' deploy '$TAG' '$API_REF' '$WEB_REF'"
+      - name: Test de fumée (healthz, connexion, TLS)
+        env:
+          ORIGIN: ${{ vars.FINANCE_PUBLIC_ORIGIN }}
+        run: |
+          set -euo pipefail
+          [[ -n $ORIGIN ]] || { echo "::error::variable FINANCE_PUBLIC_ORIGIN absente de l'environnement production"; exit 1; }
+          bash deploy/tests/smoke-prod.sh "$ORIGIN"

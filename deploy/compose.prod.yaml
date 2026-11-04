@@ -1,0 +1,19 @@
+# SURCHARGE DE PRODUCTION (P1-23) : utilise les images signées de GHCR, référencées par digest,
+# au lieu de les construire. Toujours combinée à compose.yaml par deploy/scripts/deploy.sh :
+#   docker compose -f compose.yaml -f compose.prod.yaml --profile prod ...
+# Le realm importé reste celui de compose.yaml (realm-finance.json, sans client de test, D222) ;
+# compose.test-realm.yaml n'est jamais combiné à ce fichier.
+# Requiert Docker Compose >= 2.24.4 (étiquette !reset).
+services:
+  api:
+    image: ${API_IMAGE:?API_IMAGE (digest GHCR) requis}
+    build: !reset null
+    pull_policy: missing   # référence par digest : immuable ; `compose pull` explicite avant `up`
+  migrate:
+    image: ${API_IMAGE:?API_IMAGE (digest GHCR) requis}
+    build: !reset null
+    pull_policy: missing
+  web:
+    image: ${WEB_IMAGE:?WEB_IMAGE (digest GHCR) requis}
+    build: !reset null
+    pull_policy: missing
