@@ -6,10 +6,10 @@ Vérificateur, 2026-11-03. Branche `task/P1-22`. Pile réelle (`make up-test`, h
 
 | Critère | Résultat |
 | --- | --- |
-| Le scénario passe trois fois de suite sur une pile neuve | **Prouvé** (3 passes sur 3, 7 tests chacune) |
-| Scores compat de l'app = scores LibreOffice pour les 5 actions | **Non prouvé : 4 actions sur 5 égales ; l'écart vient d'un défaut de P1-12** |
+| Le scénario passe trois fois de suite sur une pile neuve | **Prouvé** (3 passes sur 3, 7 tests chacune, via `make e2e-full`) |
+| Scores compat de l'app = scores LibreOffice pour les 5 actions | **Prouvé** : 5 actions sur 5 égales (après la correction P1-12c, voir Défaut 1) |
 
-P1-22 reste « à faire » : le second critère exige les 5 actions. Un échec renvoie la tâche fautive à son agent (Défaut 1).
+P1-22 est « terminée ». Première exécution (avant P1-12c) : 4 actions sur 5, TSX:FAUXE en écart ; le défaut a été renvoyé à P1-12 puis rejoué ci-dessous.
 
 ## Ce qui est livré
 
@@ -26,25 +26,27 @@ Les 5 actions (entrées dérivées des séries pour que feuille et app voient le
 2. Par action : `GET /evaluation?mode=compat` (jeton `finance-test`) comparé à LibreOffice (échecs, score strict, 10 statuts, 5a, 5b, 6), puis la liste en mode Compat affiche `10 - échecs`/10.
 3. Fiche de TSX:FAUXD, grille : BPA 2025 changé à 30, enregistré, le score affiché change (il vient de l'API), « Archiver », l'historique montre l'évaluation avec le même score strict.
 
-## Les trois passes
+## Les trois passes (rejouées après P1-12c, branche `task/P1-22b`, sans `test.fail`)
 
-Chaque passe : `docker compose ... down -v` du seul projet `financee2e` (volume `financee2e_pgdata` recréé), `make up-test`, puis `npx playwright test -c playwright.full.config.ts` dans `e2e/web` (équivalent de `make e2e-full` sans la génération, déjà faite).
+Chaque passe : `docker compose ... down -v` du seul projet `financee2e` (volume `financee2e_pgdata` recréé), `make up-test`, puis `make e2e-full` (génération du classeur et des attendus LibreOffice, puis Playwright).
 
 ```
-=== PASSE 1 ===  7 passed (9.3s)   code 0
-=== PASSE 2 ===  7 passed (9.6s)   code 0
-=== PASSE 3 ===  7 passed (9.5s)   code 0
+=== PASSE 1 ===  7 passed (10.2s)   code 0
+=== PASSE 2 ===  7 passed (10.0s)   code 0
+=== PASSE 3 ===  7 passed (10.2s)   code 0
 ```
 
-Détail d'une passe : test 1 (import, 5 actions) vert ; comparaison FAUXA, FAUXB, FAUXC, FAUXD vertes ; FAUXE en échec attendu (`test.fail`, D241 ; Playwright affiche ✘ et le compte comme réussi) ; test 3 (fiche, saisie, score, archivage, historique) vert.
+Chaque passe : import et liste de 5 actions verts ; comparaison LibreOffice verte pour FAUXA, FAUXB, FAUXC, FAUXD et FAUXE ; fiche, saisie, score, archivage et historique verts. Échecs de la feuille (LibreOffice) = app en compat : A 1, B 7, C 2, D 5, E 4.
 
-Échecs de la feuille (LibreOffice) : A 1, B 7, C 2, D 5, E 4. App en compat : A 1, B 7, C 2, D 5, **E 3**.
+### Première exécution (avant la correction)
 
-## Défaut 1 : 11b compat avec un historique de rendement court (tâche fautive : P1-12)
+Trois passes à 7 tests réussis avec FAUXE en échec attendu (`test.fail`, D241) ; l'app donnait 3 échecs pour FAUXE contre 4.
+
+## Défaut 1 : 11b compat avec un historique de rendement court (tâche fautive : P1-12) : corrigé par P1-12c (PR #32)
 
 - Symptôme : TSX:FAUXE (rendement annuel présent sur 12 ans seulement) : l'app compat donne 3 échecs (7/10), LibreOffice 4 (6/10). Seule la règle 11b diffère : la feuille échoue (L < M), l'app renvoie `passed` avec l'avertissement « règle 11b: donnée absente, réussite comme dans la feuille ».
 - Cause : `backend/internal/modules/stockeval/http/evaluate.go`, `compatInputs`, prend `AverageYield` du moteur corrigé (`engine/metrics.go`, `averageYield`), qui renvoie « historique insuffisant » (nil) quand la série n'a pas 20 valeurs. La feuille calcule `AVERAGE(B6:U6)` sur les cellules présentes (`'Average Dividend Yield'!V6`). Une correction côté moteur compat (P1-08) est possible aussi ; à trancher par l'agent Backend.
-- Reproduction : `make up-test`, importer `e2e/web/.generated/classeur-5-actions.xlsx` (année 2025), puis `GET /api/v1/stocks/TSX:FAUXE/evaluation?mode=compat` : `failureCount` 3, critère 11b `passed`, sans valeur. Ou `make e2e-full` : le test « compat = LibreOffice pour TSX:FAUXE » est marqué `test.fail` et échouera dès la correction ; retirer alors `test.fail`.
+- Reproduction : `make up-test`, importer `e2e/web/.generated/classeur-5-actions.xlsx` (année 2025), puis `GET /api/v1/stocks/TSX:FAUXE/evaluation?mode=compat` : `failureCount` 3, critère 11b `passed`, sans valeur. Correction : `engine.CompatAverageYield` (moyenne simple des rendements présents). Le `test.fail` a été retiré (D241 soldée).
 - Les 9 autres critères de FAUXE (dont 5a = 0,055 avec la division par 18, 5b = 11) sont égaux à la feuille.
 
 ## Observation sans défaut
