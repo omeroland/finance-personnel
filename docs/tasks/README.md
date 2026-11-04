@@ -24,7 +24,7 @@ Une tâche passe à « prête » quand toutes ses dépendances sont « terminée
 | [P1-18](P1-18.md) | Angular : import de la feuille | Frontend Angular | P1-14 | terminée |
 | [P1-19](P1-19.md) | Conteneurs, Compose, Traefik et en-têtes de sécurité | Plateforme | P1-01 | terminée |
 | [P1-20](P1-20.md) | Sauvegardes chiffrées et restauration automatisée | Plateforme | P1-09, P1-19 | terminée |
-| [P1-21](P1-21.md) | Observabilité | Plateforme | P1-12 | à faire |
+| [P1-21](P1-21.md) | Observabilité | Plateforme | P1-12 | terminée |
 | [P1-22](P1-22.md) | Intégration bout en bout | Vérificateur | P1-12, P1-17, P1-18 | à faire |
 | [P1-23](P1-23.md) | Déploiement sur le VPS | Plateforme | P1-13, P1-19, P1-20 | à faire |
 | [P1-24](P1-24.md) | Porte de phase 1 | Vérificateur | toutes | à faire |

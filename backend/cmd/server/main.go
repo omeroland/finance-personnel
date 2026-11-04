@@ -20,6 +20,7 @@ import (
 	"github.com/omeroland/finance-privee/backend/internal/modules/stockeval/store"
 	"github.com/omeroland/finance-privee/backend/internal/platform/auth"
 	"github.com/omeroland/finance-privee/backend/internal/platform/httpx"
+	"github.com/omeroland/finance-privee/backend/internal/platform/observability"
 )
 
 const (
@@ -30,8 +31,8 @@ const (
 )
 
 func main() {
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
-	cfg := config{addr: os.Getenv("HTTP_ADDR"), databaseURL: os.Getenv("DATABASE_URL"), auth: authConfig()}
+	logger := observability.NewLogger(os.Stdout, slog.LevelInfo)
+	cfg := config{addr: os.Getenv("HTTP_ADDR"), metricsAddr: os.Getenv("METRICS_ADDR"), databaseURL: os.Getenv("DATABASE_URL"), auth: authConfig()}
 	if err := run(logger, cfg); err != nil {
 		logger.Error("arrêt sur erreur", slog.String("erreur", err.Error()))
 		os.Exit(1)
@@ -40,6 +41,8 @@ func main() {
 
 type config struct {
 	addr string
+	// metricsAddr est l'adresse interne des métriques (défaut :9090), jamais publiée.
+	metricsAddr string
 	// databaseURL est la chaîne de connexion du rôle finance_app (D41) ; obligatoire.
 	databaseURL string
 	auth        auth.Config
@@ -83,8 +86,9 @@ func run(logger *slog.Logger, cfg config) error {
 	}
 	defer pool.Close()
 
+	metrics := observability.NewMetrics()
 	st := store.New(pool)
-	api, err := httpapi.New(httpapi.Config{Repos: st, Importer: ingest.NewImporter(st), Rules: rules, Logger: logger})
+	api, err := httpapi.New(httpapi.Config{Repos: st, Importer: ingest.NewImporter(st), Rules: rules, Logger: logger, Observer: metrics})
 	if err != nil {
 		return fmt.Errorf("assembler les handlers: %w", err)
 	}
@@ -95,20 +99,26 @@ func run(logger *slog.Logger, cfg config) error {
 	}
 	srv := &http.Server{
 		Addr:              addr,
-		Handler:           handler(logger, verifier, api, pool),
+		Handler:           handler(logger, verifier, api, metrics, pool),
 		ReadHeaderTimeout: 5 * time.Second,
 		ReadTimeout:       15 * time.Second,
 		WriteTimeout:      30 * time.Second,
 		IdleTimeout:       60 * time.Second,
 	}
 
-	errCh := make(chan error, 1)
+	metricsSrv := observability.NewMetricsServer(cfg.metricsAddr, metrics)
+	errCh := make(chan error, 2)
+	go func() {
+		logger.Info("métriques sur le port interne", slog.String("addr", metricsSrv.Addr))
+		if err := metricsSrv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			errCh <- fmt.Errorf("écouter les métriques sur %s: %w", metricsSrv.Addr, err)
+		}
+	}()
 	go func() {
 		logger.Info("serveur démarré", slog.String("addr", addr))
 		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			errCh <- fmt.Errorf("écouter sur %s: %w", addr, err)
 		}
-		close(errCh)
 	}()
 
 	select {
@@ -123,6 +133,9 @@ func run(logger *slog.Logger, cfg config) error {
 	if err := srv.Shutdown(shutdownCtx); err != nil {
 		return fmt.Errorf("arrêt propre du serveur: %w", err)
 	}
+	if err := metricsSrv.Shutdown(shutdownCtx); err != nil {
+		return fmt.Errorf("arrêt du serveur de métriques: %w", err)
+	}
 	if err := api.Close(shutdownCtx); err != nil {
 		return err
 	}
@@ -135,32 +148,22 @@ type pinger interface {
 	Ping(ctx context.Context) error
 }
 
-// handler assemble la pile HTTP : identifiant de requête, journal d'accès,
-// récupération de panique, JWT (sauf /healthz et /readyz), limite de corps, délai.
-func handler(logger *slog.Logger, verifier *auth.Verifier, api *httpapi.Handler, db pinger) http.Handler {
+// handler assemble la pile HTTP : identifiant de requête, métriques, journal
+// d'accès, récupération de panique, JWT (sauf /healthz et /readyz), limite de
+// corps, délai. /readyz exige la base et la découverte OIDC (JWKS en cache).
+func handler(logger *slog.Logger, verifier *auth.Verifier, api *httpapi.Handler, metrics *observability.Metrics, db pinger) http.Handler {
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /healthz", ok)
-	mux.HandleFunc("GET /readyz", func(w http.ResponseWriter, r *http.Request) {
-		if err := db.Ping(r.Context()); err != nil {
-			logger.WarnContext(r.Context(), "base injoignable", slog.String("erreur", err.Error()))
-			p, _ := httpx.ProblemOf(httpx.Unavailable(err), r.URL.Path)
-			httpx.WriteProblem(w, p)
-			return
-		}
-		w.WriteHeader(http.StatusOK)
-	})
+	mux.HandleFunc("GET /healthz", observability.Healthz)
+	mux.HandleFunc("GET /readyz", observability.Readyz(logger, db.Ping, verifier.Ready))
 	mux.Handle("/api/", api.Routes())
 
 	return httpx.Chain(mux,
 		httpx.RequestID,
+		metrics.Middleware,
 		httpx.AccessLog(logger),
 		httpx.Recover(logger),
 		verifier.Middleware("/healthz", "/readyz"),
 		httpapi.BodyLimit(),
 		httpx.Timeout(requestTimeout),
 	)
-}
-
-func ok(w http.ResponseWriter, _ *http.Request) {
-	w.WriteHeader(http.StatusOK)
 }

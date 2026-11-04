@@ -17,17 +17,36 @@ import (
 	"github.com/omeroland/finance-privee/backend/internal/modules/stockeval/ingest"
 	"github.com/omeroland/finance-privee/backend/internal/modules/stockeval/store"
 	"github.com/omeroland/finance-privee/backend/internal/platform/auth"
+	"github.com/omeroland/finance-privee/backend/internal/platform/observability"
 )
 
 type fakePinger struct{ err error }
 
 func (p fakePinger) Ping(context.Context) error { return p.err }
 
+// fakeOIDC sert une découverte OIDC et un JWKS vide : l'API est « prête », mais aucun jeton ne passe.
+func fakeOIDC(t *testing.T) string {
+	t.Helper()
+	var srv *httptest.Server
+	mux := http.NewServeMux()
+	mux.HandleFunc("/.well-known/openid-configuration", func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = io.WriteString(w, `{"issuer":"`+srv.URL+`","jwks_uri":"`+srv.URL+`/jwks","id_token_signing_alg_values_supported":["RS256"]}`)
+	})
+	mux.HandleFunc("/jwks", func(w http.ResponseWriter, _ *http.Request) { _, _ = io.WriteString(w, `{"keys":[]}`) })
+	srv = httptest.NewServer(mux)
+	t.Cleanup(srv.Close)
+	return srv.URL
+}
+
 func newTestHandler(t *testing.T, db pinger) http.Handler {
 	t.Helper()
+	return newTestHandlerIssuer(t, db, fakeOIDC(t))
+}
+
+func newTestHandlerIssuer(t *testing.T, db pinger, issuer string) http.Handler {
+	t.Helper()
 	logger := slog.New(slog.NewJSONHandler(io.Discard, nil))
-	// L'issuer est injoignable : la découverte échoue, donc tout jeton est refusé (fermé par défaut, D60).
-	v, err := auth.NewVerifier(auth.Config{Issuer: "http://127.0.0.1:1/realm", Audience: "finance-api"}, nil, logger)
+	v, err := auth.NewVerifier(auth.Config{Issuer: issuer, Audience: "finance-api"}, nil, logger)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -40,7 +59,7 @@ func newTestHandler(t *testing.T, db pinger) http.Handler {
 	if err != nil {
 		t.Fatal(err)
 	}
-	return handler(logger, v, api, db)
+	return handler(logger, v, api, observability.NewMetrics(), db)
 }
 
 func TestHandlerPublicRoutesAndJWT(t *testing.T) {
@@ -97,6 +116,17 @@ func TestReadyzReportsDatabase(t *testing.T) {
 	}
 	if body := rec.Body.String(); strings.Contains(body, "10.0.0.1") {
 		t.Fatalf("fuite de l'adresse de la base: %s", body)
+	}
+}
+
+// Sans découverte OIDC jamais réussie (JWKS absent du cache), l'API n'est pas prête (D60).
+func TestReadyzRequiresJWKS(t *testing.T) {
+	t.Parallel()
+	h := newTestHandlerIssuer(t, fakePinger{}, "http://127.0.0.1:1/realm")
+	rec := httptest.NewRecorder()
+	h.ServeHTTP(rec, httptest.NewRequest("GET", "/readyz", nil))
+	if rec.Code != 503 {
+		t.Fatalf("readyz sans JWKS = %d", rec.Code)
 	}
 }
 

@@ -141,6 +141,8 @@ func (h *Handler) evaluate(d stockData, mode gen.Mode) (engine.Evaluation, archi
 	in := engineInputs(d, h.now().Year())
 	ctx := engineContext(d)
 	arch := archivedInputs{Mode: string(mode), Gate: ctx.Gate, Financial: ctx.Financial, Inputs: in}
+	start := time.Now()
+	defer func() { h.obs.EvaluationDone(time.Since(start)) }()
 	if mode == gen.Compat {
 		ci := h.compatInputs(d, in)
 		arch.Compat = &ci
