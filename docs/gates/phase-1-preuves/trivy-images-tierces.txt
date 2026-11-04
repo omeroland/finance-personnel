@@ -1,0 +1,8 @@
+postgres:16-alpine@sha256:0cefaabd882e42bcb2a2f3dc56d3ce4770560ba62fd7f197f1a2e008fd5731ab : 26 vulnérabilité(s) HIGH/CRITICAL avec correctif
+    usr/local/bin/gosu 26 ['stdlib v1.24.6']
+quay.io/keycloak/keycloak:26.4@sha256:9409c59bdfb65dbffa20b11e6f18b8abb9281d480c7ca402f51ed3d5977e6007 : 92 vulnérabilité(s) HIGH/CRITICAL avec correctif
+    quay.io/keycloak/keycloak:26.4@sha256:9409c59bdfb65dbffa20b1 19 ['ca-certificates 2025.2.80_v9.0.305-91.el9', 'java-21-openjdk-headless 1:21.0.9.0.10-1.el9', 'libacl 2.3.1-4.el9']
+    Java 73 ['com.fasterxml.jackson.core:jackson-core 2.19.2', 'com.fasterxml.jackson.core:jackson-databind 2.19.2', 'com.google.guava:guava 33.4.8-jre']
+traefik:v3.6@sha256:31267173a15b4944e797a76ffd9c419707c8d8b32fe5b610f80cd0cfa05f372d : 26 vulnérabilité(s) HIGH/CRITICAL avec correctif
+    traefik:v3.6@sha256:31267173a15b4944e797a76ffd9c419707c8d8b3 2 ['libcrypto3 3.5.7-r0', 'libssl3 3.5.7-r0']
+    usr/local/bin/traefik 24 ['github.com/go-jose/go-jose/v4 v4.1.4', 'github.com/traefik/traefik/v3 v3.6.25', 'golang.org/x/crypto v0.54.0']

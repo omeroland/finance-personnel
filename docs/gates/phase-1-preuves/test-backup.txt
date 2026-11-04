@@ -1,0 +1,24 @@
+== construction des images
+== attente des services
+== clés age jetables
+== données de test
+== sauvegarde
+  ok  - sauvegarde stockée : finance-20261104T151244Z.tar.age
+== illisible sans la clé privée
+  ok  - objet chiffré, aucune donnée en clair
+  ok  - restauration refusée sans clé ou avec une autre clé
+== restauration dans une base neuve, nombre de lignes par table
+2026-11-04T15:12:46Z restauration OK : 3 tables, nombre de lignes identique (base restore_20261104_151246_1)
+      core.instrument : 250 = 250
+      stockeval.vide : 0 = 0
+      stockeval.watchlist : 120 = 120
+  ok  - nombre de lignes identique pour chaque table
+2026-11-04T15:12:48Z restauration OK : 3 tables, nombre de lignes identique (base restore_20261104_151247_1)
+  ok  - base de restauration supprimée après le test
+== test de restauration (complet et léger)
+  ok  - test mensuel réussi en modes complet et léger
+  ok  - alerte et code non nul si la dernière sauvegarde est trop ancienne
+== rétention de 30 jours (dates simulées)
+  ok  - plus de 30 jours supprimées, moins de 30 jours conservées
+  ok  - la sauvegarde la plus récente n'est jamais supprimée
+== 9 vérifications réussies

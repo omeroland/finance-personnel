@@ -1,0 +1,20 @@
+finance_app> UPDATE core.audit_log SET actor='x'  =>  ERROR:  permission denied for table audit_log
+finance_app> DELETE FROM core.audit_log  =>  ERROR:  permission denied for table audit_log
+finance_app> UPDATE stockeval.evaluation SET mode='x'  =>  ERROR:  permission denied for table evaluation
+finance_app> DELETE FROM stockeval.evaluation  =>  ERROR:  permission denied for table evaluation
+finance_app> INSERT autorisé (attendu) : t
+--- lignes d'audit (type, acteur = propriétaire ?, avant/après présents ?)
+evaluation.archive|1|t|f|t
+fact.create|2|t|f|t
+import_job.create|1|t|f|t
+import_job.update|2|t|t|t
+qualitative.save|1|t|f|t
+snapshot.save|1|t|f|t
+watchlist.add|2|t|f|t
+watchlist.remove|2|t|t|f
+--- exemple facts (avant/après)
+fact.create||{"value": "7.55", "metric": "eps_diluted", "source": "manual|2026-11-04 15:05:08.264408+00
+fact.create||{"value": "640000000", "metric": "shares_diluted", "source":|2026-11-04 15:05:08.268883+00
+--- ports publiés par la base : '' (vide attendu)
+/financegate-api-1 user=65532:65532 readonly=true capdrop=[ALL] secopt=[no-new-privileges:true]
+/financegate-web-1 user=65532:65532 readonly=true capdrop=[ALL] secopt=[no-new-privileges:true]
