@@ -79,12 +79,6 @@ test('1. connexion, import du classeur de 5 actions, la liste montre 5 actions',
 // Vérification croisée (avant toute modification) : scores compat de l'app = scores de LibreOffice.
 for (const a of ATTENDU.actions) {
   test(`2. compat = LibreOffice pour ${a.symbole}`, async ({ page, request }) => {
-    // DÉFAUT CONNU, tâche P1-12 (http/evaluate.go, compatInputs) : voir docs/gates/phase-1-integration.md.
-    // La moyenne du rendement (11b) est calculée sur la fenêtre complète de 20 ans du mode corrigé ; avec un
-    // historique de rendement plus court elle est absente et la règle « réussit » en compat, alors que la
-    // feuille moyenne les cellules présentes. Retirer cette ligne quand P1-12 est corrigée.
-    test.fail(a.symbole === 'TSX:FAUXE', 'défaut P1-12 : 11b compat avec historique de rendement court');
-
     const entetes = { Authorization: `Bearer ${await jeton(request)}` };
     const r = await request.get(`/api/v1/stocks/${encodeURIComponent(a.symbole)}/evaluation?mode=compat`, { headers: entetes });
     expect(r.ok(), a.symbole).toBe(true);
