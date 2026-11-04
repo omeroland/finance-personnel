@@ -8,12 +8,21 @@ http:
       priority: 30
       service: api
       middlewares: [api-ratelimit, security-headers, csp]
+    # P1-13-fix : seuls le realm finance (OIDC, certs, découverte, pages de connexion) et les ressources
+    # statiques du login sont publics. Tout le reste de /auth (console /auth/admin, realm master,
+    # API d'administration) tombe dans le routeur de refus ci-dessous (403).
     keycloak:
       entryPoints: [websecure]
-      rule: PathPrefix(`/auth`)
+      rule: Path(`/auth/realms/finance`) || PathPrefix(`/auth/realms/finance/`) || PathPrefix(`/auth/resources/`) || PathPrefix(`/auth/js/`)
       priority: 20
       service: keycloak
-      middlewares: [security-headers]
+      middlewares: [auth-ratelimit, security-headers]
+    keycloak-refus:
+      entryPoints: [websecure]
+      rule: PathPrefix(`/auth`)
+      priority: 15
+      service: keycloak
+      middlewares: [refus-total]
     web:
       entryPoints: [websecure]
       rule: PathPrefix(`/`)
@@ -39,6 +48,16 @@ http:
         average: 20
         period: 1s
         burst: 40
+    # P1-13-fix : limite par adresse source sur le login (plus large que l'API : une page charge plusieurs ressources).
+    auth-ratelimit:
+      rateLimit:
+        average: 30
+        period: 1s
+        burst: 60
+    # Refus : liste d'adresses autorisées sans adresse joignable (RFC 5737) -> 403 ; le service n'est jamais atteint.
+    refus-total:
+      ipAllowList:
+        sourceRange: ["192.0.2.1/32"]
     security-headers:
       headers:
         stsSeconds: 63072000
