@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """P1-24 : revue de sécurité rejouée sur la pile réelle (realm de TEST, aucune donnée réelle).
 
-Pile démarrée par `COMPOSE_PROJECT_NAME=financegate make up-test`. Le script :
+Pile démarrée par `COMPOSE_PROJECT_NAME=financegate make up-test`, avec l'accès d'administration local
+(`-f deploy/compose.admin.yaml`, voir deploy/README.md) depuis P1-13-fix. Le script :
   1. crée par l'API d'administration Keycloak un second utilisateur, un client sans mapper d'audience
      et un second realm (tout est détruit avec `down -v` du projet financegate) ;
   2. rejoue les cas de P1-13 (sans jeton, autre realm, expiré, HS256 forgé, mauvaise audience, alg none) ;
@@ -78,17 +79,21 @@ def jbody(b):
 
 
 class Kc:
-    def __init__(self, base, admin_pw):
+    def __init__(self, base, admin_pw, admin_base):
+        # Depuis P1-13-fix (D280), Traefik refuse le realm master et /auth/admin : l'administration passe par
+        # l'accès local de deploy/compose.admin.yaml (admin_base, 127.0.0.1:8180). Les jetons du realm finance
+        # (ceux que l'API valide) restent demandés par Traefik (base).
         self.base = base
-        r = call("POST", base + "/auth/realms/master/protocol/openid-connect/token",
+        self.admin_base = admin_base
+        r = call("POST", admin_base + "/auth/realms/master/protocol/openid-connect/token",
                  form={"grant_type": "password", "client_id": "admin-cli", "username": "admin", "password": admin_pw})
         self.admin_token = jbody(r[2])["access_token"]
 
     def admin(self, method, path, body=None):
-        return call(method, self.base + "/auth/admin" + path, token=self.admin_token, body=body)
+        return call(method, self.admin_base + "/auth/admin" + path, token=self.admin_token, body=body)
 
-    def token(self, realm, client, user, pw):
-        s, _, b = call("POST", "%s/auth/realms/%s/protocol/openid-connect/token" % (self.base, realm),
+    def token(self, realm, client, user, pw, direct=False):
+        s, _, b = call("POST", "%s/auth/realms/%s/protocol/openid-connect/token" % (self.admin_base if direct else self.base, realm),
                        form={"grant_type": "password", "client_id": client, "username": user, "password": pw})
         if s != 200:
             raise RuntimeError("jeton %s/%s : HTTP %s" % (realm, user, s))
@@ -106,13 +111,14 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--base", default="https://localhost:9443")
     ap.add_argument("--project", default="financegate")
+    ap.add_argument("--admin-base", default="http://127.0.0.1:8180", help="accès d'administration local (compose.admin.yaml)")
     ap.add_argument("--env", default="deploy/.env")
     ap.add_argument("--xlsx", default="testdata/xlsx/simply_investing_template.xlsx")
     ap.add_argument("--expiry-wait", type=int, default=330)
     a = ap.parse_args()
     base = a.base
     env = dict(l.strip().split("=", 1) for l in pathlib.Path(a.env).read_text().splitlines() if "=" in l)
-    kc = Kc(base, env["KEYCLOAK_ADMIN_PASSWORD"])
+    kc = Kc(base, env["KEYCLOAK_ADMIN_PASSWORD"], a.admin_base)
 
     # --- Comptes de test : A = test-user (realm importé), B = créé ici ---------------------------------
     kc.create_user("finance", "gate-user-b")
@@ -130,7 +136,7 @@ def main():
     kc.admin("POST", "/realms/gateother/clients", {"clientId": "other-cli", "publicClient": True,
                                                     "directAccessGrantsEnabled": True})
     kc.create_user("gateother", "intrus")
-    tok_other = kc.token("gateother", "other-cli", "intrus", FAUX_MDP)
+    tok_other = kc.token("gateother", "other-cli", "intrus", FAUX_MDP, direct=True)  # Traefik ne route que le realm finance
     # Mauvaise audience : même realm, signature valide, client sans mapper « finance-api ».
     s, h, _ = kc.admin("POST", "/realms/finance/clients", {"clientId": "gate-noaud", "publicClient": True,
                                                             "directAccessGrantsEnabled": True,
@@ -301,7 +307,7 @@ def main():
     record(s == 200, "debit.reprise", "après la rafale et une pause : HTTP %s" % s)
     with concurrent.futures.ThreadPoolExecutor(max_workers=60) as ex:
         kcodes = list(ex.map(lambda _: call("GET", base + "/auth/realms/finance/.well-known/openid-configuration")[0], range(400)))
-    record(kcodes.count(429) == 0, "debit.keycloak_non_limite", "400 requêtes sur /auth : %d x 429 (route /auth hors middleware api-ratelimit : observation)" % kcodes.count(429))
+    record(kcodes.count(429) > 0 and set(kcodes) <= {200, 429}, "debit.rafale_auth", "400 requêtes sur /auth/realms/finance (D281, auth-ratelimit) : %d x 200, %d x 429, autres %s" % (kcodes.count(200), kcodes.count(429), sorted(set(kcodes) - {200, 429})))
     with concurrent.futures.ThreadPoolExecutor(max_workers=60) as ex:
         wcodes = list(ex.map(lambda _: call("GET", base + "/")[0], range(400)))
     record(wcodes.count(429) == 0, "debit.web_non_limite", "400 requêtes sur / : %d x 429 (observation)" % wcodes.count(429))

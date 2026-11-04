@@ -1,8 +1,10 @@
 # Porte de phase 1 (P1-24), rapport partiel
 
-Vérificateur, 2026-11-04. Branche `task/P1-24-partiel`. Pile neuve du projet Compose dédié `financegate` (`COMPOSE_PROJECT_NAME=financegate make up-test`, https://localhost:9443, realm de test, aucune donnée réelle), détruite à la fin par `down -v` de ce seul projet. Les volumes `finance_pgdata`, `financep112b_pgdata` et `pgdata` n'ont pas été touchés. Décisions D260 à D262.
+Vérificateur, 2026-11-04. Branche `task/P1-24-partiel`, mis à jour par `task/P1-24-maj` après les corrections P1-13-fix (PR #36) et P1-19-fix (PR #37) : preuves rejouées sur une seconde pile neuve du projet `financegate2` (détruite à la fin par `down -v` de ce seul projet). Pile neuve du projet Compose dédié `financegate` (`COMPOSE_PROJECT_NAME=financegate make up-test`, https://localhost:9443, realm de test, aucune donnée réelle), détruite à la fin par `down -v` de ce seul projet. Les volumes `finance_pgdata`, `financep112b_pgdata` et `pgdata` n'ont pas été touchés. Décisions D260 à D262.
 
 **P1-24 reste « à faire »** : elle dépend de P1-23 (déploiement sur le VPS, non terminé), d'un point que seul le propriétaire peut fournir (la feuille réelle) et de la signature. Ce rapport ne couvre que ce qui se vérifie aujourd'hui.
+
+Mise à jour (rejeu après correctifs) : les lignes 2f (images), 2g (`/auth`) et 3 passent de « échoué » à « réussi », avec les preuves ci-dessous. Restent ouverts : la CI de Trivy (approbation du propriétaire), la feuille réelle, la signature et P1-23.
 
 Légende : **réussi** (preuve exécutée) ; **échoué, fiche** (écart, fiche de correction créée) ; **en attente du propriétaire** ; **non vérifiable sans VPS**.
 
@@ -18,13 +20,13 @@ Légende : **réussi** (preuve exécutée) ; **échoué, fiche** (écart, fiche 
 | 2c | En-têtes et CSP | **réussi** avec une réserve (D224, `'unsafe-inline'` pour les styles) |
 | 2d | Secrets (gitleaks, tout l'historique) | **réussi** |
 | 2e | govulncheck | **réussi** |
-| 2f | Trivy | `make scan-images` **réussi** (api, web) ; images tierces **échoué, fiche** `P1-19-fix` ; absent de la CI **échoué, fiche** `P1-19-fix` |
-| 2g | Limitation de débit active | **réussi** sur `/api` ; `/auth` et `/` non limités (observation, `P1-13-fix`) |
+| 2f | Trivy | `make scan-images` sur toute la pile (api, backup, web, postgres, keycloak, traefik) **réussi** ; `e2e/gate/trivy_tierces.sh` **réussi** ; absent de la CI : **en attente du propriétaire** (`docs/tasks/P1-19-fix-ci.patch.md`, non appliquée) |
+| 2g | Limitation de débit active | **réussi** sur `/api` et sur `/auth` (D281) ; `/` non limité (accepté, D281) |
 | 2h | Journal d'audit alimenté par chaque écriture | **réussi** |
-| 3 | Surface exposée : console d'administration Keycloak | **échoué, fiche** `P1-13-fix` |
+| 3 | Surface exposée : console d'administration Keycloak | **réussi** (403 sur admin, `master`, API d'administration ; login et jeton validé) |
 | 4 | TLS public (Let's Encrypt), images signées, secrets sops, déploiement et retour arrière, sauvegarde vers OVH | **non vérifiable sans VPS** (P1-23) |
 
-Fiches de correction créées : `docs/tasks/P1-19-fix.md`, `docs/tasks/P1-13-fix.md` (index `docs/tasks/README.md`, statut « à faire »).
+Fiches de correction : `docs/tasks/P1-13-fix.md` (terminée, preuve rejouée ici), `docs/tasks/P1-19-fix.md` (reste « à faire » : le critère du job CI est ouvert).
 
 Signature du propriétaire : ______________________  Date : ______________
 
@@ -110,15 +112,20 @@ gitleaks v8.24.3, image Docker `zricethezav/gitleaks@sha256:e1b35e12a8c6fa8901f0
 
 `cd backend && govulncheck ./...` (Go 1.27.3, govulncheck 1.9.0, base du 2026-11-02) : « Your code is affected by 0 vulnerabilities ». Une vulnérabilité (GO-2026-5932, `golang.org/x/crypto`) est dans un module requis mais le code ne l'appelle pas ; à surveiller à la prochaine mise à jour de dépendances.
 
-### 2f. Trivy : partiellement échoué, fiche P1-19-fix
+### 2f. Trivy : images réussi, CI en attente du propriétaire
 
-- `make scan-images` : sort 0 ; `finance/api:dev` (debian 12.15 + binaire `server`) 0 vulnérabilité, `finance/web:dev` (alpine 3.23.7 + `caddy`) 0 vulnérabilité (`docs/gates/phase-1-preuves/scan-images.txt`). **Réussi.**
-- Images tierces, que cette cible ne scanne pas (`e2e/gate/trivy_tierces.sh`, même image Trivy épinglée, HIGH/CRITICAL avec correctif) : Traefik v3.6 26, Keycloak 26.4 92, PostgreSQL 16-alpine 26 (toutes dans `gosu`, stdlib Go 1.24.6, dont CVE-2025-68121 CRITICAL). **Échoué : fiche `P1-19-fix`.** Preuve : `docs/gates/phase-1-preuves/trivy-images-tierces.txt`. Aucune de ces vulnérabilités n'a été étudiée pour son exploitabilité ici.
-- Trivy n'est ni dans `make ci` ni dans la CI GitHub (jobs `ci`, `gitleaks`, `backup`), alors que l'architecture prévoit « analyse (govulncheck, Trivy) ». **Échoué : fiche `P1-19-fix`.**
+Rejeu sur le dépôt à jour (D290 : Traefik v3.7.17, Keycloak 26.8.1, seuils HIGH, CRITICAL, `--ignore-unfixed` inchangés, image Trivy 0.76.1 épinglée par digest).
 
-### 2g. Limitation de débit : réussi sur l'API
+- `make scan-images` : sort 0 (`docs/gates/phase-1-preuves/scan-images.txt`, ligne `code=0`). Il construit puis scanne les 6 images de `deploy/compose.yaml` : `finance/api`, `finance/backup`, `finance/web`, `postgres:16-alpine`, `keycloak:26.8.1`, `traefik:v3.7.17`. `finance/api` et `finance/web` sont scannés sans exception. **Réussi.**
+- `e2e/gate/trivy_tierces.sh` : réparé (il ignorait la politique de D290 et ne tenait pas compte de `.trivyignore`). Il lit désormais l'image Trivy dans le Makefile (`TRIVY_IMAGE`), applique `--ignorefile .trivyignore` (les échéances `exp:` comptent) et échoue (code 2) si un scan ne produit pas de rapport, au lieu de compter 0. Aucun seuil modifié. Résultat : 0 / 0 / 0 pour postgres, keycloak, traefik, code 0 (`docs/gates/phase-1-preuves/trivy-images-tierces.txt`). **Réussi.**
+- Contrôle négatif : le même scan de `postgres:16-alpine` sans `.trivyignore` trouve 26 CVE (stdlib de `gosu`) et sort 1. Les exceptions de `.trivyignore` sont donc ce qui rend le scan vert pour cette image : 26 CVE de `gosu` (Go 1.24.6) et 1 CVE guava de Keycloak, toutes avec échéance 2026-12-04, justifiées dans le fichier. Je ne juge pas leur exploitabilité ; passé cette date, le scan échoue de nouveau.
+- Trivy n'est toujours ni dans `make ci` ni dans la CI GitHub. Le job est proposé dans `docs/tasks/P1-19-fix-ci.patch.md` (non appliqué : `.github/` exige l'approbation du propriétaire). **En attente du propriétaire** ; le critère « un job de la CI échoue sur une vulnérabilité non justifiée » (lien d'exécution) n'est pas prouvé.
 
-D34 : middleware Traefik `api-ratelimit` (20 req/s, rafale de 40). Rafale de 400 requêtes `GET /api/v1/rules` avec jeton, 60 en parallèle : 45 réponses 200, **355 réponses 429**, aucune autre ; après 3 s de pause, retour à 200. **Observation** : `/auth` et `/` n'ont pas ce middleware (400 requêtes chacun : 0 réponse 429) ; Keycloak a `bruteForceProtected: true` ; la décision est renvoyée à la fiche `P1-13-fix`. La limite par adresse source derrière le vrai réseau public n'est pas vérifiable sans VPS.
+### 2g. Limitation de débit : réussi sur `/api` et `/auth`
+
+D34 : middleware Traefik `api-ratelimit` (20 req/s, rafale de 40). Rafale de 400 requêtes `GET /api/v1/rules` avec jeton, 60 en parallèle (rejeu `gate_security.py`) : une partie en 200, le reste en 429, aucune autre réponse ; après une pause, retour à 200 (`securite-pile-reelle.txt`, `debit.rafale_api`, `debit.reprise`).
+D281 : middleware `auth-ratelimit` (30 req/s, rafale de 60) sur `/auth`. Rafale de 400 requêtes sur `/auth/realms/finance/.well-known/openid-configuration` : 69 x 200, 331 x 429, aucune autre ; reprise à 200 après 4 s (`rejeu-keycloak-debit-entetes.txt` : 74 x 200, 326 x 429, puis 200). **Réussi.**
+`/` reste sans limite (400 x 200), accepté par D281 (fichiers statiques sans donnée) ; consigné, pas un écart. La limite par adresse source derrière le vrai réseau public n'est pas vérifiable sans VPS.
 
 ### 2h. Journal d'audit : réussi
 
@@ -137,9 +144,20 @@ Pour chaque route d'écriture, le nombre de lignes de `core.audit_log` ajoutées
 
 Contrôles complémentaires (`e2e/gate/db_checks.sh`, `docs/gates/phase-1-preuves/base-et-conteneurs.txt`) : chaque ligne porte l'acteur (= `sub` du propriétaire), l'horodatage, et avant/après (JSON) selon l'action (`watchlist.remove` : avant seulement, `*.create` : après seulement) ; le rôle applicatif `finance_app` reçoit `permission denied` sur `UPDATE` et `DELETE` de `core.audit_log` et de `stockeval.evaluation` (journal et archive en insertion seule) ; la base ne publie aucun port ; les conteneurs `api` et `web` tournent en utilisateur 65532, système de fichiers en lecture seule, `cap_drop ALL`, `no-new-privileges`. Réponses d'erreur contrôlées : JSON invalide 400, symbole piégé (`';DROP TABLE x;--`) 400, corps de 2 Mo sur `/stocks` 413, fichier de 11 Mo sur l'import 413 ; toutes en `problem+json`, sans trace.
 
-## 3. Écart de surface : console d'administration Keycloak exposée : échoué, fiche P1-13-fix
+## 3. Surface exposée : console d'administration Keycloak : réussi
 
-`GET /auth/admin/master/console/` répond 200 et `GET /auth/realms/master` aussi, parce que le routeur Traefik `keycloak` expose tout `/auth`. L'API d'administration exige un jeton (`/auth/admin/realms` donne 401), mais en production la console et le realm `master` seraient joignables d'Internet. Reproduction et critères : `docs/tasks/P1-13-fix.md`.
+Écart initial (200 sur `/auth/admin/master/console/` et `/auth/realms/master`) corrigé par P1-13-fix (D280). Rejeu sur la pile `financegate2` (`deploy/tests/keycloak-admin.sh`, code 0, `rejeu-keycloak-debit-entetes.txt`) :
+
+| Chemin | Résultat |
+| --- | --- |
+| `/auth/admin/master/console/`, `/auth/admin/`, `/auth/admin/realms` | 403 |
+| `/auth/realms/master`, `/auth/realms/master/protocol/openid-connect/token`, `/auth/realms/finance/../master`, `/auth/realms/financeX` | 403 |
+| `/auth`, `/auth/`, `/auth/metrics`, `/auth/health` | 403 |
+| `/auth/realms/finance/.well-known/openid-configuration`, `/protocol/openid-connect/certs` | 200 |
+| page de connexion (code + PKCE) et sa feuille de style `/auth/resources/...css` | 200 |
+
+Login et jeton validé : `make smoke` (code 0) obtient un jeton du realm `finance`, l'API le valide (JWKS par l'adresse interne) et accepte `POST`/`GET /api/v1/stocks` ; `gate_security.py` obtient ensuite des jetons des deux utilisateurs par Traefik et l'API les accepte (200), tandis que les 8 cas invalides sont refusés (2b). Le parcours navigateur (`make e2e-full`) n'a pas été rejoué ici ; il est prouvé par la fiche P1-13-fix.
+Conséquence pour la porte : `gate_security.py` administrait Keycloak par `/auth/realms/master`, désormais refusé. Il prend un paramètre `--admin-base` (défaut `http://127.0.0.1:8180`, accès local de `deploy/compose.admin.yaml`) ; seuls l'administration et le jeton du realm `gateother` (non routé par Traefik) passent par là.
 
 ## 4. Non vérifiable sans VPS (P1-23)
 
@@ -148,14 +166,18 @@ Certificat Let's Encrypt et HSTS sur le vrai domaine ; image non signée refusé
 ## Reproduire
 
 ```
-COMPOSE_PROJECT_NAME=financegate make up-test
-python3 e2e/gate/gate_security.py          # environ 7 min (attend l'expiration du jeton)
-e2e/gate/db_checks.sh && make test-headers
-make test-backup && make scan-images && e2e/gate/trivy_tierces.sh
-(cd backend && govulncheck ./...)
-COMPOSE_PROJECT_NAME=financegate docker compose -f deploy/compose.yaml -f deploy/compose.test-realm.yaml --env-file deploy/.env --profile local --profile prod down -v
+export COMPOSE_PROJECT_NAME=financegate2
+make up-test && make smoke && deploy/tests/keycloak-admin.sh && make test-headers
+docker compose -f deploy/compose.yaml -f deploy/compose.test-realm.yaml -f deploy/compose.admin.yaml --env-file deploy/.env --profile local up -d --no-deps --wait keycloak   # accès d'administration local 127.0.0.1:8180
+python3 -I e2e/gate/gate_security.py --project financegate2   # environ 7 min (attend l'expiration du jeton)
+e2e/gate/db_checks.sh financegate2
+make scan-images && e2e/gate/trivy_tierces.sh
+make test-backup && (cd backend && govulncheck ./...)          # non rejoués lors de la mise à jour
+docker compose -f deploy/compose.yaml -f deploy/compose.test-realm.yaml -f deploy/compose.admin.yaml --env-file deploy/.env --profile local --profile prod down -v
 ```
 
 ## Environnement
 
 Ports 9080, 9443, 4010, 4200, 8180 libres au départ et à la fin. Disque à 93 % : aucun cache Docker ou npm supprimé ; seuls les conteneurs, le volume `financegate_pgdata` et les réseaux du projet `financegate` ont été retirés, ainsi que `deploy/.env` et `deploy/web-config.json` générés dans le worktree (ignorés par git). Images tirées en plus : gitleaks (19 Mo).
+
+Mise à jour `task/P1-24-maj` : ports 9080, 9443 et 8180 libres au départ et à la fin ; seuls les conteneurs, le volume `financegate2_pgdata` et les réseaux du projet `financegate2` ont été retirés (les volumes `finance_pgdata` et `financep112b_pgdata` sont intacts). Rejeu des autres preuves sur les nouvelles images : en-têtes (10 contrôles ok), JWT et isolement (42 vérifications, 0 échec), audit et conteneurs (`base-et-conteneurs.txt`). Non rejoués car non touchés par les nouvelles images : les 15 lignes de référence (1a), la sauvegarde (1c, `make test-backup` n'a pas été relancé ; l'image `finance/backup` a été reconstruite et scannée), gitleaks (2d) et govulncheck (2e).
