@@ -60,7 +60,21 @@ type Config struct {
 	Logger   *slog.Logger
 	// Now fournit l'horloge (défaut : time.Now).
 	Now func() time.Time
+	// Observer reçoit les mesures d'exploitation (optionnel).
+	Observer Observer
 }
+
+// Observer reçoit les durées d'évaluation et l'issue des imports ; il ne
+// porte aucune logique métier (métriques Prometheus, P1-21).
+type Observer interface {
+	EvaluationDone(d time.Duration)
+	ImportFinished(status string)
+}
+
+type noopObserver struct{}
+
+func (noopObserver) EvaluationDone(time.Duration) {}
+func (noopObserver) ImportFinished(string)        {}
 
 // Handler implémente gen.StrictServerInterface.
 type Handler struct {
@@ -69,6 +83,7 @@ type Handler struct {
 	rules    *engine.Rules
 	log      *slog.Logger
 	now      func() time.Time
+	obs      Observer
 
 	jobs sync.WaitGroup
 }
@@ -80,7 +95,10 @@ func New(cfg Config) (*Handler, error) {
 	if cfg.Repos == nil || cfg.Importer == nil || cfg.Rules == nil {
 		return nil, errors.New("handlers: dépôts, importeur et règles sont obligatoires")
 	}
-	h := &Handler{repos: cfg.Repos, importer: cfg.Importer, rules: cfg.Rules, log: cfg.Logger, now: cfg.Now}
+	h := &Handler{repos: cfg.Repos, importer: cfg.Importer, rules: cfg.Rules, log: cfg.Logger, now: cfg.Now, obs: cfg.Observer}
+	if h.obs == nil {
+		h.obs = noopObserver{}
+	}
 	if h.log == nil {
 		h.log = slog.Default()
 	}

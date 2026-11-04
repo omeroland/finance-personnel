@@ -80,6 +80,14 @@ func (v *Verifier) get(ctx context.Context) (*oidc.IDTokenVerifier, error) {
 	return v.verifier, nil
 }
 
+// Ready indique si la découverte OIDC (donc le JWKS) est en cache. Tant qu'elle
+// ne l'est pas, elle est tentée : l'API n'est prête que si Keycloak a répondu
+// une fois ; ensuite une panne de Keycloak ne la rend pas indisponible.
+func (v *Verifier) Ready(ctx context.Context) error {
+	_, err := v.get(ctx)
+	return err
+}
+
 // Verify contrôle signature (RS256 seulement), iss, aud et exp, et renvoie le sub.
 func (v *Verifier) Verify(ctx context.Context, raw string) (string, error) {
 	ver, err := v.get(ctx)

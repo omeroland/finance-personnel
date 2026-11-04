@@ -124,6 +124,7 @@ func (h *Handler) runImport(base context.Context, o, jobID uuid.UUID, data []byt
 		jr.Error = userMessage(runErr)
 		h.log.ErrorContext(base, "import xlsx en échec", "job", jobID.String(), "erreur", runErr.Error())
 	}
+	h.obs.ImportFinished(string(status))
 	raw, err := json.Marshal(jr)
 	if err != nil {
 		raw = json.RawMessage(`{}`)

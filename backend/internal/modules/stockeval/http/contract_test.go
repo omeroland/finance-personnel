@@ -90,8 +90,12 @@ func newAPI(t *testing.T) *api {
 }
 
 // newAPIWith assemble la pile HTTP au-dessus de dépôts et d'un importeur donnés.
-func newAPIWith(t *testing.T, repos httpapi.Repos, imp httpapi.Importer, owner uuid.UUID) *api {
+func newAPIWith(t *testing.T, repos httpapi.Repos, imp httpapi.Importer, owner uuid.UUID, obs ...httpapi.Observer) *api {
 	t.Helper()
+	var observer httpapi.Observer
+	if len(obs) > 0 {
+		observer = obs[0]
+	}
 	rules, err := engine.DefaultRules()
 	if err != nil {
 		t.Fatal(err)
@@ -101,7 +105,7 @@ func newAPIWith(t *testing.T, repos httpapi.Repos, imp httpapi.Importer, owner u
 		now: time.Date(2026, 10, 30, 12, 10, 0, 0, time.UTC),
 	}
 	h, err := httpapi.New(httpapi.Config{
-		Repos: repos, Importer: imp, Rules: rules, Now: func() time.Time { return a.now },
+		Repos: repos, Importer: imp, Rules: rules, Observer: observer, Now: func() time.Time { return a.now },
 		Logger: slog.New(slog.NewJSONHandler(&lockedWriter{w: a.logs}, nil)),
 	})
 	if err != nil {
