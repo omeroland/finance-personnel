@@ -10,11 +10,12 @@ import_job.create|1|t|f|t
 import_job.update|2|t|t|t
 qualitative.save|1|t|f|t
 snapshot.save|1|t|f|t
-watchlist.add|2|t|f|t
+watchlist.add|3|t|f|t
 watchlist.remove|2|t|t|f
 --- exemple facts (avant/après)
-fact.create||{"value": "7.55", "metric": "eps_diluted", "source": "manual|2026-11-04 15:05:08.264408+00
-fact.create||{"value": "640000000", "metric": "shares_diluted", "source":|2026-11-04 15:05:08.268883+00
+fact.create||{"value": "7.55", "metric": "eps_diluted", "source": "manual|2026-11-04 16:22:13.340292+00
+fact.create||{"value": "640000000", "metric": "shares_diluted", "source":|2026-11-04 16:22:13.344756+00
 --- ports publiés par la base : '' (vide attendu)
-/financegate-api-1 user=65532:65532 readonly=true capdrop=[ALL] secopt=[no-new-privileges:true]
-/financegate-web-1 user=65532:65532 readonly=true capdrop=[ALL] secopt=[no-new-privileges:true]
+/financegate2-api-1 user=65532:65532 readonly=true capdrop=[ALL] secopt=[no-new-privileges:true]
+/financegate2-web-1 user=65532:65532 readonly=true capdrop=[ALL] secopt=[no-new-privileges:true]
+code=0

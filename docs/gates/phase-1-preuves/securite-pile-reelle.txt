@@ -37,9 +37,9 @@ RESULT ok audit.deleteStock DELETE /stocks/{symbol} : HTTP 204 ; 1 ligne(s) ajou
 RESULT ok isolement.A_lit_son_job : A relit son job d'import : HTTP 200
 RESULT ok debit.rafale_api : 400 requêtes GET /api/v1/rules en rafale : 45 x 200, 355 x 429, autres []
 RESULT ok debit.reprise : après la rafale et une pause : HTTP 200
-RESULT ok debit.keycloak_non_limite : 400 requêtes sur /auth : 0 x 429 (route /auth hors middleware api-ratelimit : observation)
+RESULT ok debit.rafale_auth : 400 requêtes sur /auth/realms/finance (D281, auth-ratelimit) : 69 x 200, 331 x 429, autres []
 RESULT ok debit.web_non_limite : 400 requêtes sur / : 0 x 429 (observation)
-attente de l'expiration du jeton : 319 s
+attente de l'expiration du jeton : 318 s
 RESULT ok jwt.expire : jeton valide à t0, rejoué 30 s après exp : HTTP 401
 TOTAL 42 vérifications, 0 échec(s)
-EXIT 0
+code=0

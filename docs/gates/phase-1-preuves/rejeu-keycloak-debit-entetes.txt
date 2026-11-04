@@ -1,0 +1,48 @@
+# Keycloak admin (P1-13-fix), pile financegate2
+ok   /auth/admin/master/console/ (403)
+ok   /auth/admin/ (403)
+ok   /auth/admin/realms (403)
+ok   /auth/realms/master (403)
+ok   /auth/realms/master/protocol/openid-connect/token (403)
+ok   /auth/realms/financeX (403)
+ok   /auth/realms/finance/../master (403)
+ok   /auth/ (403)
+ok   /auth (403)
+ok   /auth/metrics (403)
+ok   /auth/health (403)
+ok   /auth/realms/finance/.well-known/openid-configuration (200)
+ok   /auth/realms/finance/protocol/openid-connect/certs (200)
+ok   /auth/realms/finance/protocol/openid-connect/auth?client_id=finance-web&response_type=code&scope=openid&redirect_uri=https://localhost:9443/&code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM&code_challenge_method=S256 (200)
+ok   /auth/resources/g8fqs/common/keycloak/vendor/patternfly-v5/patternfly.min.css (200)
+code=0
+
+# smoke
+deploy/tests/smoke.sh
+ok   sondes /healthz et /readyz
+ok   401 sans jeton
+ok   GET /api/v1/stocks -> 200 : {"items":[]}
+
+ok   POST /api/v1/stocks -> 201
+ok   GET /api/v1/stocks contient TSX:SMOKE3674
+code=0
+
+# en-tetes
+deploy/tests/headers.sh
+ok   / Strict-Transport-Security
+ok   / X-Content-Type-Options
+ok   / Referrer-Policy
+ok   / Content-Security-Policy
+ok   /api/v1/health Strict-Transport-Security
+ok   /api/v1/health X-Content-Type-Options
+ok   /api/v1/health Referrer-Policy
+ok   /api/v1/health Content-Security-Policy
+ok   /metrics n'expose pas de métriques
+ok   HTTP clair redirigé (301)
+code=0
+
+# limitation de debit /auth : 400 requetes, 60 en parallele
+     74 200
+    326 429
+apres pause: 200
+# / (non limite, D281) : 400 requetes
+    400 200

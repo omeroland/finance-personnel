@@ -59,3 +59,8 @@ Reste, la fiche reste « à faire » :
 
 - Critère 3 (job CI) : attend l'approbation du propriétaire, changement prêt dans `docs/tasks/P1-19-fix-ci.patch.md`.
 - Critère 2 : `e2e/gate/trivy_tierces.sh` (périmètre Vérificateur) ne lit pas `.trivyignore` et sortira donc 1 tant qu'il compte les 26 CVE de gosu et celle de guava ; il doit recevoir `--ignorefile` ou être remplacé par `make scan-images`.
+
+## Rejeu du vérificateur (P1-24, task/P1-24-maj)
+
+- `make scan-images` sort 0 sur les 6 images ; `e2e/gate/trivy_tierces.sh` (réparé pour appliquer `.trivyignore`, D290) sort 0 ; sans `.trivyignore`, postgres porte 26 CVE (contrôle négatif). Preuves : `docs/gates/phase-1-preuves/scan-images.txt`, `trivy-images-tierces.txt`.
+- Reste ouvert : le job CI (critère 3), en attente du propriétaire. La fiche reste « à faire ».
