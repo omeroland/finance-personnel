@@ -48,10 +48,11 @@ http:
         referrerPolicy: no-referrer
         customResponseHeaders:
           Permissions-Policy: "camera=(), microphone=(), geolocation=()"
+    # style-src 'unsafe-inline' (D224) : Angular, Material et AG Grid injectent des <style> à l'exécution ; script-src reste 'self'.
     # connect-src : l'API (/api) et Keycloak (/auth) sont servis sur la même origine, donc 'self'.
     csp:
       headers:
-        contentSecurityPolicy: "default-src 'self'; connect-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+        contentSecurityPolicy: "default-src 'self'; connect-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
 
 tls:
   options:
