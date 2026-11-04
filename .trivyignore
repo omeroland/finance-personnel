@@ -1,1 +1,41 @@
-# Vulnérabilités acceptées, une par ligne, avec justification.
+# Exceptions Trivy (D290). Format : <CVE> exp:<échéance> # raison. Une ligne = une CVE, avec sa raison et sa date de réévaluation.
+# Trivy ignore une CVE après la date `exp:` seulement jusqu'à cette date : passé l'échéance, le scan échoue de nouveau.
+# Ce fichier ne s'applique qu'aux images autres que api et web (voir `make scan-images`) ; finance/api et finance/web sont scannés sans exception.
+# Aucun seuil de Trivy n'est modifié (HIGH, CRITICAL, --ignore-unfixed).
+#
+# 1) gosu (stdlib Go 1.24.6), embarqué dans postgres:16-alpine (db) et dans finance/backup (même base).
+#    Aucune image PostgreSQL officielle (alpine3.24, trixie, bookworm vérifiées le 2026-11-04) ne contient un gosu corrigé.
+#    Non atteignable : gosu n'est lancé qu'une fois par l'entrypoint pour abandonner root (exec vers postgres) ; il ne
+#    fait aucun accès réseau, ne lit aucune entrée non fiable et ne s'exécute pas pendant le service. Réévaluer dès qu'une
+#    image postgres:16-alpine embarque un gosu compilé avec un Go corrigé (>= 1.25.13 ou 1.26.6), au plus tard le 2026-12-04.
+CVE-2025-61726 exp:2026-12-04 # gosu/stdlib Go 1.24.6 (postgres, backup) : exécuté une fois à l'entrypoint, sans réseau ni entrée externe
+CVE-2025-61729 exp:2026-12-04 # gosu/stdlib Go 1.24.6 (postgres, backup) : exécuté une fois à l'entrypoint, sans réseau ni entrée externe
+CVE-2025-68121 exp:2026-12-04 # gosu/stdlib Go 1.24.6 (postgres, backup) : exécuté une fois à l'entrypoint, sans réseau ni entrée externe
+CVE-2026-111943 exp:2026-12-04 # gosu/stdlib Go 1.24.6 (postgres, backup) : exécuté une fois à l'entrypoint, sans réseau ni entrée externe
+CVE-2026-25679 exp:2026-12-04 # gosu/stdlib Go 1.24.6 (postgres, backup) : exécuté une fois à l'entrypoint, sans réseau ni entrée externe
+CVE-2026-27145 exp:2026-12-04 # gosu/stdlib Go 1.24.6 (postgres, backup) : exécuté une fois à l'entrypoint, sans réseau ni entrée externe
+CVE-2026-32280 exp:2026-12-04 # gosu/stdlib Go 1.24.6 (postgres, backup) : exécuté une fois à l'entrypoint, sans réseau ni entrée externe
+CVE-2026-32281 exp:2026-12-04 # gosu/stdlib Go 1.24.6 (postgres, backup) : exécuté une fois à l'entrypoint, sans réseau ni entrée externe
+CVE-2026-32283 exp:2026-12-04 # gosu/stdlib Go 1.24.6 (postgres, backup) : exécuté une fois à l'entrypoint, sans réseau ni entrée externe
+CVE-2026-33811 exp:2026-12-04 # gosu/stdlib Go 1.24.6 (postgres, backup) : exécuté une fois à l'entrypoint, sans réseau ni entrée externe
+CVE-2026-33814 exp:2026-12-04 # gosu/stdlib Go 1.24.6 (postgres, backup) : exécuté une fois à l'entrypoint, sans réseau ni entrée externe
+CVE-2026-33818 exp:2026-12-04 # gosu/stdlib Go 1.24.6 (postgres, backup) : exécuté une fois à l'entrypoint, sans réseau ni entrée externe
+CVE-2026-39820 exp:2026-12-04 # gosu/stdlib Go 1.24.6 (postgres, backup) : exécuté une fois à l'entrypoint, sans réseau ni entrée externe
+CVE-2026-39821 exp:2026-12-04 # gosu/stdlib Go 1.24.6 (postgres, backup) : exécuté une fois à l'entrypoint, sans réseau ni entrée externe
+CVE-2026-39822 exp:2026-12-04 # gosu/stdlib Go 1.24.6 (postgres, backup) : exécuté une fois à l'entrypoint, sans réseau ni entrée externe
+CVE-2026-39836 exp:2026-12-04 # gosu/stdlib Go 1.24.6 (postgres, backup) : exécuté une fois à l'entrypoint, sans réseau ni entrée externe
+CVE-2026-42499 exp:2026-12-04 # gosu/stdlib Go 1.24.6 (postgres, backup) : exécuté une fois à l'entrypoint, sans réseau ni entrée externe
+CVE-2026-42504 exp:2026-12-04 # gosu/stdlib Go 1.24.6 (postgres, backup) : exécuté une fois à l'entrypoint, sans réseau ni entrée externe
+CVE-2026-56853 exp:2026-12-04 # gosu/stdlib Go 1.24.6 (postgres, backup) : exécuté une fois à l'entrypoint, sans réseau ni entrée externe
+CVE-2026-56858 exp:2026-12-04 # gosu/stdlib Go 1.24.6 (postgres, backup) : exécuté une fois à l'entrypoint, sans réseau ni entrée externe
+CVE-2026-56859 exp:2026-12-04 # gosu/stdlib Go 1.24.6 (postgres, backup) : exécuté une fois à l'entrypoint, sans réseau ni entrée externe
+CVE-2026-56860 exp:2026-12-04 # gosu/stdlib Go 1.24.6 (postgres, backup) : exécuté une fois à l'entrypoint, sans réseau ni entrée externe
+CVE-2026-56862 exp:2026-12-04 # gosu/stdlib Go 1.24.6 (postgres, backup) : exécuté une fois à l'entrypoint, sans réseau ni entrée externe
+CVE-2026-78667 exp:2026-12-04 # gosu/stdlib Go 1.24.6 (postgres, backup) : exécuté une fois à l'entrypoint, sans réseau ni entrée externe
+CVE-2026-78669 exp:2026-12-04 # gosu/stdlib Go 1.24.6 (postgres, backup) : exécuté une fois à l'entrypoint, sans réseau ni entrée externe
+CVE-2026-97031 exp:2026-12-04 # gosu/stdlib Go 1.24.6 (postgres, backup) : exécuté une fois à l'entrypoint, sans réseau ni entrée externe
+
+# 2) Keycloak 26.8.1 (dernière version publiée le 2026-11-04) : guava 33.6.0 embarqué, correctif en 33.7.2 absent de Keycloak.
+#    Déni de service par allocation mémoire non bornée. Accès à atteignabilité non établi : risque accepté, limité par le redémarrage automatique du conteneur (restart: unless-stopped).
+#    Réévaluer à la prochaine version de Keycloak, au plus tard le 2026-12-04.
+CVE-2026-102554 exp:2026-12-04 # guava 33.6.0 dans Keycloak 26.8.1 : correctif 33.7.2 non livré par Keycloak

@@ -119,11 +119,19 @@ test-headers: ## En-têtes de sécurité sur / et /api (pile démarrée par make
 test-keycloak-admin: ## Console d'administration Keycloak bloquée, login servi (pile démarrée ; hors make ci)
 	deploy/tests/keycloak-admin.sh
 
-scan-images: ## Trivy sur les images construites (HIGH/CRITICAL) ; Docker requis
-	@for img in finance/api:dev finance/web:dev; do \
-		docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v $(CURDIR)/.trivyignore:/.trivyignore:ro \
-			aquasec/trivy:latest@sha256:790fd66d1697395d8693d1acaa1ea702406a20f109b6fc7bac8db623eca6c06c \
-			image --severity HIGH,CRITICAL --exit-code 1 --ignore-unfixed --ignorefile /.trivyignore $$img || exit 1; \
+# P1-19-fix : toutes les images de la pile, lues dans deploy/compose.yaml (tous profils, sans liste en dur).
+# api et web : scan strict, sans exception. Autres images (tierces, et backup qui hérite de gosu) : .trivyignore (exceptions datées).
+# Trivy est lancé par son image épinglée par digest ; seuils inchangés (HIGH, CRITICAL, --ignore-unfixed).
+TRIVY_IMAGE := aquasec/trivy:0.76.1@sha256:790fd66d1697395d8693d1acaa1ea702406a20f109b6fc7bac8db623eca6c06c
+COMPOSE_SCAN := env POSTGRES_PASSWORD=x KEYCLOAK_DB_PASSWORD=x KEYCLOAK_ADMIN_PASSWORD=x FINANCE_APP_PASSWORD=x docker compose -f deploy/compose.yaml --profile '*'
+
+scan-images: ## Trivy sur toutes les images de la pile (HIGH/CRITICAL) ; Docker requis
+	$(COMPOSE_SCAN) build --quiet
+	@set -e; for img in $$($(COMPOSE_SCAN) config --images | sort -u); do \
+		case "$$img" in finance/api:*|finance/web:*) ign="";; *) ign="--ignorefile /exceptions/.trivyignore";; esac; \
+		echo "scan-images : $$img"; \
+		docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v $(CURDIR)/.trivyignore:/exceptions/.trivyignore:ro \
+			$(TRIVY_IMAGE) image --quiet --severity HIGH,CRITICAL --exit-code 1 --ignore-unfixed $$ign $$img; \
 	done
 
 govulncheck: ## Vulnérabilités connues des dépendances
