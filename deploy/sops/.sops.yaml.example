@@ -1,0 +1,5 @@
+# Copier en deploy/sops/.sops.yaml après avoir remplacé la clé publique par celle du SERVEUR
+# (`age-keygen -y /etc/finance/age.key`). Ajouter aussi, si souhaité, votre clé de poste pour éditer.
+creation_rules:
+  - path_regex: prod\.sops\.env$
+    age: age1remplacez-par-la-cle-publique-du-serveur
