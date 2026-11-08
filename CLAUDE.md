@@ -47,7 +47,7 @@ Documents de référence (ne les modifie que si ta fiche le demande) :
 ## Conventions
 
 **Go**
-- Go 1.24. Outils épinglés avec la directive `tool` de `go.mod` (`go tool oapi-codegen`, `go tool sqlc`, `go tool goose`).
+- Go 1.26 (D42). Outils épinglés avec la directive `tool` de `go.mod` (`go tool oapi-codegen`, `go tool sqlc`, `go tool goose`).
 - `context.Context` en premier paramètre de toute fonction qui fait des entrées-sorties.
 - Erreurs enveloppées avec contexte : `fmt.Errorf("charger les faits %s: %w", symbol, err)`. Pas de `panic` hors de l'initialisation.
 - Journaux : `log/slog` en JSON. Jamais de jeton, de mot de passe ni de montant de portefeuille dans un journal.
