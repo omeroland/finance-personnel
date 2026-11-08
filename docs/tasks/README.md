@@ -47,3 +47,24 @@ Une tâche passe à « prête » quand toutes ses dépendances sont « terminée
 | D32 | Rafraîchissement par fournisseur | Route au contrat, répond 501 jusqu'à la phase 3 | — |
 | D33 | Données de test xlsx | Ta feuille fournie est un gabarit vide ; les tests remplissent une copie par programme | Une copie réelle anonymisée |
 | D34 | Limitation de débit et audit | Débit limité par Traefik ; journal d'audit écrit par les dépôts | Limitation dans l'API |
+
+# Tâches — phase 2 (Portefeuille de FNB)
+
+Fiches rédigées d'avance (D302). Le code ne démarre qu'après la signature de la porte de phase 1 par le propriétaire.
+
+| ID | Tâche | Agent | Dépend de | Statut |
+| --- | --- | --- | --- | --- |
+| [P2-01](P2-01.md) | Contrat OpenAPI du module 2 et du socle | Backend Go | P1-03 | à faire |
+| [P2-02](P2-02.md) | Schéma : comptes, transactions, relevés, profils FNB, modèles | Backend Go | P2-01 | à faire |
+| [P2-03](P2-03.md) | Moteur : exposition par transparence et RFG pondéré | Backend Go | P2-02 | à faire |
+| [P2-04](P2-04.md) | Moteur : plan d'achat en parts entières | Backend Go | P2-03 | à faire |
+| [P2-05](P2-05.md) | Moteur : rééquilibrage par bandes | Backend Go | P2-03 | à faire |
+| [P2-06](P2-06.md) | Moteur : rendement pondéré dans le temps et TRI | Backend Go | P2-02 | à faire |
+| [P2-07](P2-07.md) | Oracle et vecteurs de l'outil SÉLECTION ET GESTION | Vérificateur | P2-01 | à faire |
+| [P2-08](P2-08.md) | Import de l'outil SÉLECTION ET GESTION | Données | P2-02 | à faire |
+| [P2-09](P2-09.md) | Import CSV générique de transactions | Données | P2-02 | à faire |
+| [P2-10](P2-10.md) | Handlers : comptes, transactions, relevés, positions, catalogue | Backend Go | P2-02, P2-08, P2-09 | à faire |
+| [P2-11](P2-11.md) | Handlers : modèles, plans, exposition, performance | Backend Go | P2-03, P2-04, P2-05, P2-06, P2-10 | à faire |
+| [P2-12](P2-12.md) | Web : comptes, registre, relevés, catalogue | Frontend Angular | P2-10 | à faire |
+| [P2-13](P2-13.md) | Web : portefeuille modèle, plans et tableau de bord | Frontend Angular | P2-11, P2-12 | à faire |
+| [P2-14](P2-14.md) | Porte de phase 2 et parcours complet | Vérificateur | P2-13 | à faire |

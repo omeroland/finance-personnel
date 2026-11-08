@@ -29,6 +29,7 @@ Une nouvelle ambiguïté s'ajoute à la suite. D1 à D16 : `docs/architecture.md
 
 | # | Sujet | Décision | À réévaluer |
 | --- | --- | --- | --- |
+| D302 | Fiches de phase 2 | Les fiches P2-01 à P2-14 sont rédigées (documents seulement) pour préparer la phase 2 pendant que la porte de phase 1 attend la signature. Aucun code, contrat ni schéma de phase 2 avant cette signature. Découpage : contrat, schéma, 4 moteurs purs, oracle, 2 imports, 2 lots de handlers, 2 lots d'écrans, porte | Ordre et granularité après la signature |
 | D301 | Nettoyage validé par le propriétaire (2026-11-08) | `Criterion.value` en `format: double` (le code généré passe de float32 à float64) ; Keycloak de la pile e2e Playwright et du test d'intégration d'auth aligné sur la production (26.8.1, même digest) ; `CLAUDE.md` indique Go 1.26 (D42) ; bornes D214 validées | Bornes de saisie dans le contrat |
 | D300 | Clôture de P1-02 avec réserve | P1-02 est close sans D18 à D21 ni le texte intégral des règles 1 à 4, que le document d'architecture ne contient pas. Le moteur traite les règles 1 à 4 comme quatre réponses oui/non saisies à la main (barrière « quatre oui », sinon *exclue*), ce qui suffit à la phase 1. Rien n'est inventé. | Quand le propriétaire fournit D18 à D21 et le texte des règles 1 à 4 : les ajouter ici et dans `docs/rules.md` |
 
