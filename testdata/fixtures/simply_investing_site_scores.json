@@ -1,0 +1,1981 @@
+{
+ "source": "app.simplyinvesting.com, valeurs collées par le propriétaire",
+ "asOf": "2026-11-06",
+ "note": "Agrégats du site, en pourcentage (8.0 = 8 %). siScore = 10 moins le compte d'échecs strict. Pas de séries annuelles : ces cas valident les seuils et le pointage, pas le calcul des moyennes. Aucune donnée personnelle.",
+ "stocks": [
+  {
+   "symbol": "MRU",
+   "exchange": "TSX",
+   "snapshot": {
+    "payoutRatioPct": 38.717,
+    "longTermDebtToEquityPct": 45.616,
+    "annualDividendChangePct": 12.8,
+    "sharesCurrentYear": 210933000,
+    "sharesPreviousYear": 219700000,
+    "peRatio": 23.4228,
+    "pbRatio": 2.9648
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": 8.5046,
+     "epsIncreases": 3,
+     "averageDividendGrowthPct": 9.937,
+     "dividendYieldVsAveragePct": 2.841,
+     "siScore": 10
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": 10.2387,
+     "epsIncreases": 7,
+     "averageDividendGrowthPct": 11.51,
+     "dividendYieldVsAveragePct": 4.356,
+     "siScore": 10
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 11.7215,
+     "epsIncreases": 11,
+     "averageDividendGrowthPct": 13.102,
+     "dividendYieldVsAveragePct": 6.701,
+     "siScore": 10
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 12.3262,
+     "epsIncreases": 16,
+     "averageDividendGrowthPct": 13.015,
+     "dividendYieldVsAveragePct": 8.169,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "SJ",
+   "exchange": "TSX",
+   "snapshot": {
+    "payoutRatioPct": 35.05,
+    "longTermDebtToEquityPct": 50.677,
+    "annualDividendChangePct": 9.677,
+    "sharesCurrentYear": 54581214,
+    "sharesPreviousYear": 55370000,
+    "peRatio": 16.956,
+    "pbRatio": 1.628
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": 15.156,
+     "epsIncreases": 4,
+     "averageDividendGrowthPct": 15.713,
+     "dividendYieldVsAveragePct": 28.07,
+     "siScore": 10
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": 12.744,
+     "epsIncreases": 8,
+     "averageDividendGrowthPct": 14.29,
+     "dividendYieldVsAveragePct": 50.65,
+     "siScore": 10
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 18.566,
+     "epsIncreases": 13,
+     "averageDividendGrowthPct": 18.215,
+     "dividendYieldVsAveragePct": 67.06,
+     "siScore": 10
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 17.928,
+     "epsIncreases": 17,
+     "averageDividendGrowthPct": 24.098,
+     "dividendYieldVsAveragePct": 71.16,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "LNR",
+   "exchange": "TSX",
+   "snapshot": {
+    "payoutRatioPct": 10.847,
+    "longTermDebtToEquityPct": 29.173,
+    "annualDividendChangePct": 14.286,
+    "sharesCurrentYear": 58983810,
+    "sharesPreviousYear": 60073587,
+    "peRatio": 7.313,
+    "pbRatio": 0.8444
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": 32.033,
+     "epsIncreases": 3,
+     "averageDividendGrowthPct": 28.434,
+     "dividendYieldVsAveragePct": 8.313,
+     "siScore": 10
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": 5.886,
+     "epsIncreases": 6,
+     "averageDividendGrowthPct": 11.532,
+     "dividendYieldVsAveragePct": 39.223,
+     "siScore": 9
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 17.977,
+     "epsIncreases": 11,
+     "averageDividendGrowthPct": 11.231,
+     "dividendYieldVsAveragePct": 36.808,
+     "siScore": 10
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 16.418,
+     "epsIncreases": 14,
+     "averageDividendGrowthPct": 13.772,
+     "dividendYieldVsAveragePct": 25.013,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "SU",
+   "exchange": "TSX",
+   "snapshot": {
+    "payoutRatioPct": 26.911,
+    "longTermDebtToEquityPct": 18.503,
+    "annualDividendChangePct": 14.286,
+    "sharesCurrentYear": 1151224232,
+    "sharesPreviousYear": 1220000000,
+    "peRatio": 9.898,
+    "pbRatio": 2.264
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": 61.575,
+     "epsIncreases": 2,
+     "averageDividendGrowthPct": 19.284,
+     "dividendYieldVsAveragePct": -37.357,
+     "siScore": 9
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": 49.362,
+     "epsIncreases": 4,
+     "averageDividendGrowthPct": 7.33,
+     "dividendYieldVsAveragePct": -30.997,
+     "siScore": 8
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 16.967,
+     "epsIncreases": 6,
+     "averageDividendGrowthPct": 13.839,
+     "dividendYieldVsAveragePct": -19.554,
+     "siScore": 9
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 23.778,
+     "epsIncreases": 9,
+     "averageDividendGrowthPct": 17.764,
+     "dividendYieldVsAveragePct": 1.88,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "LAS-A",
+   "exchange": "TSX",
+   "snapshot": {
+    "payoutRatioPct": 22.085,
+    "longTermDebtToEquityPct": 32.326,
+    "annualDividendChangePct": 13.636,
+    "sharesCurrentYear": 3069000,
+    "sharesPreviousYear": 6822000,
+    "peRatio": 10.312,
+    "pbRatio": 1.3075
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": 14.886,
+     "epsIncreases": 3,
+     "averageDividendGrowthPct": 17.099,
+     "dividendYieldVsAveragePct": -0.04997,
+     "siScore": 9
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": 13.931,
+     "epsIncreases": 6,
+     "averageDividendGrowthPct": 10.355,
+     "dividendYieldVsAveragePct": 26.276,
+     "siScore": 10
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 12.966,
+     "epsIncreases": 11,
+     "averageDividendGrowthPct": 9.297,
+     "dividendYieldVsAveragePct": 31.35,
+     "siScore": 10
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 13.809,
+     "epsIncreases": 16,
+     "averageDividendGrowthPct": 11.573,
+     "dividendYieldVsAveragePct": 25.929,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "XTC",
+   "exchange": "TSX",
+   "snapshot": {
+    "payoutRatioPct": 64.615,
+    "longTermDebtToEquityPct": 21.738,
+    "annualDividendChangePct": 0,
+    "sharesCurrentYear": 37487086,
+    "sharesPreviousYear": 38369000,
+    "peRatio": 12.508,
+    "pbRatio": 0.7361
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": 5.093,
+     "epsIncreases": 2,
+     "averageDividendGrowthPct": 2.053,
+     "dividendYieldVsAveragePct": -0.995,
+     "siScore": 7
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": 1.288,
+     "epsIncreases": 4,
+     "averageDividendGrowthPct": 5.28,
+     "dividendYieldVsAveragePct": 15.094,
+     "siScore": 8
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 10.336,
+     "epsIncreases": 8,
+     "averageDividendGrowthPct": 11.177,
+     "dividendYieldVsAveragePct": 37.61,
+     "siScore": 10
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 11.003,
+     "epsIncreases": 11,
+     "averageDividendGrowthPct": 11.017,
+     "dividendYieldVsAveragePct": 50.11,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "FELE",
+   "exchange": "NASDAQ",
+   "snapshot": {
+    "payoutRatioPct": 25.1685,
+    "longTermDebtToEquityPct": 29.9288,
+    "annualDividendChangePct": 5.66,
+    "sharesCurrentYear": 44170452,
+    "sharesPreviousYear": 45500000,
+    "peRatio": 21.1618,
+    "pbRatio": 2.8767
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": 10.9773,
+     "epsIncreases": 2,
+     "averageDividendGrowthPct": 11.3655,
+     "dividendYieldVsAveragePct": 21.559,
+     "siScore": 10
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": 7.7003,
+     "epsIncreases": 5,
+     "averageDividendGrowthPct": 10.083,
+     "dividendYieldVsAveragePct": 14.129,
+     "siScore": 9
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 10.0745,
+     "epsIncreases": 8,
+     "averageDividendGrowthPct": 9.3991,
+     "dividendYieldVsAveragePct": 14.543,
+     "siScore": 10
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 11.14,
+     "epsIncreases": 11,
+     "averageDividendGrowthPct": 9.6351,
+     "dividendYieldVsAveragePct": 9.468,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "ROP",
+   "exchange": "NASDAQ",
+   "snapshot": {
+    "payoutRatioPct": 15.829,
+    "longTermDebtToEquityPct": 43.315,
+    "annualDividendChangePct": 21.21,
+    "sharesCurrentYear": 99036429,
+    "sharesPreviousYear": 107800000,
+    "peRatio": 18.86,
+    "pbRatio": 2.461
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": 10.849,
+     "epsIncreases": 2,
+     "averageDividendGrowthPct": 9.9898,
+     "dividendYieldVsAveragePct": 48.18,
+     "siScore": 10
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": 11.316,
+     "epsIncreases": 5,
+     "averageDividendGrowthPct": 12.2061,
+     "dividendYieldVsAveragePct": 45.89,
+     "siScore": 10
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 13.012,
+     "epsIncreases": 9,
+     "averageDividendGrowthPct": 17.6777,
+     "dividendYieldVsAveragePct": 45.97,
+     "siScore": 10
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 13.63,
+     "epsIncreases": 13,
+     "averageDividendGrowthPct": 16.135,
+     "dividendYieldVsAveragePct": 47.08,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "OZK",
+   "exchange": "NASDAQ",
+   "snapshot": {
+    "payoutRatioPct": 32.343,
+    "longTermDebtToEquityPct": 0,
+    "annualDividendChangePct": 12.64,
+    "sharesCurrentYear": 108397557,
+    "sharesPreviousYear": 112066000,
+    "peRatio": 8.356,
+    "pbRatio": 0.9449
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": 26.747,
+     "epsIncreases": 4,
+     "averageDividendGrowthPct": 10.091,
+     "dividendYieldVsAveragePct": 17.37,
+     "siScore": 10
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": 10.976,
+     "epsIncreases": 7,
+     "averageDividendGrowthPct": 12.399,
+     "dividendYieldVsAveragePct": 33.98,
+     "siScore": 10
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 14.921,
+     "epsIncreases": 11,
+     "averageDividendGrowthPct": 17.191,
+     "dividendYieldVsAveragePct": 63.39,
+     "siScore": 10
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 15.624,
+     "epsIncreases": 15,
+     "averageDividendGrowthPct": 16.059,
+     "dividendYieldVsAveragePct": 76.66,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "PFG",
+   "exchange": "NASDAQ",
+   "snapshot": {
+    "payoutRatioPct": 37.862,
+    "longTermDebtToEquityPct": 36.612,
+    "annualDividendChangePct": 10.39,
+    "sharesCurrentYear": 212376467,
+    "sharesPreviousYear": 225700000,
+    "peRatio": 12.351,
+    "pbRatio": 1.997
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": 55.106,
+     "epsIncreases": 2,
+     "averageDividendGrowthPct": 6.619,
+     "dividendYieldVsAveragePct": -14.51,
+     "siScore": 8
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": 26.635,
+     "epsIncreases": 5,
+     "averageDividendGrowthPct": 7.216,
+     "dividendYieldVsAveragePct": -15.87,
+     "siScore": 8
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 22.321,
+     "epsIncreases": 10,
+     "averageDividendGrowthPct": 11.954,
+     "dividendYieldVsAveragePct": -7.306,
+     "siScore": 9
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 15.069,
+     "epsIncreases": 12,
+     "averageDividendGrowthPct": 12.432,
+     "dividendYieldVsAveragePct": 4.173,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "FFIN",
+   "exchange": "NASDAQ",
+   "snapshot": {
+    "payoutRatioPct": 43.564,
+    "longTermDebtToEquityPct": 0,
+    "annualDividendChangePct": 17.33,
+    "sharesCurrentYear": 143397258,
+    "sharesPreviousYear": 143474169,
+    "peRatio": 15.054,
+    "pbRatio": 2.379
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": 5.113,
+     "epsIncreases": 3,
+     "averageDividendGrowthPct": 8.134,
+     "dividendYieldVsAveragePct": 52.88,
+     "siScore": 9
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": 10.602,
+     "epsIncreases": 8,
+     "averageDividendGrowthPct": 9.742,
+     "dividendYieldVsAveragePct": 61.43,
+     "siScore": 10
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 10.351,
+     "epsIncreases": 13,
+     "averageDividendGrowthPct": 8.977,
+     "dividendYieldVsAveragePct": 49.64,
+     "siScore": 10
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 9.306,
+     "epsIncreases": 17,
+     "averageDividendGrowthPct": 8.039,
+     "dividendYieldVsAveragePct": 31.93,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "UFPI",
+   "exchange": "NASDAQ",
+   "snapshot": {
+    "payoutRatioPct": 34.783,
+    "longTermDebtToEquityPct": 7.497,
+    "annualDividendChangePct": 2.857,
+    "sharesCurrentYear": 54595341,
+    "sharesPreviousYear": 58958000,
+    "peRatio": 19.304,
+    "pbRatio": 1.4437
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": 14.753,
+     "epsIncreases": 1,
+     "averageDividendGrowthPct": 23.601,
+     "dividendYieldVsAveragePct": 57.49,
+     "siScore": 9
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": 13.705,
+     "epsIncreases": 6,
+     "averageDividendGrowthPct": 16.356,
+     "dividendYieldVsAveragePct": 68.75,
+     "siScore": 10
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 26.915,
+     "epsIncreases": 11,
+     "averageDividendGrowthPct": 16.922,
+     "dividendYieldVsAveragePct": 61.13,
+     "siScore": 10
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 33.372,
+     "epsIncreases": 12,
+     "averageDividendGrowthPct": 18.622,
+     "dividendYieldVsAveragePct": 79.81,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "ZION",
+   "exchange": "NASDAQ",
+   "snapshot": {
+    "payoutRatioPct": 23.558,
+    "longTermDebtToEquityPct": 0,
+    "annualDividendChangePct": 9.09,
+    "sharesCurrentYear": 145953355,
+    "sharesPreviousYear": 147157000,
+    "peRatio": 7.946,
+    "pbRatio": 1.232
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": 23.94,
+     "epsIncreases": 2,
+     "averageDividendGrowthPct": 5.329,
+     "dividendYieldVsAveragePct": -11.46,
+     "siScore": 8
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": 19.238,
+     "epsIncreases": 5,
+     "averageDividendGrowthPct": 17.396,
+     "dividendYieldVsAveragePct": 8.884,
+     "siScore": 10
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 26.063,
+     "epsIncreases": 9,
+     "averageDividendGrowthPct": 25.948,
+     "dividendYieldVsAveragePct": 55.666,
+     "siScore": 10
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 12.34,
+     "epsIncreases": 11,
+     "averageDividendGrowthPct": 16.544,
+     "dividendYieldVsAveragePct": 57.009,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "LKFN",
+   "exchange": "NASDAQ",
+   "snapshot": {
+    "payoutRatioPct": 46.532,
+    "longTermDebtToEquityPct": 0.1776,
+    "annualDividendChangePct": 4.0,
+    "sharesCurrentYear": 24701150,
+    "sharesPreviousYear": 25770280,
+    "peRatio": 13.68,
+    "pbRatio": 2.073
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": 4.324,
+     "epsIncreases": 2,
+     "averageDividendGrowthPct": 10.899,
+     "dividendYieldVsAveragePct": 25.65,
+     "siScore": 9
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": 7.212,
+     "epsIncreases": 6,
+     "averageDividendGrowthPct": 12.852,
+     "dividendYieldVsAveragePct": 37.71,
+     "siScore": 9
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 10.637,
+     "epsIncreases": 11,
+     "averageDividendGrowthPct": 13.371,
+     "dividendYieldVsAveragePct": 38.22,
+     "siScore": 10
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 9.964,
+     "epsIncreases": 15,
+     "averageDividendGrowthPct": 11.834,
+     "dividendYieldVsAveragePct": 34.05,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "WTFC",
+   "exchange": "NASDAQ",
+   "snapshot": {
+    "payoutRatioPct": 16.871,
+    "longTermDebtToEquityPct": 59.794,
+    "annualDividendChangePct": 10.0,
+    "sharesCurrentYear": 67455414,
+    "sharesPreviousYear": 67649000,
+    "peRatio": 11.6,
+    "pbRatio": 1.487
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": 21.393,
+     "epsIncreases": 4,
+     "averageDividendGrowthPct": 12.33,
+     "dividendYieldVsAveragePct": -13.76,
+     "siScore": 9
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": 15.369,
+     "epsIncreases": 8,
+     "averageDividendGrowthPct": 15.237,
+     "dividendYieldVsAveragePct": -0.379,
+     "siScore": 9
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 13.117,
+     "epsIncreases": 13,
+     "averageDividendGrowthPct": 13.592,
+     "dividendYieldVsAveragePct": 23.874,
+     "siScore": 10
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 9.069,
+     "epsIncreases": 14,
+     "averageDividendGrowthPct": 11.336,
+     "dividendYieldVsAveragePct": 33.025,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "EWBC",
+   "exchange": "NASDAQ",
+   "snapshot": {
+    "payoutRatioPct": 30.418,
+    "longTermDebtToEquityPct": 0,
+    "annualDividendChangePct": 33.33,
+    "sharesCurrentYear": 137011856,
+    "sharesPreviousYear": 139102000,
+    "peRatio": 12.247,
+    "pbRatio": 1.953
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": 20.578,
+     "epsIncreases": 4,
+     "averageDividendGrowthPct": 16.977,
+     "dividendYieldVsAveragePct": 0.765,
+     "siScore": 10
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": 14.023,
+     "epsIncreases": 7,
+     "averageDividendGrowthPct": 12.081,
+     "dividendYieldVsAveragePct": 11.731,
+     "siScore": 10
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 16.936,
+     "epsIncreases": 12,
+     "averageDividendGrowthPct": 26.957,
+     "dividendYieldVsAveragePct": 19.295,
+     "siScore": 10
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 26.153,
+     "epsIncreases": 16,
+     "averageDividendGrowthPct": 23.408,
+     "dividendYieldVsAveragePct": 36.65,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "CNOB",
+   "exchange": "NASDAQ",
+   "snapshot": {
+    "payoutRatioPct": 27.465,
+    "longTermDebtToEquityPct": 12.687,
+    "annualDividendChangePct": 8.33,
+    "sharesCurrentYear": 50268879,
+    "sharesPreviousYear": 50414115,
+    "peRatio": 11.415,
+    "pbRatio": 1.093
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": 2.25,
+     "epsIncreases": 0,
+     "averageDividendGrowthPct": 15.478,
+     "dividendYieldVsAveragePct": -10.03,
+     "siScore": 7
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": 0.7815,
+     "epsIncreases": 4,
+     "averageDividendGrowthPct": 7.689,
+     "dividendYieldVsAveragePct": 16.54,
+     "siScore": 8
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 13.35,
+     "epsIncreases": 7,
+     "averageDividendGrowthPct": 11.83,
+     "dividendYieldVsAveragePct": 28.3,
+     "siScore": 10
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 13.098,
+     "epsIncreases": 11,
+     "averageDividendGrowthPct": 9.061,
+     "dividendYieldVsAveragePct": 15.45,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "TROW",
+   "exchange": "NASDAQ",
+   "snapshot": {
+    "payoutRatioPct": 52.632,
+    "longTermDebtToEquityPct": 0,
+    "annualDividendChangePct": 2.362,
+    "sharesCurrentYear": 213325929,
+    "sharesPreviousYear": 223768844,
+    "peRatio": 10.973,
+    "pbRatio": 2.034
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": 3.471,
+     "epsIncreases": 3,
+     "averageDividendGrowthPct": -1.74,
+     "dividendYieldVsAveragePct": 20.72,
+     "siScore": 8
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": 14.908,
+     "epsIncreases": 8,
+     "averageDividendGrowthPct": 2.981,
+     "dividendYieldVsAveragePct": 44.06,
+     "siScore": 9
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 14.172,
+     "epsIncreases": 13,
+     "averageDividendGrowthPct": 7.237,
+     "dividendYieldVsAveragePct": 63.89,
+     "siScore": 9
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 12.709,
+     "epsIncreases": 16,
+     "averageDividendGrowthPct": 10.974,
+     "dividendYieldVsAveragePct": 80.05,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "NRIM",
+   "exchange": "NASDAQ",
+   "snapshot": {
+    "payoutRatioPct": 27.311,
+    "longTermDebtToEquityPct": 0,
+    "annualDividendChangePct": 1.5625,
+    "sharesCurrentYear": 22244766,
+    "sharesPreviousYear": 22533320,
+    "peRatio": 9.87,
+    "pbRatio": 1.4673
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": 0.0624,
+     "epsIncreases": 1,
+     "averageDividendGrowthPct": -2.219,
+     "dividendYieldVsAveragePct": -13.08,
+     "siScore": 6
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": 11.107,
+     "epsIncreases": 5,
+     "averageDividendGrowthPct": 11.443,
+     "dividendYieldVsAveragePct": -2.33,
+     "siScore": 9
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 12.146,
+     "epsIncreases": 8,
+     "averageDividendGrowthPct": 16.042,
+     "dividendYieldVsAveragePct": 11.68,
+     "siScore": 10
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 9.773,
+     "epsIncreases": 11,
+     "averageDividendGrowthPct": 11.394,
+     "dividendYieldVsAveragePct": 25.32,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "CATY",
+   "exchange": "NASDAQ",
+   "snapshot": {
+    "payoutRatioPct": 28.044,
+    "longTermDebtToEquityPct": 0,
+    "annualDividendChangePct": 11.76,
+    "sharesCurrentYear": 66713820,
+    "sharesPreviousYear": 67988945,
+    "peRatio": 11.849,
+    "pbRatio": 1.388
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": 11.269,
+     "epsIncreases": 3,
+     "averageDividendGrowthPct": 1.901,
+     "dividendYieldVsAveragePct": -27.12,
+     "siScore": 8
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": 8.928,
+     "epsIncreases": 6,
+     "averageDividendGrowthPct": 8.036,
+     "dividendYieldVsAveragePct": -23.25,
+     "siScore": 9
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 14.862,
+     "epsIncreases": 11,
+     "averageDividendGrowthPct": 22.409,
+     "dividendYieldVsAveragePct": 0.61,
+     "siScore": 10
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 12.753,
+     "epsIncreases": 14,
+     "averageDividendGrowthPct": 15.352,
+     "dividendYieldVsAveragePct": 14.247,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "PROV",
+   "exchange": "NASDAQ",
+   "snapshot": {
+    "payoutRatioPct": 54.369,
+    "longTermDebtToEquityPct": 0,
+    "annualDividendChangePct": 0,
+    "sharesCurrentYear": 6197727,
+    "sharesPreviousYear": 6446802,
+    "peRatio": 17.67,
+    "pbRatio": 0.9032
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": 1.421,
+     "epsIncreases": 1,
+     "averageDividendGrowthPct": 0,
+     "dividendYieldVsAveragePct": -18.94,
+     "siScore": 6
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": 6.4205,
+     "epsIncreases": 4,
+     "averageDividendGrowthPct": 0.463,
+     "dividendYieldVsAveragePct": -9.458,
+     "siScore": 7
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 10.288,
+     "epsIncreases": 6,
+     "averageDividendGrowthPct": 10.955,
+     "dividendYieldVsAveragePct": 2.423,
+     "siScore": 10
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 10.22,
+     "epsIncreases": 8,
+     "averageDividendGrowthPct": 11.649,
+     "dividendYieldVsAveragePct": 10.415,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "NC",
+   "exchange": "NYSE",
+   "snapshot": {
+    "payoutRatioPct": 45.652,
+    "longTermDebtToEquityPct": 0,
+    "annualDividendChangePct": 6.599,
+    "sharesCurrentYear": 5984875,
+    "sharesPreviousYear": 7481000,
+    "peRatio": 14.778,
+    "pbRatio": 0.5881
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": 50.804,
+     "epsIncreases": 2,
+     "averageDividendGrowthPct": 5.1425,
+     "dividendYieldVsAveragePct": 20.96,
+     "siScore": 9
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": 23.977,
+     "epsIncreases": 6,
+     "averageDividendGrowthPct": 10.684,
+     "dividendYieldVsAveragePct": 43.29,
+     "siScore": 10
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 16.403,
+     "epsIncreases": 8,
+     "averageDividendGrowthPct": 13.9812,
+     "dividendYieldVsAveragePct": 53.6,
+     "siScore": 10
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 18.672,
+     "epsIncreases": 11,
+     "averageDividendGrowthPct": 10.8289,
+     "dividendYieldVsAveragePct": 54.98,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "SLGN",
+   "exchange": "NYSE",
+   "snapshot": {
+    "payoutRatioPct": 33.871,
+    "longTermDebtToEquityPct": 0,
+    "annualDividendChangePct": 5.0,
+    "sharesCurrentYear": 105682020,
+    "sharesPreviousYear": 106785000,
+    "peRatio": 16.569,
+    "pbRatio": 1.754
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": -0.01,
+     "epsIncreases": 1,
+     "averageDividendGrowthPct": 10.854,
+     "dividendYieldVsAveragePct": 35.46,
+     "siScore": 8
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": 4.473,
+     "epsIncreases": 4,
+     "averageDividendGrowthPct": 9.334,
+     "dividendYieldVsAveragePct": 40.87,
+     "siScore": 9
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 7.24,
+     "epsIncreases": 5,
+     "averageDividendGrowthPct": 9.193,
+     "dividendYieldVsAveragePct": 51.45,
+     "siScore": 8
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 8.258,
+     "epsIncreases": 9,
+     "averageDividendGrowthPct": 11.821,
+     "dividendYieldVsAveragePct": 51.69,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "AGO",
+   "exchange": "NYSE",
+   "snapshot": {
+    "payoutRatioPct": 20.24,
+    "longTermDebtToEquityPct": 31.575,
+    "annualDividendChangePct": 11.76,
+    "sharesCurrentYear": 43979208,
+    "sharesPreviousYear": 49400000,
+    "peRatio": 9.78,
+    "pbRatio": 0.5818
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": 101.27,
+     "epsIncreases": 2,
+     "averageDividendGrowthPct": 11.205,
+     "dividendYieldVsAveragePct": 19.98,
+     "siScore": 10
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": -2.33,
+     "epsIncreases": 4,
+     "averageDividendGrowthPct": 10.987,
+     "dividendYieldVsAveragePct": 19.87,
+     "siScore": 9
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 44.6,
+     "epsIncreases": 7,
+     "averageDividendGrowthPct": 10.775,
+     "dividendYieldVsAveragePct": 15.17,
+     "siScore": 10
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 46.42,
+     "epsIncreases": 10,
+     "averageDividendGrowthPct": 15.214,
+     "dividendYieldVsAveragePct": 30.91,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "RF",
+   "exchange": "NYSE",
+   "snapshot": {
+    "payoutRatioPct": 47.059,
+    "longTermDebtToEquityPct": 0,
+    "annualDividendChangePct": 16.5,
+    "sharesCurrentYear": 851929506,
+    "sharesPreviousYear": 880000000,
+    "peRatio": 11.102,
+    "pbRatio": 1.4603
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": 27.196,
+     "epsIncreases": 1,
+     "averageDividendGrowthPct": 10.814,
+     "dividendYieldVsAveragePct": 5.468,
+     "siScore": 9
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": 9.866,
+     "epsIncreases": 4,
+     "averageDividendGrowthPct": 14.622,
+     "dividendYieldVsAveragePct": 16.6,
+     "siScore": 10
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 21.29,
+     "epsIncreases": 8,
+     "averageDividendGrowthPct": 21.202,
+     "dividendYieldVsAveragePct": 48.42,
+     "siScore": 10
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 21.128,
+     "epsIncreases": 11,
+     "averageDividendGrowthPct": 10.071,
+     "dividendYieldVsAveragePct": 39.26,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "HIG",
+   "exchange": "NYSE",
+   "snapshot": {
+    "payoutRatioPct": 17.938,
+    "longTermDebtToEquityPct": 23.181,
+    "annualDividendChangePct": 24.07,
+    "sharesCurrentYear": 267413397,
+    "sharesPreviousYear": 286500000,
+    "peRatio": 8.969,
+    "pbRatio": 1.939
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": 25.263,
+     "epsIncreases": 3,
+     "averageDividendGrowthPct": 10.69,
+     "dividendYieldVsAveragePct": -4.52,
+     "siScore": 9
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": 10.265,
+     "epsIncreases": 6,
+     "averageDividendGrowthPct": 10.263,
+     "dividendYieldVsAveragePct": -5.19,
+     "siScore": 9
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 48.331,
+     "epsIncreases": 9,
+     "averageDividendGrowthPct": 14.049,
+     "dividendYieldVsAveragePct": -0.0073,
+     "siScore": 9
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 40.512,
+     "epsIncreases": 12,
+     "averageDividendGrowthPct": 12.948,
+     "dividendYieldVsAveragePct": 0.0683,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "BC",
+   "exchange": "NYSE",
+   "snapshot": {
+    "payoutRatioPct": 54.154,
+    "longTermDebtToEquityPct": 0,
+    "annualDividendChangePct": 2.326,
+    "sharesCurrentYear": 64797428,
+    "sharesPreviousYear": 65700000,
+    "peRatio": 23.763,
+    "pbRatio": 2.974
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": -45.84,
+     "epsIncreases": 1,
+     "averageDividendGrowthPct": 12.054,
+     "dividendYieldVsAveragePct": 13.55,
+     "siScore": 8
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": -14.45,
+     "epsIncreases": 4,
+     "averageDividendGrowthPct": 12.103,
+     "dividendYieldVsAveragePct": 38.35,
+     "siScore": 9
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 27.07,
+     "epsIncreases": 6,
+     "averageDividendGrowthPct": 18.82,
+     "dividendYieldVsAveragePct": 74.86,
+     "siScore": 10
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 9.729,
+     "epsIncreases": 9,
+     "averageDividendGrowthPct": 13.46,
+     "dividendYieldVsAveragePct": 84.12,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "THO",
+   "exchange": "NYSE",
+   "snapshot": {
+    "payoutRatioPct": 63.905,
+    "longTermDebtToEquityPct": 20.302,
+    "annualDividendChangePct": 3.846,
+    "sharesCurrentYear": 51778200,
+    "sharesPreviousYear": 52562672,
+    "peRatio": 23.896,
+    "pbRatio": 0.9783
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": -10.72,
+     "epsIncreases": 0,
+     "averageDividendGrowthPct": 5.055,
+     "dividendYieldVsAveragePct": 41.41,
+     "siScore": 7
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": 8.707,
+     "epsIncreases": 4,
+     "averageDividendGrowthPct": 5.187,
+     "dividendYieldVsAveragePct": 46.4,
+     "siScore": 9
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 13.326,
+     "epsIncreases": 9,
+     "averageDividendGrowthPct": 4.918,
+     "dividendYieldVsAveragePct": 30.46,
+     "siScore": 9
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 13.513,
+     "epsIncreases": 11,
+     "averageDividendGrowthPct": 39.55,
+     "dividendYieldVsAveragePct": 17.95,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "DHI",
+   "exchange": "NYSE",
+   "snapshot": {
+    "payoutRatioPct": 19.782,
+    "longTermDebtToEquityPct": 0,
+    "annualDividendChangePct": 25.0,
+    "sharesCurrentYear": 271435610,
+    "sharesPreviousYear": 285800000,
+    "peRatio": 15.062,
+    "pbRatio": 1.7886
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": 0.021,
+     "epsIncreases": 1,
+     "averageDividendGrowthPct": 18.246,
+     "dividendYieldVsAveragePct": 36.38,
+     "siScore": 8
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": 17.07,
+     "epsIncreases": 6,
+     "averageDividendGrowthPct": 20.18,
+     "dividendYieldVsAveragePct": 22.68,
+     "siScore": 10
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 20.44,
+     "epsIncreases": 10,
+     "averageDividendGrowthPct": 17.736,
+     "dividendYieldVsAveragePct": 29.15,
+     "siScore": 10
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 11.62,
+     "epsIncreases": 13,
+     "averageDividendGrowthPct": 14.902,
+     "dividendYieldVsAveragePct": 7.51,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "SU",
+   "exchange": "NYSE",
+   "snapshot": {
+    "payoutRatioPct": 27.876,
+    "longTermDebtToEquityPct": 18.503,
+    "annualDividendChangePct": 13.98,
+    "sharesCurrentYear": 1151224232,
+    "sharesPreviousYear": 1220000000,
+    "peRatio": 10.139,
+    "pbRatio": 2.251
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": 61.575,
+     "epsIncreases": 2,
+     "averageDividendGrowthPct": 17.663,
+     "dividendYieldVsAveragePct": -36.63,
+     "siScore": 9
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": 49.362,
+     "epsIncreases": 4,
+     "averageDividendGrowthPct": 9.387,
+     "dividendYieldVsAveragePct": -28.49,
+     "siScore": 9
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 16.967,
+     "epsIncreases": 6,
+     "averageDividendGrowthPct": 13.156,
+     "dividendYieldVsAveragePct": -15.63,
+     "siScore": 9
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 23.778,
+     "epsIncreases": 9,
+     "averageDividendGrowthPct": 17.703,
+     "dividendYieldVsAveragePct": 6.541,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "CIB",
+   "exchange": "NYSE",
+   "snapshot": {
+    "payoutRatioPct": 48.193,
+    "longTermDebtToEquityPct": 42.745,
+    "annualDividendChangePct": 7.768,
+    "sharesCurrentYear": 109046803,
+    "sharesPreviousYear": 238303000,
+    "peRatio": 11.129,
+    "pbRatio": 0.00208
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": 318.97,
+     "epsIncreases": 4,
+     "averageDividendGrowthPct": 179.95,
+     "dividendYieldVsAveragePct": -42.88,
+     "siScore": 9
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": 46.62,
+     "epsIncreases": 5,
+     "averageDividendGrowthPct": 8.749,
+     "dividendYieldVsAveragePct": -18.7,
+     "siScore": 9
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 32.26,
+     "epsIncreases": 8,
+     "averageDividendGrowthPct": 4.816,
+     "dividendYieldVsAveragePct": 0.593,
+     "siScore": 9
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 27.32,
+     "epsIncreases": 12,
+     "averageDividendGrowthPct": 11.199,
+     "dividendYieldVsAveragePct": 9.704,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "KBH",
+   "exchange": "NYSE",
+   "snapshot": {
+    "payoutRatioPct": 28.169,
+    "longTermDebtToEquityPct": 44.565,
+    "annualDividendChangePct": 0,
+    "sharesCurrentYear": 60762736,
+    "sharesPreviousYear": 69254000,
+    "peRatio": 14.282,
+    "pbRatio": 0.8104
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": 22.716,
+     "epsIncreases": 2,
+     "averageDividendGrowthPct": 20.1,
+     "dividendYieldVsAveragePct": 27.4,
+     "siScore": 10
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": 27.564,
+     "epsIncreases": 6,
+     "averageDividendGrowthPct": 22.889,
+     "dividendYieldVsAveragePct": 72.03,
+     "siScore": 10
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 32.255,
+     "epsIncreases": 10,
+     "averageDividendGrowthPct": 11.987,
+     "dividendYieldVsAveragePct": 82.62,
+     "siScore": 10
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 18.878,
+     "epsIncreases": 12,
+     "averageDividendGrowthPct": 9.453,
+     "dividendYieldVsAveragePct": 44.11,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "LEN",
+   "exchange": "NYSE",
+   "snapshot": {
+    "payoutRatioPct": 38.095,
+    "longTermDebtToEquityPct": 27.282,
+    "annualDividendChangePct": 0,
+    "sharesCurrentYear": 207876222,
+    "sharesPreviousYear": 257746000,
+    "peRatio": 16.903,
+    "pbRatio": 0.9792
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": 7.855,
+     "epsIncreases": 2,
+     "averageDividendGrowthPct": 29.326,
+     "dividendYieldVsAveragePct": 63.31,
+     "siScore": 9
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": 13.367,
+     "epsIncreases": 6,
+     "averageDividendGrowthPct": 18.541,
+     "dividendYieldVsAveragePct": 156.95,
+     "siScore": 10
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 15.808,
+     "epsIncreases": 10,
+     "averageDividendGrowthPct": 11.41,
+     "dividendYieldVsAveragePct": 207.84,
+     "siScore": 10
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 18.619,
+     "epsIncreases": 13,
+     "averageDividendGrowthPct": 8.315,
+     "dividendYieldVsAveragePct": 144.14,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "LEN-B",
+   "exchange": "NYSE",
+   "snapshot": {
+    "payoutRatioPct": 37.879,
+    "longTermDebtToEquityPct": 27.282,
+    "annualDividendChangePct": 0,
+    "sharesCurrentYear": 30024017,
+    "sharesPreviousYear": 257746000,
+    "peRatio": 16.447,
+    "pbRatio": 0.9583
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": 7.855,
+     "epsIncreases": 2,
+     "averageDividendGrowthPct": 29.707,
+     "dividendYieldVsAveragePct": 48.54,
+     "siScore": 9
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": 13.367,
+     "epsIncreases": 6,
+     "averageDividendGrowthPct": 18.817,
+     "dividendYieldVsAveragePct": 130.96,
+     "siScore": 10
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 15.808,
+     "epsIncreases": 10,
+     "averageDividendGrowthPct": 11.58,
+     "dividendYieldVsAveragePct": 171.17,
+     "siScore": 10
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 18.619,
+     "epsIncreases": 13,
+     "averageDividendGrowthPct": 8.332,
+     "dividendYieldVsAveragePct": 115.56,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "EOG",
+   "exchange": "NYSE",
+   "snapshot": {
+    "payoutRatioPct": 31.751,
+    "longTermDebtToEquityPct": 23.863,
+    "annualDividendChangePct": 3.422,
+    "sharesCurrentYear": 524529176,
+    "sharesPreviousYear": 539231000,
+    "peRatio": 11.45,
+    "pbRatio": 2.426
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": 179.9,
+     "epsIncreases": 1,
+     "averageDividendGrowthPct": 50.869,
+     "dividendYieldVsAveragePct": -42.82,
+     "siScore": 8
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": 55.59,
+     "epsIncreases": 4,
+     "averageDividendGrowthPct": 18.761,
+     "dividendYieldVsAveragePct": -1.056,
+     "siScore": 9
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 86.66,
+     "epsIncreases": 7,
+     "averageDividendGrowthPct": 18.436,
+     "dividendYieldVsAveragePct": 40.56,
+     "siScore": 10
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 60.32,
+     "epsIncreases": 9,
+     "averageDividendGrowthPct": 23.828,
+     "dividendYieldVsAveragePct": 75.44,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "FDX",
+   "exchange": "NYSE",
+   "snapshot": {
+    "payoutRatioPct": 26.307,
+    "longTermDebtToEquityPct": 50.058,
+    "annualDividendChangePct": 4.486,
+    "sharesCurrentYear": 234199353,
+    "sharesPreviousYear": 239000000,
+    "peRatio": 16.611,
+    "pbRatio": 2.086
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": 0.143,
+     "epsIncreases": 3,
+     "averageDividendGrowthPct": 14.315,
+     "dividendYieldVsAveragePct": -6.899,
+     "siScore": 8
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": 32.85,
+     "epsIncreases": 6,
+     "averageDividendGrowthPct": 17.315,
+     "dividendYieldVsAveragePct": 17.3,
+     "siScore": 10
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 27.01,
+     "epsIncreases": 9,
+     "averageDividendGrowthPct": 16.925,
+     "dividendYieldVsAveragePct": 52.0,
+     "siScore": 10
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 30.5,
+     "epsIncreases": 12,
+     "averageDividendGrowthPct": 16.614,
+     "dividendYieldVsAveragePct": 78.33,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "INGR",
+   "exchange": "NYSE",
+   "snapshot": {
+    "payoutRatioPct": 36.087,
+    "longTermDebtToEquityPct": 37.796,
+    "annualDividendChangePct": 3.106,
+    "sharesCurrentYear": 63063979,
+    "sharesPreviousYear": 65200000,
+    "peRatio": 9.97,
+    "pbRatio": 1.351
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": 60.99,
+     "epsIncreases": 4,
+     "averageDividendGrowthPct": 6.439,
+     "dividendYieldVsAveragePct": 37.07,
+     "siScore": 9
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": 5.562,
+     "epsIncreases": 5,
+     "averageDividendGrowthPct": 7.069,
+     "dividendYieldVsAveragePct": 44.3,
+     "siScore": 8
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 14.735,
+     "epsIncreases": 8,
+     "averageDividendGrowthPct": 12.424,
+     "dividendYieldVsAveragePct": 57.27,
+     "siScore": 10
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 31.352,
+     "epsIncreases": 12,
+     "averageDividendGrowthPct": 12.921,
+     "dividendYieldVsAveragePct": 72.48,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "WDS",
+   "exchange": "NYSE",
+   "snapshot": {
+    "payoutRatioPct": 72.5,
+    "longTermDebtToEquityPct": 28.812,
+    "annualDividendChangePct": 9.434,
+    "sharesCurrentYear": 1901100143,
+    "sharesPreviousYear": 1913421137,
+    "peRatio": 13.15,
+    "pbRatio": 1.1095
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": 53.65,
+     "epsIncreases": 2,
+     "averageDividendGrowthPct": 65.759,
+     "dividendYieldVsAveragePct": -22.14,
+     "siScore": 9
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": 29.13,
+     "epsIncreases": 5,
+     "averageDividendGrowthPct": -3.828,
+     "dividendYieldVsAveragePct": 5.889,
+     "siScore": 9
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 16.58,
+     "epsIncreases": 8,
+     "averageDividendGrowthPct": 3.437,
+     "dividendYieldVsAveragePct": 5.458,
+     "siScore": 9
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 15.83,
+     "epsIncreases": 10,
+     "averageDividendGrowthPct": 11.638,
+     "dividendYieldVsAveragePct": 22.21,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "MLI",
+   "exchange": "NYSE",
+   "snapshot": {
+    "payoutRatioPct": 17.949,
+    "longTermDebtToEquityPct": 0.149,
+    "annualDividendChangePct": 40,
+    "sharesCurrentYear": 217974381,
+    "sharesPreviousYear": 221860000,
+    "peRatio": 13.579,
+    "pbRatio": 0.3288
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": 45.98,
+     "epsIncreases": 2,
+     "averageDividendGrowthPct": 27.628,
+     "dividendYieldVsAveragePct": -2.584,
+     "siScore": 9
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": 11.196,
+     "epsIncreases": 5,
+     "averageDividendGrowthPct": 20.393,
+     "dividendYieldVsAveragePct": -3.882,
+     "siScore": 9
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 15.785,
+     "epsIncreases": 8,
+     "averageDividendGrowthPct": 15.926,
+     "dividendYieldVsAveragePct": 7.203,
+     "siScore": 10
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 22.534,
+     "epsIncreases": 9,
+     "averageDividendGrowthPct": 8.683,
+     "dividendYieldVsAveragePct": 2.925,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "KEY",
+   "exchange": "NYSE",
+   "snapshot": {
+    "payoutRatioPct": 45.055,
+    "longTermDebtToEquityPct": 64.422,
+    "annualDividendChangePct": 0,
+    "sharesCurrentYear": 1055979769,
+    "sharesPreviousYear": 1095171000,
+    "peRatio": 11.456,
+    "pbRatio": 1.3934
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": 92.94,
+     "epsIncreases": 1,
+     "averageDividendGrowthPct": 6.029,
+     "dividendYieldVsAveragePct": -17.98,
+     "siScore": 7
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": 8.021,
+     "epsIncreases": 4,
+     "averageDividendGrowthPct": 12.597,
+     "dividendYieldVsAveragePct": -2.74,
+     "siScore": 9
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 10.03,
+     "epsIncreases": 7,
+     "averageDividendGrowthPct": 23.142,
+     "dividendYieldVsAveragePct": 20.31,
+     "siScore": 10
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 8.489,
+     "epsIncreases": 10,
+     "averageDividendGrowthPct": 13.836,
+     "dividendYieldVsAveragePct": 18.96,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "GGB",
+   "exchange": "NYSE",
+   "snapshot": {
+    "payoutRatioPct": 55.556,
+    "longTermDebtToEquityPct": 24.105,
+    "annualDividendChangePct": 33.99,
+    "sharesCurrentYear": 1244981220,
+    "sharesPreviousYear": 2012733000,
+    "peRatio": 16.222,
+    "pbRatio": 0.7902
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": 74.03,
+     "epsIncreases": 0,
+     "averageDividendGrowthPct": 146.6,
+     "dividendYieldVsAveragePct": -55.2,
+     "siScore": 8
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": 76.72,
+     "epsIncreases": 4,
+     "averageDividendGrowthPct": 55.75,
+     "dividendYieldVsAveragePct": -13.18,
+     "siScore": 9
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 38.03,
+     "epsIncreases": 6,
+     "averageDividendGrowthPct": 23.98,
+     "dividendYieldVsAveragePct": 7.95,
+     "siScore": 10
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 30.73,
+     "epsIncreases": 9,
+     "averageDividendGrowthPct": 39.8,
+     "dividendYieldVsAveragePct": 5.96,
+     "siScore": 10
+    }
+   ]
+  },
+  {
+   "symbol": "BAP",
+   "exchange": "NYSE",
+   "snapshot": {
+    "payoutRatioPct": 54.275,
+    "longTermDebtToEquityPct": 69.755,
+    "annualDividendChangePct": 30.87,
+    "sharesCurrentYear": 79419317,
+    "sharesPreviousYear": 79785000,
+    "peRatio": 13.105,
+    "pbRatio": 2.568
+   },
+   "horizons": [
+    {
+     "years": 5,
+     "averageEpsGrowthPct": 200.98,
+     "epsIncreases": 4,
+     "averageDividendGrowthPct": 56.872,
+     "dividendYieldVsAveragePct": -0.2928,
+     "siScore": 9
+    },
+    {
+     "years": 10,
+     "averageEpsGrowthPct": 13.43,
+     "epsIncreases": 7,
+     "averageDividendGrowthPct": 52.772,
+     "dividendYieldVsAveragePct": 8.487,
+     "siScore": 10
+    },
+    {
+     "years": 15,
+     "averageEpsGrowthPct": 14.75,
+     "epsIncreases": 11,
+     "averageDividendGrowthPct": 35.083,
+     "dividendYieldVsAveragePct": 37.48,
+     "siScore": 10
+    },
+    {
+     "years": 20,
+     "averageEpsGrowthPct": 16.78,
+     "epsIncreases": 16,
+     "averageDividendGrowthPct": 36.375,
+     "dividendYieldVsAveragePct": 46.4,
+     "siScore": 10
+    }
+   ]
+  }
+ ]
+}
