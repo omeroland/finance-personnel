@@ -246,7 +246,7 @@ func criterionDTO(c engine.CriterionResult) gen.Criterion {
 		StrictThreshold: thresholdDTO(c.ID, thrOfView(c.Strict)),
 	}
 	if c.Value != nil {
-		dto.Value = ptr(float32(*c.Value))
+		dto.Value = ptr(*c.Value)
 	}
 	if c.Relaxed != nil {
 		dto.RelaxedThreshold = ptr(thresholdDTO(c.ID, thrOfView(*c.Relaxed)))

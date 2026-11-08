@@ -970,6 +970,7 @@ components:
           $ref: '#/components/schemas/CriterionStatus'
         value:
           type: number
+          format: double
           description: Valeur mesurée. Fraction pour un ratio ou une croissance (fraction, 0.70 = 70 %), nombre pour un compte ou un multiple. Absente si manquante.
           example: 0.0912
         strictThreshold:

@@ -22,8 +22,8 @@ import (
 	"github.com/omeroland/finance-privee/backend/internal/platform/auth"
 )
 
-// Image épinglée par digest (Keycloak 26.4).
-const keycloakImage = "quay.io/keycloak/keycloak@sha256:9409c59bdfb65dbffa20b11e6f18b8abb9281d480c7ca402f51ed3d5977e6007"
+// Image épinglée par digest (Keycloak 26.8.1).
+const keycloakImage = "quay.io/keycloak/keycloak@sha256:3f3c5f8e03c614774b4bd9173b88391fefa4153bfc010d8012d59ad825377332"
 
 func startKeycloak(t *testing.T) string {
 	t.Helper()

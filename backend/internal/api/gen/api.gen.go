@@ -384,7 +384,7 @@ type Criterion struct {
 	StrictThreshold Threshold `json:"strictThreshold"`
 
 	// Value Valeur mesurée. Fraction pour un ratio ou une croissance (fraction, 0.70 = 70 %), nombre pour un compte ou un multiple. Absente si manquante.
-	Value *float32 `json:"value,omitempty"`
+	Value *float64 `json:"value,omitempty"`
 }
 
 // CriterionId Identifiant du critère, 5a à 11c.
