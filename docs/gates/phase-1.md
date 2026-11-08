@@ -4,7 +4,7 @@ Vérificateur, 2026-11-04. Branche `task/P1-24-partiel`, mis à jour par `task/P
 
 **P1-24 reste « à faire »** : elle dépend de P1-23 (déploiement sur le VPS, non terminé), d'un point que seul le propriétaire peut fournir (la feuille réelle) et de la signature. Ce rapport ne couvre que ce qui se vérifie aujourd'hui.
 
-Mise à jour (rejeu après correctifs) : les lignes 2f (images), 2g (`/auth`) et 3 passent de « échoué » à « réussi », avec les preuves ci-dessous. Restent ouverts : la CI de Trivy (approbation du propriétaire), la feuille réelle, la signature et P1-23.
+Mise à jour (rejeu après correctifs) : les lignes 2f (images), 2g (`/auth`) et 3 passent de « échoué » à « réussi », avec les preuves ci-dessous. Mise à jour 2026-11-08 (Orchestrateur, D304 et D305) : le job Trivy est dans la CI (PR #39, exécution verte : https://github.com/omeroland/finance-personnel/actions/runs/41918783746/job/126885438403) et P1-19-fix est terminée ; la ligne 1b est reformulée (le propriétaire n'a pas d'autre feuille que le gabarit). Restent ouverts : la signature et P1-23. Le critère « exécution rouge » de P1-19-fix n'a pas été rejoué.
 
 Légende : **réussi** (preuve exécutée) ; **échoué, fiche** (écart, fiche de correction créée) ; **en attente du propriétaire** ; **non vérifiable sans VPS**.
 
@@ -13,20 +13,20 @@ Légende : **réussi** (preuve exécutée) ; **échoué, fiche** (écart, fiche 
 | # | Critère | Résultat |
 | --- | --- | --- |
 | 1a | Les 15 lignes de référence passent | **réussi** |
-| 1b | Ta feuille réelle importée donne en compat les mêmes comptes d'échecs que Google Sheets | **en attente du propriétaire** |
+| 1b | Les scores donnent les mêmes comptes d'échecs que Google Sheets / le site | **réussi** sur le gabarit (oracle LibreOffice, 200 cas, et 5 actions du parcours complet, P1-22) et sur 42 titres du site Simply Investing (168 combinaisons, 0 écart, seuils et pointage strict, D304) ; **non prouvé** : le calcul des moyennes tronquées sur des séries réelles (le site ne fournit que des agrégats) |
 | 1c | Une restauration de sauvegarde réussit | **réussi** (MinIO local) ; restauration depuis OVH Object Storage : **non vérifiable sans VPS** |
 | 2a | Isolement par `owner_id` sur chaque route | **réussi** |
 | 2b | Validation du JWT (cas de P1-13) sur la pile réelle | **réussi** |
 | 2c | En-têtes et CSP | **réussi** avec une réserve (D224, `'unsafe-inline'` pour les styles) |
 | 2d | Secrets (gitleaks, tout l'historique) | **réussi** |
 | 2e | govulncheck | **réussi** |
-| 2f | Trivy | `make scan-images` sur toute la pile (api, backup, web, postgres, keycloak, traefik) **réussi** ; `e2e/gate/trivy_tierces.sh` **réussi** ; absent de la CI : **en attente du propriétaire** (`docs/tasks/P1-19-fix-ci.patch.md`, non appliquée) |
+| 2f | Trivy | `make scan-images` sur toute la pile (api, backup, web, postgres, keycloak, traefik) **réussi** ; `e2e/gate/trivy_tierces.sh` **réussi** ; dans la CI depuis la PR #39 (job `trivy`, vert) |
 | 2g | Limitation de débit active | **réussi** sur `/api` et sur `/auth` (D281) ; `/` non limité (accepté, D281) |
 | 2h | Journal d'audit alimenté par chaque écriture | **réussi** |
 | 3 | Surface exposée : console d'administration Keycloak | **réussi** (403 sur admin, `master`, API d'administration ; login et jeton validé) |
 | 4 | TLS public (Let's Encrypt), images signées, secrets sops, déploiement et retour arrière, sauvegarde vers OVH | **non vérifiable sans VPS** (P1-23) |
 
-Fiches de correction : `docs/tasks/P1-13-fix.md` (terminée, preuve rejouée ici), `docs/tasks/P1-19-fix.md` (reste « à faire » : le critère du job CI est ouvert).
+Fiches de correction : `docs/tasks/P1-13-fix.md` (terminée, preuve rejouée ici), `docs/tasks/P1-19-fix.md` (terminée, job `trivy` dans la CI).
 
 Signature du propriétaire : ______________________  Date : ______________
 
@@ -42,9 +42,9 @@ go test -count=1 -v -run TestCompatOracle ./internal/modules/stockeval/engine/  
 
 Les 15 sous-tests de `TestGoldenSamples` (PEP_ligne10, NKE_ligne14, CVX_ligne13, KO_ligne8, XOM_ligne9, JNJ_ligne15, MCD_ligne12, HD_ligne9, KO_ligne11, PG_ligne16, WMT_ligne8, AAPL_ligne7, IBM_ligne11, MSFT_ligne10, AXP_ligne7) passent, sur `testdata/golden/simply_investing_samples.json` non modifié. `make test-engine` complet : 47 tests et fuzz réussis, aucun échec. L'oracle LibreOffice et les 5 actions du parcours complet ont été prouvés en P1-22 (`docs/gates/phase-1-integration.md`) ; je ne les ai pas rejoués ici.
 
-### 1b. Feuille réelle, scores identiques à Google Sheets : en attente du propriétaire
+### 1b. Scores identiques à Google Sheets et au site : réussi sur le gabarit et 42 titres, séries réelles non prouvées
 
-Non fait, volontairement. Le dépôt ne contient qu'un gabarit vide (D33). Pour clore ce point, le propriétaire fournit : (1) sa feuille réelle (copie .xlsx), (2) la capture des scores qu'affiche Google Sheets (compte d'échecs par action). Je l'importe ensuite (`POST /api/v1/imports/xlsx`), je lis `GET /api/v1/stocks/{symbol}/evaluation?mode=compat` pour chaque action et je compare les comptes d'échecs. Aucun résultat n'est déclaré ici.
+Le propriétaire n'a pas d'autre feuille que le gabarit `simply_investing_template.xlsx`, qui définit les règles de calcul. La preuve repose sur trois éléments : (1) l'oracle LibreOffice recalcule les formules du gabarit (200 cas) et le mode compat reproduit ses résultats ; (2) 5 actions importées de bout en bout donnent les mêmes comptes que LibreOffice (P1-22) ; (3) `TestSiteScoresStrict` compare nos seuils et notre pointage strict au score du site pour 42 titres, 168 combinaisons, 0 écart (`testdata/fixtures/simply_investing_site_scores.json`, D304). Limite : le site ne donne que des agrégats, pas les séries annuelles ; le calcul des moyennes tronquées et le mode compat sur des séries réelles ne sont pas comparés au site. Pour le prouver, le propriétaire fournit les séries annuelles de quelques titres.
 
 ### 1c. Restauration d'une sauvegarde : réussi (environnement local)
 
@@ -112,14 +112,14 @@ gitleaks v8.24.3, image Docker `zricethezav/gitleaks@sha256:e1b35e12a8c6fa8901f0
 
 `cd backend && govulncheck ./...` (Go 1.27.3, govulncheck 1.9.0, base du 2026-11-02) : « Your code is affected by 0 vulnerabilities ». Une vulnérabilité (GO-2026-5932, `golang.org/x/crypto`) est dans un module requis mais le code ne l'appelle pas ; à surveiller à la prochaine mise à jour de dépendances.
 
-### 2f. Trivy : images réussi, CI en attente du propriétaire
+### 2f. Trivy : images et CI réussis
 
 Rejeu sur le dépôt à jour (D290 : Traefik v3.7.17, Keycloak 26.8.1, seuils HIGH, CRITICAL, `--ignore-unfixed` inchangés, image Trivy 0.76.1 épinglée par digest).
 
 - `make scan-images` : sort 0 (`docs/gates/phase-1-preuves/scan-images.txt`, ligne `code=0`). Il construit puis scanne les 6 images de `deploy/compose.yaml` : `finance/api`, `finance/backup`, `finance/web`, `postgres:16-alpine`, `keycloak:26.8.1`, `traefik:v3.7.17`. `finance/api` et `finance/web` sont scannés sans exception. **Réussi.**
 - `e2e/gate/trivy_tierces.sh` : réparé (il ignorait la politique de D290 et ne tenait pas compte de `.trivyignore`). Il lit désormais l'image Trivy dans le Makefile (`TRIVY_IMAGE`), applique `--ignorefile .trivyignore` (les échéances `exp:` comptent) et échoue (code 2) si un scan ne produit pas de rapport, au lieu de compter 0. Aucun seuil modifié. Résultat : 0 / 0 / 0 pour postgres, keycloak, traefik, code 0 (`docs/gates/phase-1-preuves/trivy-images-tierces.txt`). **Réussi.**
 - Contrôle négatif : le même scan de `postgres:16-alpine` sans `.trivyignore` trouve 26 CVE (stdlib de `gosu`) et sort 1. Les exceptions de `.trivyignore` sont donc ce qui rend le scan vert pour cette image : 26 CVE de `gosu` (Go 1.24.6) et 1 CVE guava de Keycloak, toutes avec échéance 2026-12-04, justifiées dans le fichier. Je ne juge pas leur exploitabilité ; passé cette date, le scan échoue de nouveau.
-- Trivy n'est toujours ni dans `make ci` ni dans la CI GitHub. Le job est proposé dans `docs/tasks/P1-19-fix-ci.patch.md` (non appliqué : `.github/` exige l'approbation du propriétaire). **En attente du propriétaire** ; le critère « un job de la CI échoue sur une vulnérabilité non justifiée » (lien d'exécution) n'est pas prouvé.
+- Trivy est dans la CI GitHub depuis la PR #39 (job `trivy`, `make scan-images`, hors `make ci`) : exécution verte https://github.com/omeroland/finance-personnel/actions/runs/41918783746/job/126885438403. La preuve d'une exécution rouge (CVE retirée de `.trivyignore`) n'a pas été rejouée. **Réussi.**
 
 ### 2g. Limitation de débit : réussi sur `/api` et `/auth`
 
