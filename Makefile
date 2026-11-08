@@ -85,6 +85,8 @@ oracle: ## Recalcule l'oracle avec LibreOffice (conteneur épinglé)
 mock: $(API)/node_modules/.package-lock.json ## Serveur simulé Prism (port 4010)
 	cd $(API) && npx prism mock --host 127.0.0.1 --port 4010 openapi.yaml
 
+# Projet Compose dédié au local : évite un ancien volume `finance_pgdata` aux mots de passe périmés (D303). Surcharge : COMPOSE_PROJECT_NAME=… make up.
+export COMPOSE_PROJECT_NAME ?= financelocal
 COMPOSE := docker compose -f deploy/compose.yaml $(COMPOSE_EXTRA)
 PROFILE ?= local
 
