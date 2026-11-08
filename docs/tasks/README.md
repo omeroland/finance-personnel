@@ -50,7 +50,7 @@ Une tâche passe à « prête » quand toutes ses dépendances sont « terminée
 
 # Tâches — phase 2 (Portefeuille de FNB)
 
-Fiches rédigées d'avance (D302). Le code ne démarre qu'après la signature de la porte de phase 1 par le propriétaire.
+Fiches rédigées d'avance (D302). Phase ouverte sans la signature de la porte de phase 1, sur instruction du propriétaire (D306).
 
 | ID | Tâche | Agent | Dépend de | Statut |
 | --- | --- | --- | --- | --- |
