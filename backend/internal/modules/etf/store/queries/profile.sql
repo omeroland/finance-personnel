@@ -34,6 +34,10 @@ WHERE i.owner_id = @owner_id AND i.kind = 'etf'
   AND (sqlc.narg('max_mer')::double precision IS NULL OR p.mer <= sqlc.narg('max_mer')::double precision)
 ORDER BY i.symbol;
 
+-- name: GetEtfProfileAt :one
+SELECT * FROM etf.etf_profile
+WHERE owner_id = @owner_id AND instrument_id = @instrument_id AND as_of = @as_of;
+
 -- name: ListEtfProfileHistory :many
 SELECT * FROM etf.etf_profile
 WHERE owner_id = @owner_id AND instrument_id = @instrument_id

@@ -76,7 +76,7 @@ type noopObserver struct{}
 func (noopObserver) EvaluationDone(time.Duration) {}
 func (noopObserver) ImportFinished(string)        {}
 
-// Handler implémente gen.StrictServerInterface.
+// Handler implémente gen.StrictServerInterface, hors les routes de etf/http (P2-10).
 type Handler struct {
 	repos    Repos
 	importer Importer
@@ -87,8 +87,6 @@ type Handler struct {
 
 	jobs sync.WaitGroup
 }
-
-var _ gen.StrictServerInterface = (*Handler)(nil)
 
 // New construit le Handler.
 func New(cfg Config) (*Handler, error) {
@@ -110,14 +108,18 @@ func New(cfg Config) (*Handler, error) {
 
 // Routes renvoie le routeur de l'API (chemins du contrat). Le JWT est exigé
 // en amont (platform/auth) ; chaque handler lit le propriétaire du contexte.
-func (h *Handler) Routes() http.Handler {
+func (h *Handler) Routes() http.Handler { return h.RoutesFor(pendingRoutes{h}) }
+
+// RoutesFor est Routes pour une implémentation composée : si porte les routes du
+// module 1 (par ce Handler) et celles du module 2 (cmd/server assemble les deux).
+func (h *Handler) RoutesFor(si gen.StrictServerInterface) http.Handler {
 	mux := http.NewServeMux()
 	opts := gen.StrictHTTPServerOptions{
 		RequestErrorHandlerFunc:  h.requestError,
 		ResponseErrorHandlerFunc: httpx.ErrorHandler(h.log),
 	}
-	si := gen.NewStrictHandlerWithOptions(h, []gen.StrictMiddlewareFunc{h.scope}, opts)
-	gen.HandlerWithOptions(si, gen.StdHTTPServerOptions{BaseRouter: mux, ErrorHandlerFunc: h.requestError})
+	handler := gen.NewStrictHandlerWithOptions(si, []gen.StrictMiddlewareFunc{h.scope}, opts)
+	gen.HandlerWithOptions(handler, gen.StdHTTPServerOptions{BaseRouter: mux, ErrorHandlerFunc: h.requestError})
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		httpx.ErrorHandler(h.log)(w, r, httpx.NotFound("Route inconnue."))
 	})

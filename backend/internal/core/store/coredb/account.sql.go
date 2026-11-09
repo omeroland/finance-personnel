@@ -70,6 +70,31 @@ func (q *Queries) GetAccount(ctx context.Context, arg GetAccountParams) (CoreAcc
 	return i, err
 }
 
+const getAccountByName = `-- name: GetAccountByName :one
+SELECT id, owner_id, name, type, broker, currency, created_at FROM core.account WHERE owner_id = $1 AND lower(name) = lower($2::text)
+`
+
+type GetAccountByNameParams struct {
+	OwnerID uuid.UUID
+	Name    string
+}
+
+// Nom de compte sans égard à la casse (import CSV, D391).
+func (q *Queries) GetAccountByName(ctx context.Context, arg GetAccountByNameParams) (CoreAccount, error) {
+	row := q.db.QueryRow(ctx, getAccountByName, arg.OwnerID, arg.Name)
+	var i CoreAccount
+	err := row.Scan(
+		&i.ID,
+		&i.OwnerID,
+		&i.Name,
+		&i.Type,
+		&i.Broker,
+		&i.Currency,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const listAccounts = `-- name: ListAccounts :many
 SELECT id, owner_id, name, type, broker, currency, created_at FROM core.account WHERE owner_id = $1 ORDER BY name
 `

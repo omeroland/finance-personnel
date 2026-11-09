@@ -7,35 +7,41 @@ import (
 	"github.com/omeroland/finance-privee/backend/internal/platform/httpx"
 )
 
-// Routes du socle et du module 2 (P2-01) : au contrat, pas encore
-// implémentées. Les handlers arrivent avec P2-10 (comptes, registre,
-// catalogue) et P2-11 (modèles, plans, exposition, rendement) ; d'ici là,
-// elles répondent 501 au format RFC 9457.
+// pendingRoutes porte les routes servies par etf/http (P2-10, D401) : sans
+// composition, Routes() les laisse en 501. cmd/server utilise RoutesFor avec le
+// handler composé et les sert pour de vrai.
+type pendingRoutes struct{ *Handler }
+
+var _ gen.StrictServerInterface = pendingRoutes{}
+
+// Routes au contrat sans handler ici : l'import CSV attend l'accord sur
+// Job.type (D400), les modèles, plans, exposition et rendement arrivent avec
+// P2-11. D'ici là, elles répondent 501 au format RFC 9457.
 
 const phase2Pending = "Cette route du module 2 n'est pas encore disponible."
 
-// ListAccounts : contrat P2-01, implémentation en P2-10 ou P2-11.
-func (h *Handler) ListAccounts(_ context.Context, _ gen.ListAccountsRequestObject) (gen.ListAccountsResponseObject, error) {
+// ListAccounts : servie par etf/http (P2-10) une fois composée dans cmd/server ; 501 sinon.
+func (pendingRoutes) ListAccounts(_ context.Context, _ gen.ListAccountsRequestObject) (gen.ListAccountsResponseObject, error) {
 	return nil, httpx.NotImplemented(phase2Pending)
 }
 
-// CreateAccount : contrat P2-01, implémentation en P2-10 ou P2-11.
-func (h *Handler) CreateAccount(_ context.Context, _ gen.CreateAccountRequestObject) (gen.CreateAccountResponseObject, error) {
+// CreateAccount : servie par etf/http (P2-10) une fois composée dans cmd/server ; 501 sinon.
+func (pendingRoutes) CreateAccount(_ context.Context, _ gen.CreateAccountRequestObject) (gen.CreateAccountResponseObject, error) {
 	return nil, httpx.NotImplemented(phase2Pending)
 }
 
-// ListTransactions : contrat P2-01, implémentation en P2-10 ou P2-11.
-func (h *Handler) ListTransactions(_ context.Context, _ gen.ListTransactionsRequestObject) (gen.ListTransactionsResponseObject, error) {
+// ListTransactions : servie par etf/http (P2-10) une fois composée dans cmd/server ; 501 sinon.
+func (pendingRoutes) ListTransactions(_ context.Context, _ gen.ListTransactionsRequestObject) (gen.ListTransactionsResponseObject, error) {
 	return nil, httpx.NotImplemented(phase2Pending)
 }
 
-// CreateTransaction : contrat P2-01, implémentation en P2-10 ou P2-11.
-func (h *Handler) CreateTransaction(_ context.Context, _ gen.CreateTransactionRequestObject) (gen.CreateTransactionResponseObject, error) {
+// CreateTransaction : servie par etf/http (P2-10) une fois composée dans cmd/server ; 501 sinon.
+func (pendingRoutes) CreateTransaction(_ context.Context, _ gen.CreateTransactionRequestObject) (gen.CreateTransactionResponseObject, error) {
 	return nil, httpx.NotImplemented(phase2Pending)
 }
 
-// CreateStatement : contrat P2-01, implémentation en P2-10 ou P2-11.
-func (h *Handler) CreateStatement(_ context.Context, _ gen.CreateStatementRequestObject) (gen.CreateStatementResponseObject, error) {
+// CreateStatement : servie par etf/http (P2-10) une fois composée dans cmd/server ; 501 sinon.
+func (pendingRoutes) CreateStatement(_ context.Context, _ gen.CreateStatementRequestObject) (gen.CreateStatementResponseObject, error) {
 	return nil, httpx.NotImplemented(phase2Pending)
 }
 
@@ -44,13 +50,13 @@ func (h *Handler) ImportCsv(_ context.Context, _ gen.ImportCsvRequestObject) (ge
 	return nil, httpx.NotImplemented(phase2Pending)
 }
 
-// ListPositions : contrat P2-01, implémentation en P2-10 ou P2-11.
-func (h *Handler) ListPositions(_ context.Context, _ gen.ListPositionsRequestObject) (gen.ListPositionsResponseObject, error) {
+// ListPositions : servie par etf/http (P2-10) une fois composée dans cmd/server ; 501 sinon.
+func (pendingRoutes) ListPositions(_ context.Context, _ gen.ListPositionsRequestObject) (gen.ListPositionsResponseObject, error) {
 	return nil, httpx.NotImplemented(phase2Pending)
 }
 
-// ListEtfs : contrat P2-01, implémentation en P2-10 ou P2-11.
-func (h *Handler) ListEtfs(_ context.Context, _ gen.ListEtfsRequestObject) (gen.ListEtfsResponseObject, error) {
+// ListEtfs : servie par etf/http (P2-10) une fois composée dans cmd/server ; 501 sinon.
+func (pendingRoutes) ListEtfs(_ context.Context, _ gen.ListEtfsRequestObject) (gen.ListEtfsResponseObject, error) {
 	return nil, httpx.NotImplemented(phase2Pending)
 }
 

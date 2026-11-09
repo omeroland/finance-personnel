@@ -13,6 +13,47 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+const countNaturalKey = `-- name: CountNaturalKey :one
+SELECT count(*) FROM core.transaction
+WHERE owner_id = $1 AND account_id = $2 AND reverses_id IS NULL
+  AND type = $3 AND trade_date = $4
+  AND instrument_id IS NOT DISTINCT FROM $5::uuid
+  AND quantity IS NOT DISTINCT FROM $6::numeric
+  AND price IS NOT DISTINCT FROM $7::numeric
+  AND amount IS NOT DISTINCT FROM $8::numeric
+  AND split_ratio IS NOT DISTINCT FROM $9::numeric
+`
+
+type CountNaturalKeyParams struct {
+	OwnerID      uuid.UUID
+	AccountID    uuid.UUID
+	Type         string
+	TradeDate    time.Time
+	InstrumentID *uuid.UUID
+	Quantity     decimal.NullDecimal
+	Price        decimal.NullDecimal
+	Amount       decimal.NullDecimal
+	SplitRatio   decimal.NullDecimal
+}
+
+// Nombre d'originales de même clé naturelle (D391), pour l'idempotence de l'import (D392).
+func (q *Queries) CountNaturalKey(ctx context.Context, arg CountNaturalKeyParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countNaturalKey,
+		arg.OwnerID,
+		arg.AccountID,
+		arg.Type,
+		arg.TradeDate,
+		arg.InstrumentID,
+		arg.Quantity,
+		arg.Price,
+		arg.Amount,
+		arg.SplitRatio,
+	)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const getTransaction = `-- name: GetTransaction :one
 SELECT id, owner_id, account_id, type, trade_date, instrument_id, quantity, price, amount, fee, split_ratio, counterpart_account_id, currency, reverses_id, note, source, created_at FROM core.transaction WHERE owner_id = $1 AND id = $2
 `
@@ -116,6 +157,60 @@ func (q *Queries) InsertTransaction(ctx context.Context, arg InsertTransactionPa
 	return i, err
 }
 
+const listEffectiveForAccount = `-- name: ListEffectiveForAccount :many
+SELECT t.id, t.owner_id, t.account_id, t.type, t.trade_date, t.instrument_id, t.quantity, t.price, t.amount, t.fee, t.split_ratio, t.counterpart_account_id, t.currency, t.reverses_id, t.note, t.source, t.created_at FROM core.transaction t
+WHERE t.owner_id = $1 AND t.trade_date <= $2
+  AND (t.account_id = $3 OR t.counterpart_account_id = $3)
+  AND t.reverses_id IS NULL
+  AND NOT EXISTS (SELECT 1 FROM core.transaction r WHERE r.owner_id = t.owner_id AND r.reverses_id = t.id)
+ORDER BY t.trade_date, t.created_at, t.id
+`
+
+type ListEffectiveForAccountParams struct {
+	OwnerID   uuid.UUID
+	AsOf      time.Time
+	AccountID uuid.UUID
+}
+
+// Écritures en vigueur (ni corrigées ni inverses) touchant un compte, en source ou en contrepartie.
+func (q *Queries) ListEffectiveForAccount(ctx context.Context, arg ListEffectiveForAccountParams) ([]CoreTransaction, error) {
+	rows, err := q.db.Query(ctx, listEffectiveForAccount, arg.OwnerID, arg.AsOf, arg.AccountID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []CoreTransaction{}
+	for rows.Next() {
+		var i CoreTransaction
+		if err := rows.Scan(
+			&i.ID,
+			&i.OwnerID,
+			&i.AccountID,
+			&i.Type,
+			&i.TradeDate,
+			&i.InstrumentID,
+			&i.Quantity,
+			&i.Price,
+			&i.Amount,
+			&i.Fee,
+			&i.SplitRatio,
+			&i.CounterpartAccountID,
+			&i.Currency,
+			&i.ReversesID,
+			&i.Note,
+			&i.Source,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listPositionsAt = `-- name: ListPositionsAt :many
 SELECT l.account_id, l.instrument_id, i.symbol,
        core.fold_position(l.kind, l.delta, l.split_ratio ORDER BY l.trade_date, l.created_at, l.id)::numeric AS quantity
@@ -179,6 +274,65 @@ type ListTransactionsParams struct {
 
 func (q *Queries) ListTransactions(ctx context.Context, arg ListTransactionsParams) ([]CoreTransaction, error) {
 	rows, err := q.db.Query(ctx, listTransactions, arg.OwnerID, arg.AccountID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []CoreTransaction{}
+	for rows.Next() {
+		var i CoreTransaction
+		if err := rows.Scan(
+			&i.ID,
+			&i.OwnerID,
+			&i.AccountID,
+			&i.Type,
+			&i.TradeDate,
+			&i.InstrumentID,
+			&i.Quantity,
+			&i.Price,
+			&i.Amount,
+			&i.Fee,
+			&i.SplitRatio,
+			&i.CounterpartAccountID,
+			&i.Currency,
+			&i.ReversesID,
+			&i.Note,
+			&i.Source,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listTransactionsBetween = `-- name: ListTransactionsBetween :many
+SELECT id, owner_id, account_id, type, trade_date, instrument_id, quantity, price, amount, fee, split_ratio, counterpart_account_id, currency, reverses_id, note, source, created_at FROM core.transaction
+WHERE owner_id = $1 AND account_id = $2
+  AND ($3::date IS NULL OR trade_date >= $3::date)
+  AND ($4::date IS NULL OR trade_date <= $4::date)
+ORDER BY trade_date, created_at, id
+`
+
+type ListTransactionsBetweenParams struct {
+	OwnerID   uuid.UUID
+	AccountID uuid.UUID
+	FromDate  *time.Time
+	ToDate    *time.Time
+}
+
+// Registre d'un compte borné par des dates facultatives.
+func (q *Queries) ListTransactionsBetween(ctx context.Context, arg ListTransactionsBetweenParams) ([]CoreTransaction, error) {
+	rows, err := q.db.Query(ctx, listTransactionsBetween,
+		arg.OwnerID,
+		arg.AccountID,
+		arg.FromDate,
+		arg.ToDate,
+	)
 	if err != nil {
 		return nil, err
 	}
