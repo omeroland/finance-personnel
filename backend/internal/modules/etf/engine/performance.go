@@ -292,6 +292,7 @@ func TWR(points []Valuation) (Performance, error) {
 	if len(points) < 2 {
 		return Performance{}, ErrNoPeriod
 	}
+	var prevDate time.Time
 	for i, p := range points {
 		if p.Date.IsZero() {
 			return Performance{}, fmt.Errorf("point %d: %w", i, ErrFlowDate)
@@ -299,9 +300,10 @@ func TWR(points []Valuation) (Performance, error) {
 		if p.Value.IsNegative() {
 			return Performance{}, fmt.Errorf("point %d: valeur négative: %w", i, ErrValuations)
 		}
-		if i > 0 && !p.Date.After(points[i-1].Date) {
+		if i > 0 && !p.Date.After(prevDate) {
 			return Performance{}, fmt.Errorf("point %d: dates non croissantes: %w", i, ErrValuations)
 		}
+		prevDate = p.Date
 	}
 	type acc struct {
 		prod    float64
