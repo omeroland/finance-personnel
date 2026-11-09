@@ -54,7 +54,7 @@ Fiches rédigées d'avance (D302). Phase ouverte sans la signature de la porte d
 
 | ID | Tâche | Agent | Dépend de | Statut |
 | --- | --- | --- | --- | --- |
-| [P2-01](P2-01.md) | Contrat OpenAPI du module 2 et du socle | Backend Go | P1-03 | à faire |
+| [P2-01](P2-01.md) | Contrat OpenAPI du module 2 et du socle | Backend Go | P1-03 | terminée |
 | [P2-02](P2-02.md) | Schéma : comptes, transactions, relevés, profils FNB, modèles | Backend Go | P2-01 | à faire |
 | [P2-03](P2-03.md) | Moteur : exposition par transparence et RFG pondéré | Backend Go | P2-02 | à faire |
 | [P2-04](P2-04.md) | Moteur : plan d'achat en parts entières | Backend Go | P2-03 | à faire |

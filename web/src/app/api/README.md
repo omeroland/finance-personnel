@@ -2,7 +2,7 @@
 
 Source unique du contrat (CLAUDE.md). Serveur Go, client Angular et serveur simulé en sont générés.  Conventions :  - Ratios et taux : `number` en **fraction, 0.70 = 70 %**. Jamais d\'échelle 0 à 100. - Montants, prix et valeurs annuelles : chaîne décimale (`\"152.40\"`) accompagnée de sa devise, jamais un nombre à virgule flottante. - Dates ISO 8601 (`date` ou `date-time`). - Une valeur inconnue est une propriété absente, jamais `null`. - Erreurs au format RFC 9457 (`application/problem+json`), sans trace interne. - Traitements longs : réponse `202` et un `Job` à interroger. 
 
-The version of the OpenAPI document: 1.0.0
+The version of the OpenAPI document: 1.1.0
 
 ## Building
 

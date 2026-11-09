@@ -1,9 +1,15 @@
+export * from './accounts.service';
+import { AccountsService } from './accounts.service';
 export * from './evaluations.service';
 import { EvaluationsService } from './evaluations.service';
 export * from './imports.service';
 import { ImportsService } from './imports.service';
+export * from './portfolio.service';
+import { PortfolioService } from './portfolio.service';
 export * from './rules.service';
 import { RulesService } from './rules.service';
 export * from './stocks.service';
 import { StocksService } from './stocks.service';
-export const APIS = [EvaluationsService, ImportsService, RulesService, StocksService];
+export * from './transactions.service';
+import { TransactionsService } from './transactions.service';
+export const APIS = [AccountsService, EvaluationsService, ImportsService, PortfolioService, RulesService, StocksService, TransactionsService];
