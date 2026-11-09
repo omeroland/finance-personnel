@@ -1,0 +1,12 @@
+Date;Compte;Type;Symbole;Quantité;Prix;Devise;Frais;Montant;Ratio;Contrepartie;Note
+2024-01-10;CELI;contribution;;;;CAD;;5000,00;;;Cotisation synthétique
+2024-01-15;CELI;buy;XEQT;100;30,50;CAD;9,99;;;;
+2024-02-15;CELI;buy;TSX:VFV;10,5;100,25;CAD;;;;;
+2024-03-01;CELI;sell;XEQT;40;32,10;CAD;;;;;
+2024-04-01;CELI;drip;XEQT;0,75;31,00;CAD;;;;;
+2024-05-01;CELI;split;XEQT;;;CAD;;;2;;
+2024-06-01;CELI;dividend;VFV;;;CAD;;12,34;;;
+2024-06-15;REER;buy;XEQT;5;30;CAD;;;;;
+2024-13-40;CELI;buy;XEQT;1;1;CAD;;;;;
+2024-07-01;CELI;achat;XEQT;1;1;CAD;;;;;
+2024-07-02;CELI;buy;XEQT;-3;1;CAD;;;;;
