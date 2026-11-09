@@ -61,7 +61,7 @@ Fiches rédigées d'avance (D302). Phase ouverte sans la signature de la porte d
 | [P2-05](P2-05.md) | Moteur : rééquilibrage par bandes | Backend Go | P2-03 | à faire |
 | [P2-06](P2-06.md) | Moteur : rendement pondéré dans le temps et TRI | Backend Go | P2-02 | à faire |
 | [P2-07](P2-07.md) | Oracle et vecteurs de l'outil SÉLECTION ET GESTION | Vérificateur | P2-01 | à faire |
-| [P2-08](P2-08.md) | Import de l'outil SÉLECTION ET GESTION | Données | P2-02 | à faire |
+| [P2-08](P2-08.md) | Import de l'outil SÉLECTION ET GESTION | Données | P2-02 | terminée |
 | [P2-09](P2-09.md) | Import CSV générique de transactions | Données | P2-02 | à faire |
 | [P2-10](P2-10.md) | Handlers : comptes, transactions, relevés, positions, catalogue | Backend Go | P2-02, P2-08, P2-09 | à faire |
 | [P2-11](P2-11.md) | Handlers : modèles, plans, exposition, performance | Backend Go | P2-03, P2-04, P2-05, P2-06, P2-10 | à faire |
