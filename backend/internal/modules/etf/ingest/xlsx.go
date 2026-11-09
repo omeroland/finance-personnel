@@ -176,8 +176,10 @@ func (r *Report) add(level, kind, sheet, cell, symbol, format string, a ...any) 
 	if level == LevelWarning {
 		r.Warnings++
 	}
-	r.Entries = append(r.Entries, Entry{Level: level, Kind: kind, Sheet: sheet, Cell: cell, Symbol: symbol,
-		Message: fmt.Sprintf(format, a...)})
+	r.Entries = append(r.Entries, Entry{
+		Level: level, Kind: kind, Sheet: sheet, Cell: cell, Symbol: symbol,
+		Message: fmt.Sprintf(format, a...),
+	})
 }
 
 func (r *Report) warn(sheet, cell, symbol, format string, a ...any) {
