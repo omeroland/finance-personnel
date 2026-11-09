@@ -58,7 +58,7 @@ Fiches rédigées d'avance (D302). Phase ouverte sans la signature de la porte d
 | [P2-02](P2-02.md) | Schéma : comptes, transactions, relevés, profils FNB, modèles | Backend Go | P2-01 | terminée |
 | [P2-03](P2-03.md) | Moteur : exposition par transparence et RFG pondéré | Backend Go | P2-02 | terminée |
 | [P2-04](P2-04.md) | Moteur : plan d'achat en parts entières | Backend Go | P2-03 | terminée |
-| [P2-05](P2-05.md) | Moteur : rééquilibrage par bandes | Backend Go | P2-03 | à faire |
+| [P2-05](P2-05.md) | Moteur : rééquilibrage par bandes | Backend Go | P2-03 | terminée |
 | [P2-06](P2-06.md) | Moteur : rendement pondéré dans le temps et TRI | Backend Go | P2-02 | terminée |
 | [P2-07](P2-07.md) | Oracle et vecteurs de l'outil SÉLECTION ET GESTION | Vérificateur | P2-01 | terminée |
 | [P2-08](P2-08.md) | Import de l'outil SÉLECTION ET GESTION | Données | P2-02 | terminée |
