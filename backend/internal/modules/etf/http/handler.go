@@ -14,6 +14,7 @@ import (
 
 	"github.com/omeroland/finance-privee/backend/internal/api/gen"
 	corestore "github.com/omeroland/finance-privee/backend/internal/core/store"
+	"github.com/omeroland/finance-privee/backend/internal/modules/etf/ingest"
 	etfstore "github.com/omeroland/finance-privee/backend/internal/modules/etf/store"
 	"github.com/omeroland/finance-privee/backend/internal/platform/auth"
 	"github.com/omeroland/finance-privee/backend/internal/platform/httpx"
@@ -38,6 +39,9 @@ type Catalog interface {
 type Config struct {
 	Ledger  Ledger
 	Catalog Catalog
+	// Imports écrit les lignes de l'import CSV (satisfait par *etfstore.Store) ;
+	// absent, la route d'import répond 501.
+	Imports ingest.TransactionRepository
 	Logger  *slog.Logger
 	// Now fournit l'horloge (défaut : time.Now).
 	Now func() time.Time
@@ -48,6 +52,7 @@ type Config struct {
 type Handler struct {
 	ledger  Ledger
 	catalog Catalog
+	imports ingest.TransactionRepository
 	log     *slog.Logger
 	now     func() time.Time
 }
@@ -57,7 +62,7 @@ func New(cfg Config) (*Handler, error) {
 	if cfg.Ledger == nil || cfg.Catalog == nil {
 		return nil, errors.New("handlers: dépôts obligatoires")
 	}
-	h := &Handler{ledger: cfg.Ledger, catalog: cfg.Catalog, log: cfg.Logger, now: cfg.Now}
+	h := &Handler{ledger: cfg.Ledger, catalog: cfg.Catalog, imports: cfg.Imports, log: cfg.Logger, now: cfg.Now}
 	if h.log == nil {
 		h.log = slog.Default()
 	}

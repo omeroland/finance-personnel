@@ -95,6 +95,10 @@ func (s srv) CreateStatement(ctx context.Context, r gen.CreateStatementRequestOb
 	return s.h.CreateStatement(ctx, r)
 }
 
+func (s srv) ImportCsv(ctx context.Context, r gen.ImportCsvRequestObject) (gen.ImportCsvResponseObject, error) {
+	return s.h.ImportCsv(ctx, r)
+}
+
 func (s srv) ListPositions(ctx context.Context, r gen.ListPositionsRequestObject) (gen.ListPositionsResponseObject, error) {
 	return s.h.ListPositions(ctx, r)
 }
@@ -173,8 +177,13 @@ func (a *api) doJSON(method, path string, v any) resp {
 
 func (a *api) doRaw(method, path string, body []byte) resp {
 	a.t.Helper()
+	return a.doType(method, path, "application/json", body)
+}
+
+func (a *api) doType(method, path, contentType string, body []byte) resp {
+	a.t.Helper()
 	req := httptest.NewRequest(method, path, bytes.NewReader(body))
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Content-Type", contentType)
 	req.Header.Set("Authorization", "Bearer test")
 	rec := httptest.NewRecorder()
 	a.srv.ServeHTTP(rec, req)

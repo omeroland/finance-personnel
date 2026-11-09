@@ -17,6 +17,8 @@ import { Observable }                                        from 'rxjs';
 import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
+import { CsvImportReport } from '../model/csv-import-report';
+// @ts-ignore
 import { Job } from '../model/job';
 // @ts-ignore
 import { Problem } from '../model/problem';
@@ -100,7 +102,7 @@ export class ImportsService extends BaseService {
 
     /**
      * Importer un relevé de courtier
-     * Import multipart d\&#39;un fichier CSV (10 Mo au plus) vers le registre du compte, avec l\&#39;adapter du courtier. Répond 202 avec un job.
+     * Import multipart d\&#39;un fichier CSV (10 Mo au plus) vers le registre du compte, avec l\&#39;adapter du courtier (&#x60;generic&#x60; : format de l\&#39;application). L\&#39;import est synchrone et répond 200 avec le rapport ligne par ligne, sans job. Une ligne invalide ou refusée est signalée sans empêcher les autres ; ré-importer le même fichier ne crée rien (doublons). Une ligne dont le compte n\&#39;est pas celui de la route est refusée.
      * @endpoint post /api/v1/accounts/{id}/imports/csv
      * @param broker Adapter de courtier. &#x60;generic&#x60; lit le format CSV générique de l\&#39;application.
      * @param id Identifiant du compte.
@@ -109,9 +111,9 @@ export class ImportsService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public importCsv(broker: string, id: string, file: Blob, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json' | 'application/problem+json', context?: HttpContext, transferCache?: boolean}): Observable<Job>;
-    public importCsv(broker: string, id: string, file: Blob, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json' | 'application/problem+json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Job>>;
-    public importCsv(broker: string, id: string, file: Blob, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json' | 'application/problem+json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Job>>;
+    public importCsv(broker: string, id: string, file: Blob, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json' | 'application/problem+json', context?: HttpContext, transferCache?: boolean}): Observable<CsvImportReport>;
+    public importCsv(broker: string, id: string, file: Blob, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json' | 'application/problem+json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CsvImportReport>>;
+    public importCsv(broker: string, id: string, file: Blob, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json' | 'application/problem+json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CsvImportReport>>;
     public importCsv(broker: string, id: string, file: Blob, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json' | 'application/problem+json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (broker === null || broker === undefined) {
             throw new Error('Required parameter broker was null or undefined when calling importCsv.');
@@ -187,7 +189,7 @@ export class ImportsService extends BaseService {
 
         let localVarPath = `/api/v1/accounts/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}/imports/csv`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<Job>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<CsvImportReport>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 body: localVarConvertFormParamsToString ? localVarFormParams.toString() : localVarFormParams,

@@ -30,6 +30,8 @@ model/class-target.ts
 model/criterion-id.ts
 model/criterion-status.ts
 model/criterion.ts
+model/csv-import-entry.ts
+model/csv-import-report.ts
 model/currency.ts
 model/etf-list.ts
 model/etf-region.ts

@@ -13,6 +13,8 @@ export * from './class-target';
 export * from './criterion';
 export * from './criterion-id';
 export * from './criterion-status';
+export * from './csv-import-entry';
+export * from './csv-import-report';
 export * from './currency';
 export * from './etf';
 export * from './etf-list';
