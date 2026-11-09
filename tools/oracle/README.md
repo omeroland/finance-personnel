@@ -15,3 +15,11 @@ Par cas : `id`, `scenario`, `eps` et `dividends` (20 valeurs, `null` = cellule v
 ## Cas documenté `bpa-1.00-a-1.4641-5ans`
 
 BPA 1.00, 1.10, 1.21, 1.331, 1.4641 dans les colonnes Q à U (+10 % par an, 4 taux), le reste vide. La feuille donne une moyenne de `(0.4 - 0.1 - 0.1) / 18 = 0.01111...` et non 0.10 : c'est l'écart « moyenne divisée par 18 » ; le mode compat doit reproduire 0.0111 et 4 hausses, le mode corrigé 0.10. Côté dividendes, la feuille compte 19 hausses consécutives : les cellules vides de gauche donnent `"" > 0 %` vrai dans Calc, une autre bizarrerie que compat reproduit.
+
+## Oracle de l'outil SÉLECTION ET GESTION (P2-07, D330 à D338)
+
+- `make oracle-etf` : même image, point d'entrée `etf_oracle.py`, écrit `testdata/oracle/etf_cases.json` (41 cas : 20 fidèles à l'outil, 21 pour les 9 écarts). Hors `make ci`.
+- `etf_scenarios.py` : cas synthétiques (catalogue fictif `SYN-*`, graine 20261108) pour ACHATS, RÉÉQUILIBRAGE, CRÉATION, DIVERSIFICATION, FNB et RENDEMENT.
+- `etf_oracle.py` : remplit une copie du gabarit par cas (un classeur par compte pour RENDEMENT), recalcule avec `recalc_uno.py`, relit les cellules, ajoute le résultat attendu de l'app et vérifie la cohérence (échec de la génération sinon).
+- `etf_model.py` : modèle de référence de l'app corrigée (Decimal pour l'argent, sans entrée-sortie).
+- Tests sans LibreOffice : `python3 -I -m unittest discover -s tools/oracle`.

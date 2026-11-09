@@ -1,0 +1,3702 @@
+{
+ "version": 1,
+ "graine": 20261108,
+ "gabarit": "selection_gestion_template.xlsx",
+ "outil": "LibreOffice 7.4.7, calculateAll() forcé",
+ "unites": "Ratios en fractions (0.20 = 20 %), argent en dollars canadiens. null = cellule vide ; chaîne « #VALUE! » etc. = erreur renvoyée par l'outil.",
+ "ecarts": [
+  {
+   "code": "totaux_achats_decales",
+   "onglet": "ACHATS",
+   "libelle": "Totaux d'ACHATS décalés (F30 et H30 : plages de tailles différentes)"
+  },
+  {
+   "code": "parts_fractionnaires",
+   "onglet": "ACHATS",
+   "libelle": "Parts fractionnaires (Montant / Prix sans arrondi)"
+  },
+  {
+   "code": "fonds_partiellement_classes",
+   "onglet": "RÉÉQUILIBRAGE",
+   "libelle": "Fonds partiellement classés (total = actions + obligations seulement)"
+  },
+  {
+   "code": "cibles_au_dela_de_100",
+   "onglet": "RÉÉQUILIBRAGE",
+   "libelle": "Cibles au-delà de 100 % (cible d'encaisse en plus de fonds à 100 %)"
+  },
+  {
+   "code": "obligations_autres_sans_cible",
+   "onglet": "CRÉATION",
+   "libelle": "Obligations « autres » sans cible (comparaison sur CAD seulement)"
+  },
+  {
+   "code": "erreurs_si_vide",
+   "onglet": "DIVERSIFICATION",
+   "libelle": "Erreurs quand c'est vide (#VALUE!, #DIV/0!)"
+  },
+  {
+   "code": "catalogue_fige",
+   "onglet": "FNB",
+   "libelle": "Catalogue figé en 2021, valeurs en texte (« 19,6 % », « 880M$ »)"
+  },
+  {
+   "code": "rendements_annuels_a_part",
+   "onglet": "RENDEMENT",
+   "libelle": "Rendements annuels saisis à part, sans lien avec le calcul mensuel"
+  },
+  {
+   "code": "un_compte_par_fichier",
+   "onglet": "RENDEMENT",
+   "libelle": "Un compte par fichier, pas de vue consolidée"
+  }
+ ],
+ "cas": [
+  {
+   "id": "achats-fidele-01",
+   "onglet": "ACHATS",
+   "etiquette": "fidele",
+   "ecart": null,
+   "description": "Deux fonds, divisions exactes : montant x part / prix donne des parts entières.",
+   "entrees": {
+    "montant": 10000,
+    "fonds": [
+     {
+      "symbole": "SYN-CA",
+      "pct": 0.5,
+      "prix": 25.0
+     },
+     {
+      "symbole": "SYN-OBL",
+      "pct": 0.5,
+      "prix": 20.0
+     }
+    ]
+   },
+   "outil": {
+    "montants": [
+     5000,
+     5000
+    ],
+    "parts": [
+     200,
+     250
+    ],
+    "total_pct": 1,
+    "total_montant": 10000,
+    "prix_moyen": null,
+    "parts_total": null,
+    "formule_corrigee": {
+     "prix_moyen": 22.5,
+     "parts_pondere": 225
+    }
+   },
+   "attendu_app": {
+    "montants": [
+     5000,
+     5000
+    ],
+    "parts": [
+     200,
+     250
+    ],
+    "total_pct": 1,
+    "total_montant": 10000,
+    "prix_moyen": 22.5,
+    "parts_total": 450,
+    "depense_totale": 10000,
+    "encaisse_restante": 0
+   },
+   "comparaison": {
+    "egal": [
+     "montants",
+     "total_pct",
+     "total_montant",
+     "parts"
+    ],
+    "different": []
+   },
+   "verifications": []
+  },
+  {
+   "id": "achats-fidele-02",
+   "onglet": "ACHATS",
+   "etiquette": "fidele",
+   "ecart": null,
+   "description": "Trois fonds, divisions exactes.",
+   "entrees": {
+    "montant": 12000,
+    "fonds": [
+     {
+      "symbole": "SYN-CROIS",
+      "pct": 0.4,
+      "prix": 24.0
+     },
+     {
+      "symbole": "SYN-BAL",
+      "pct": 0.35,
+      "prix": 21.0
+     },
+     {
+      "symbole": "SYN-OBL",
+      "pct": 0.25,
+      "prix": 30.0
+     }
+    ]
+   },
+   "outil": {
+    "montants": [
+     4800,
+     4200,
+     3000
+    ],
+    "parts": [
+     200,
+     200,
+     100
+    ],
+    "total_pct": 1,
+    "total_montant": 12000,
+    "prix_moyen": null,
+    "parts_total": null,
+    "formule_corrigee": {
+     "prix_moyen": 24.45,
+     "parts_pondere": 175
+    }
+   },
+   "attendu_app": {
+    "montants": [
+     4800,
+     4200,
+     3000
+    ],
+    "parts": [
+     200,
+     200,
+     100
+    ],
+    "total_pct": 1,
+    "total_montant": 12000,
+    "prix_moyen": 24.45,
+    "parts_total": 500,
+    "depense_totale": 12000,
+    "encaisse_restante": 0
+   },
+   "comparaison": {
+    "egal": [
+     "montants",
+     "total_pct",
+     "total_montant",
+     "parts"
+    ],
+    "different": []
+   },
+   "verifications": []
+  },
+  {
+   "id": "achats-fidele-03",
+   "onglet": "ACHATS",
+   "etiquette": "fidele",
+   "ecart": null,
+   "description": "Un seul fonds à 100 %.",
+   "entrees": {
+    "montant": 2500,
+    "fonds": [
+     {
+      "symbole": "SYN-BAL",
+      "pct": 1.0,
+      "prix": 50.0
+     }
+    ]
+   },
+   "outil": {
+    "montants": [
+     2500
+    ],
+    "parts": [
+     50
+    ],
+    "total_pct": 1,
+    "total_montant": 2500,
+    "prix_moyen": null,
+    "parts_total": null,
+    "formule_corrigee": {
+     "prix_moyen": 50,
+     "parts_pondere": 50
+    }
+   },
+   "attendu_app": {
+    "montants": [
+     2500
+    ],
+    "parts": [
+     50
+    ],
+    "total_pct": 1,
+    "total_montant": 2500,
+    "prix_moyen": 50,
+    "parts_total": 50,
+    "depense_totale": 2500,
+    "encaisse_restante": 0
+   },
+   "comparaison": {
+    "egal": [
+     "montants",
+     "total_pct",
+     "total_montant",
+     "parts"
+    ],
+    "different": []
+   },
+   "verifications": []
+  },
+  {
+   "id": "achats-fidele-04",
+   "onglet": "ACHATS",
+   "etiquette": "fidele",
+   "ecart": null,
+   "description": "Quatre fonds, prix non entiers : seuls les montants par ligne sont comparés (les parts relèvent de l'écart parts_fractionnaires).",
+   "entrees": {
+    "montant": 18000,
+    "fonds": [
+     {
+      "symbole": "SYN-CA",
+      "pct": 0.275,
+      "prix": 31.47
+     },
+     {
+      "symbole": "SYN-US",
+      "pct": 0.435,
+      "prix": 58.12
+     },
+     {
+      "symbole": "SYN-INT",
+      "pct": 0.29,
+      "prix": 27.9
+     },
+     {
+      "symbole": "SYN-OBL",
+      "pct": 0.0,
+      "prix": 22.15
+     }
+    ]
+   },
+   "outil": {
+    "montants": [
+     4950,
+     7830,
+     5220,
+     0
+    ],
+    "parts": [
+     157.292659675882,
+     134.721266345492,
+     187.096774193548,
+     0
+    ],
+    "total_pct": 1,
+    "total_montant": 18000,
+    "prix_moyen": null,
+    "parts_total": null,
+    "formule_corrigee": {
+     "prix_moyen": 42.02745,
+     "parts_pondere": 156.117296787286
+    }
+   },
+   "attendu_app": {
+    "montants": [
+     4950,
+     7830,
+     5220,
+     0
+    ],
+    "parts": [
+     157,
+     134,
+     187,
+     0
+    ],
+    "total_pct": 1,
+    "total_montant": 18000,
+    "prix_moyen": 42.02745,
+    "parts_total": 478,
+    "depense_totale": 17946.17,
+    "encaisse_restante": 53.83
+   },
+   "comparaison": {
+    "egal": [
+     "montants",
+     "total_pct",
+     "total_montant"
+    ],
+    "different": []
+   },
+   "verifications": []
+  },
+  {
+   "id": "achats-ecart-parts-01",
+   "onglet": "ACHATS",
+   "etiquette": "ecart",
+   "ecart": "parts_fractionnaires",
+   "description": "Parts fractionnaires : l'outil donne 179.13... parts, l'app 179 et le reste en encaisse.",
+   "entrees": {
+    "montant": 10000,
+    "fonds": [
+     {
+      "symbole": "SYN-CROIS",
+      "pct": 0.6,
+      "prix": 33.47
+     },
+     {
+      "symbole": "SYN-OBL",
+      "pct": 0.4,
+      "prix": 27.19
+     }
+    ]
+   },
+   "outil": {
+    "montants": [
+     6000,
+     4000
+    ],
+    "parts": [
+     179.265013444876,
+     147.112909157779
+    ],
+    "total_pct": 1,
+    "total_montant": 10000,
+    "prix_moyen": null,
+    "parts_total": null,
+    "formule_corrigee": {
+     "prix_moyen": 30.958,
+     "parts_pondere": 166.404171730037
+    }
+   },
+   "attendu_app": {
+    "montants": [
+     6000,
+     4000
+    ],
+    "parts": [
+     179,
+     147
+    ],
+    "total_pct": 1,
+    "total_montant": 10000,
+    "prix_moyen": 30.958,
+    "parts_total": 326,
+    "depense_totale": 9988.06,
+    "encaisse_restante": 11.94
+   },
+   "comparaison": {
+    "egal": [
+     "montants",
+     "total_montant"
+    ],
+    "different": [
+     "parts"
+    ]
+   },
+   "verifications": []
+  },
+  {
+   "id": "achats-ecart-parts-02",
+   "onglet": "ACHATS",
+   "etiquette": "ecart",
+   "ecart": "parts_fractionnaires",
+   "description": "Parts fractionnaires, quatre fonds.",
+   "entrees": {
+    "montant": 25000,
+    "fonds": [
+     {
+      "symbole": "SYN-CA",
+      "pct": 0.25,
+      "prix": 40.33
+     },
+     {
+      "symbole": "SYN-US",
+      "pct": 0.35,
+      "prix": 61.87
+     },
+     {
+      "symbole": "SYN-INT",
+      "pct": 0.2,
+      "prix": 29.41
+     },
+     {
+      "symbole": "SYN-OBL",
+      "pct": 0.2,
+      "prix": 24.76
+     }
+    ]
+   },
+   "outil": {
+    "montants": [
+     6250,
+     8750,
+     5000,
+     5000
+    ],
+    "parts": [
+     154.971485246715,
+     141.42556974301,
+     170.010200612037,
+     201.938610662359
+    ],
+    "total_pct": 1,
+    "total_montant": 25000,
+    "prix_moyen": null,
+    "parts_total": null,
+    "formule_corrigee": {
+     "prix_moyen": 42.571,
+     "parts_pondere": 162.631582976611
+    }
+   },
+   "attendu_app": {
+    "montants": [
+     6250,
+     8750,
+     5000,
+     5000
+    ],
+    "parts": [
+     154,
+     141,
+     170,
+     201
+    ],
+    "total_pct": 1,
+    "total_montant": 25000,
+    "prix_moyen": 42.571,
+    "parts_total": 666,
+    "depense_totale": 24910.95,
+    "encaisse_restante": 89.05
+   },
+   "comparaison": {
+    "egal": [
+     "montants",
+     "total_montant"
+    ],
+    "different": [
+     "parts"
+    ]
+   },
+   "verifications": []
+  },
+  {
+   "id": "achats-ecart-parts-03",
+   "onglet": "ACHATS",
+   "etiquette": "ecart",
+   "ecart": "parts_fractionnaires",
+   "description": "Parts fractionnaires : un fonds trop cher pour sa part (0 part entière), tout son montant reste en encaisse.",
+   "entrees": {
+    "montant": 500,
+    "fonds": [
+     {
+      "symbole": "SYN-US",
+      "pct": 0.5,
+      "prix": 150.0
+     },
+     {
+      "symbole": "SYN-INT",
+      "pct": 0.5,
+      "prix": 300.0
+     }
+    ]
+   },
+   "outil": {
+    "montants": [
+     250,
+     250
+    ],
+    "parts": [
+     1.666666666667,
+     0.833333333333
+    ],
+    "total_pct": 1,
+    "total_montant": 500,
+    "prix_moyen": null,
+    "parts_total": null,
+    "formule_corrigee": {
+     "prix_moyen": 225,
+     "parts_pondere": 1.25
+    }
+   },
+   "attendu_app": {
+    "montants": [
+     250,
+     250
+    ],
+    "parts": [
+     1,
+     0
+    ],
+    "total_pct": 1,
+    "total_montant": 500,
+    "prix_moyen": 225,
+    "parts_total": 1,
+    "depense_totale": 150,
+    "encaisse_restante": 350
+   },
+   "comparaison": {
+    "egal": [
+     "montants",
+     "total_montant"
+    ],
+    "different": [
+     "parts"
+    ]
+   },
+   "verifications": []
+  },
+  {
+   "id": "achats-ecart-totaux-01",
+   "onglet": "ACHATS",
+   "etiquette": "ecart",
+   "ecart": "totaux_achats_decales",
+   "description": "Totaux décalés : F30 et H30 multiplient F3:F29 par E32:E51 (27 et 20 lignes) ; avec E32 vide, comme dans le gabarit, ils restent vides ; l'app recalcule sur F10:F29 / E10:E29.",
+   "entrees": {
+    "montant": 10000,
+    "fonds": [
+     {
+      "symbole": "SYN-CA",
+      "pct": 0.5,
+      "prix": 25.0
+     },
+     {
+      "symbole": "SYN-OBL",
+      "pct": 0.5,
+      "prix": 20.0
+     }
+    ]
+   },
+   "outil": {
+    "montants": [
+     5000,
+     5000
+    ],
+    "parts": [
+     200,
+     250
+    ],
+    "total_pct": 1,
+    "total_montant": 10000,
+    "prix_moyen": null,
+    "parts_total": null,
+    "formule_corrigee": {
+     "prix_moyen": 22.5,
+     "parts_pondere": 225
+    }
+   },
+   "attendu_app": {
+    "montants": [
+     5000,
+     5000
+    ],
+    "parts": [
+     200,
+     250
+    ],
+    "total_pct": 1,
+    "total_montant": 10000,
+    "prix_moyen": 22.5,
+    "parts_total": 450,
+    "depense_totale": 10000,
+    "encaisse_restante": 0
+   },
+   "comparaison": {
+    "egal": [
+     "montants",
+     "total_pct",
+     "total_montant"
+    ],
+    "different": [
+     "prix_moyen",
+     "parts_total"
+    ]
+   },
+   "verifications": [
+    [
+     "outil.formule_corrigee.prix_moyen",
+     "attendu_app.prix_moyen"
+    ]
+   ]
+  },
+  {
+   "id": "achats-ecart-totaux-02",
+   "onglet": "ACHATS",
+   "etiquette": "ecart",
+   "ecart": "totaux_achats_decales",
+   "description": "Totaux décalés, trois fonds, prix non entiers, E32 renseignée : sans le garde-fou IF($E$32=\"\") de l'outil, les plages de tailles différentes donnent #VALUE!.",
+   "entrees": {
+    "montant": 30000,
+    "fonds": [
+     {
+      "symbole": "SYN-CROIS",
+      "pct": 0.5,
+      "prix": 44.5
+     },
+     {
+      "symbole": "SYN-BAL",
+      "pct": 0.3,
+      "prix": 36.2
+     },
+     {
+      "symbole": "SYN-OBX",
+      "pct": 0.2,
+      "prix": 19.8
+     }
+    ],
+    "e32_remplie": true
+   },
+   "outil": {
+    "montants": [
+     15000,
+     9000,
+     6000
+    ],
+    "parts": [
+     337.078651685393,
+     248.618784530387,
+     303.030303030303
+    ],
+    "total_pct": 1,
+    "total_montant": 30000,
+    "prix_moyen": "#VALUE!",
+    "parts_total": "#VALUE!",
+    "formule_corrigee": {
+     "prix_moyen": 37.07,
+     "parts_pondere": 303.731021807873
+    }
+   },
+   "attendu_app": {
+    "montants": [
+     15000,
+     9000,
+     6000
+    ],
+    "parts": [
+     337,
+     248,
+     303
+    ],
+    "total_pct": 1,
+    "total_montant": 30000,
+    "prix_moyen": 37.07,
+    "parts_total": 888,
+    "depense_totale": 29973.5,
+    "encaisse_restante": 26.5
+   },
+   "comparaison": {
+    "egal": [
+     "montants",
+     "total_pct",
+     "total_montant"
+    ],
+    "different": [
+     "prix_moyen",
+     "parts_total"
+    ]
+   },
+   "verifications": [
+    [
+     "outil.formule_corrigee.prix_moyen",
+     "attendu_app.prix_moyen"
+    ]
+   ]
+  },
+  {
+   "id": "reequilibrage-fidele-01",
+   "onglet": "RÉÉQUILIBRAGE",
+   "etiquette": "fidele",
+   "ecart": null,
+   "description": "Deux fonds exactement sur leur cible, sans encaisse : tout est OK.",
+   "entrees": {
+    "cible_encaisse": 0,
+    "encaisse": 0,
+    "fonds": [
+     {
+      "symbole": "SYN-CROIS",
+      "pct_cible": 0.6,
+      "valeur": 6000,
+      "prix": null
+     },
+     {
+      "symbole": "SYN-OBL",
+      "pct_cible": 0.4,
+      "valeur": 4000,
+      "prix": null
+     }
+    ]
+   },
+   "outil": {
+    "total": 10000,
+    "cible_totale": 1,
+    "encaisse": {
+     "cible": 0,
+     "pct": 0,
+     "statut": "OK",
+     "ecart": 0
+    },
+    "fonds": [
+     {
+      "cible": 0.6,
+      "valeur": 6000,
+      "pct": 0.6,
+      "statut": "OK",
+      "ecart": 0
+     },
+     {
+      "cible": 0.4,
+      "valeur": 4000,
+      "pct": 0.4,
+      "statut": "OK",
+      "ecart": 0
+     }
+    ],
+    "parts": [
+     null,
+     null
+    ],
+    "actions": {
+     "cible": 0.54,
+     "pct": 0.54,
+     "statut": "OK",
+     "ecart": 0
+    },
+    "obligations": {
+     "cible": 0.46,
+     "pct": 0.46,
+     "statut": "OK",
+     "ecart": 0
+    }
+   },
+   "attendu_app": {
+    "total": 10000,
+    "cible_totale": 1,
+    "encaisse": {
+     "cible": 0,
+     "pct": 0,
+     "statut": "OK",
+     "ecart": 0
+    },
+    "fonds": [
+     {
+      "cible": 0.6,
+      "valeur": 6000,
+      "pct": 0.6,
+      "statut": "OK",
+      "ecart": 0
+     },
+     {
+      "cible": 0.4,
+      "valeur": 4000,
+      "pct": 0.4,
+      "statut": "OK",
+      "ecart": 0
+     }
+    ],
+    "parts": [
+     null,
+     null
+    ],
+    "actions": {
+     "cible": 0.54,
+     "pct": 0.54,
+     "statut": "OK",
+     "ecart": 0
+    },
+    "obligations": {
+     "cible": 0.46,
+     "pct": 0.46,
+     "statut": "OK",
+     "ecart": 0
+    },
+    "autres_actifs": {
+     "cible": 0,
+     "pct": 0,
+     "statut": "OK",
+     "ecart": 0
+    }
+   },
+   "comparaison": {
+    "egal": [
+     "total",
+     "encaisse",
+     "fonds",
+     "actions",
+     "obligations"
+    ],
+    "different": []
+   },
+   "verifications": []
+  },
+  {
+   "id": "reequilibrage-fidele-02",
+   "onglet": "RÉÉQUILIBRAGE",
+   "etiquette": "fidele",
+   "ecart": null,
+   "description": "Bandes relatives de +-20 % : US au-dessus (50 % pour 40 %), CA en dessous (10 % pour 20 %), obligations OK.",
+   "entrees": {
+    "cible_encaisse": 0,
+    "encaisse": 0,
+    "fonds": [
+     {
+      "symbole": "SYN-US",
+      "pct_cible": 0.4,
+      "valeur": 5000,
+      "prix": null
+     },
+     {
+      "symbole": "SYN-CA",
+      "pct_cible": 0.2,
+      "valeur": 1000,
+      "prix": null
+     },
+     {
+      "symbole": "SYN-OBL",
+      "pct_cible": 0.4,
+      "valeur": 4000,
+      "prix": null
+     }
+    ]
+   },
+   "outil": {
+    "total": 10000,
+    "cible_totale": 1,
+    "encaisse": {
+     "cible": 0,
+     "pct": 0,
+     "statut": "OK",
+     "ecart": 0
+    },
+    "fonds": [
+     {
+      "cible": 0.4,
+      "valeur": 5000,
+      "pct": 0.5,
+      "statut": "À équilibrer",
+      "ecart": 1000
+     },
+     {
+      "cible": 0.2,
+      "valeur": 1000,
+      "pct": 0.1,
+      "statut": "À équilibrer",
+      "ecart": -1000
+     },
+     {
+      "cible": 0.4,
+      "valeur": 4000,
+      "pct": 0.4,
+      "statut": "OK",
+      "ecart": 0
+     }
+    ],
+    "parts": [
+     null,
+     null,
+     null
+    ],
+    "actions": {
+     "cible": 0.6,
+     "pct": 0.6,
+     "statut": "OK",
+     "ecart": 0
+    },
+    "obligations": {
+     "cible": 0.4,
+     "pct": 0.4,
+     "statut": "OK",
+     "ecart": 0
+    }
+   },
+   "attendu_app": {
+    "total": 10000,
+    "cible_totale": 1,
+    "encaisse": {
+     "cible": 0,
+     "pct": 0,
+     "statut": "OK",
+     "ecart": 0
+    },
+    "fonds": [
+     {
+      "cible": 0.4,
+      "valeur": 5000,
+      "pct": 0.5,
+      "statut": "À équilibrer",
+      "ecart": 1000
+     },
+     {
+      "cible": 0.2,
+      "valeur": 1000,
+      "pct": 0.1,
+      "statut": "À équilibrer",
+      "ecart": -1000
+     },
+     {
+      "cible": 0.4,
+      "valeur": 4000,
+      "pct": 0.4,
+      "statut": "OK",
+      "ecart": 0
+     }
+    ],
+    "parts": [
+     null,
+     null,
+     null
+    ],
+    "actions": {
+     "cible": 0.6,
+     "pct": 0.6,
+     "statut": "OK",
+     "ecart": 0
+    },
+    "obligations": {
+     "cible": 0.4,
+     "pct": 0.4,
+     "statut": "OK",
+     "ecart": 0
+    },
+    "autres_actifs": {
+     "cible": 0,
+     "pct": 0,
+     "statut": "OK",
+     "ecart": 0
+    }
+   },
+   "comparaison": {
+    "egal": [
+     "total",
+     "encaisse",
+     "fonds",
+     "actions",
+     "obligations"
+    ],
+    "different": []
+   },
+   "verifications": []
+  },
+  {
+   "id": "reequilibrage-fidele-03",
+   "onglet": "RÉÉQUILIBRAGE",
+   "etiquette": "fidele",
+   "ecart": null,
+   "description": "Encaisse à 15 % pour une cible de 0 % : au-delà de cible + 5 points, donc À équilibrer.",
+   "entrees": {
+    "cible_encaisse": 0,
+    "encaisse": 1500,
+    "fonds": [
+     {
+      "symbole": "SYN-BAL",
+      "pct_cible": 0.5,
+      "valeur": 4250,
+      "prix": null
+     },
+     {
+      "symbole": "SYN-OBL",
+      "pct_cible": 0.5,
+      "valeur": 4250,
+      "prix": null
+     }
+    ]
+   },
+   "outil": {
+    "total": 10000,
+    "cible_totale": 1,
+    "encaisse": {
+     "cible": 0,
+     "pct": 0.15,
+     "statut": "À équilibrer",
+     "ecart": 1500
+    },
+    "fonds": [
+     {
+      "cible": 0.5,
+      "valeur": 4250,
+      "pct": 0.425,
+      "statut": "OK",
+      "ecart": -750
+     },
+     {
+      "cible": 0.5,
+      "valeur": 4250,
+      "pct": 0.425,
+      "statut": "OK",
+      "ecart": -750
+     }
+    ],
+    "parts": [
+     null,
+     null
+    ],
+    "actions": {
+     "cible": 0.3,
+     "pct": 0.255,
+     "statut": "OK",
+     "ecart": -450
+    },
+    "obligations": {
+     "cible": 0.7,
+     "pct": 0.595,
+     "statut": "À équilibrer",
+     "ecart": -1050
+    }
+   },
+   "attendu_app": {
+    "total": 10000,
+    "cible_totale": 1,
+    "encaisse": {
+     "cible": 0,
+     "pct": 0.15,
+     "statut": "À équilibrer",
+     "ecart": 1500
+    },
+    "fonds": [
+     {
+      "cible": 0.5,
+      "valeur": 4250,
+      "pct": 0.425,
+      "statut": "OK",
+      "ecart": -750
+     },
+     {
+      "cible": 0.5,
+      "valeur": 4250,
+      "pct": 0.425,
+      "statut": "OK",
+      "ecart": -750
+     }
+    ],
+    "parts": [
+     null,
+     null
+    ],
+    "actions": {
+     "cible": 0.3,
+     "pct": 0.255,
+     "statut": "OK",
+     "ecart": -450
+    },
+    "obligations": {
+     "cible": 0.7,
+     "pct": 0.595,
+     "statut": "À équilibrer",
+     "ecart": -1050
+    },
+    "autres_actifs": {
+     "cible": 0,
+     "pct": 0,
+     "statut": "OK",
+     "ecart": 0
+    }
+   },
+   "comparaison": {
+    "egal": [
+     "total",
+     "encaisse",
+     "fonds",
+     "actions",
+     "obligations"
+    ],
+    "different": []
+   },
+   "verifications": []
+  },
+  {
+   "id": "reequilibrage-fidele-04",
+   "onglet": "RÉÉQUILIBRAGE",
+   "etiquette": "fidele",
+   "ecart": null,
+   "description": "Encaisse à 3 % pour une cible de 0 % : dans la bande de 5 points, OK.",
+   "entrees": {
+    "cible_encaisse": 0,
+    "encaisse": 300,
+    "fonds": [
+     {
+      "symbole": "SYN-BAL",
+      "pct_cible": 0.5,
+      "valeur": 4850,
+      "prix": null
+     },
+     {
+      "symbole": "SYN-GLB",
+      "pct_cible": 0.5,
+      "valeur": 4850,
+      "prix": null
+     }
+    ]
+   },
+   "outil": {
+    "total": 10000,
+    "cible_totale": 1,
+    "encaisse": {
+     "cible": 0,
+     "pct": 0.03,
+     "statut": "OK",
+     "ecart": 300
+    },
+    "fonds": [
+     {
+      "cible": 0.5,
+      "valeur": 4850,
+      "pct": 0.485,
+      "statut": "OK",
+      "ecart": -150
+     },
+     {
+      "cible": 0.5,
+      "valeur": 4850,
+      "pct": 0.485,
+      "statut": "OK",
+      "ecart": -150
+     }
+    ],
+    "parts": [
+     null,
+     null
+    ],
+    "actions": {
+     "cible": 0.3,
+     "pct": 0.291,
+     "statut": "OK",
+     "ecart": -90
+    },
+    "obligations": {
+     "cible": 0.7,
+     "pct": 0.679,
+     "statut": "OK",
+     "ecart": -209.999999999999
+    }
+   },
+   "attendu_app": {
+    "total": 10000,
+    "cible_totale": 1,
+    "encaisse": {
+     "cible": 0,
+     "pct": 0.03,
+     "statut": "OK",
+     "ecart": 300
+    },
+    "fonds": [
+     {
+      "cible": 0.5,
+      "valeur": 4850,
+      "pct": 0.485,
+      "statut": "OK",
+      "ecart": -150
+     },
+     {
+      "cible": 0.5,
+      "valeur": 4850,
+      "pct": 0.485,
+      "statut": "OK",
+      "ecart": -150
+     }
+    ],
+    "parts": [
+     null,
+     null
+    ],
+    "actions": {
+     "cible": 0.3,
+     "pct": 0.291,
+     "statut": "OK",
+     "ecart": -90
+    },
+    "obligations": {
+     "cible": 0.7,
+     "pct": 0.679,
+     "statut": "OK",
+     "ecart": -210
+    },
+    "autres_actifs": {
+     "cible": 0,
+     "pct": 0,
+     "statut": "OK",
+     "ecart": 0
+    }
+   },
+   "comparaison": {
+    "egal": [
+     "total",
+     "encaisse",
+     "fonds",
+     "actions",
+     "obligations"
+    ],
+    "different": []
+   },
+   "verifications": []
+  },
+  {
+   "id": "reequilibrage-fidele-05",
+   "onglet": "RÉÉQUILIBRAGE",
+   "etiquette": "fidele",
+   "ecart": null,
+   "description": "Fonds tous dans leur bande relative mais classes d'actifs à plus de 5 points de la cible : la classe est À équilibrer.",
+   "entrees": {
+    "cible_encaisse": 0,
+    "encaisse": 0,
+    "fonds": [
+     {
+      "symbole": "SYN-US",
+      "pct_cible": 0.5,
+      "valeur": 5600,
+      "prix": null
+     },
+     {
+      "symbole": "SYN-OBL",
+      "pct_cible": 0.5,
+      "valeur": 4400,
+      "prix": null
+     }
+    ]
+   },
+   "outil": {
+    "total": 10000,
+    "cible_totale": 1,
+    "encaisse": {
+     "cible": 0,
+     "pct": 0,
+     "statut": "OK",
+     "ecart": 0
+    },
+    "fonds": [
+     {
+      "cible": 0.5,
+      "valeur": 5600,
+      "pct": 0.56,
+      "statut": "OK",
+      "ecart": 600.000000000001
+     },
+     {
+      "cible": 0.5,
+      "valeur": 4400,
+      "pct": 0.44,
+      "statut": "OK",
+      "ecart": -600
+     }
+    ],
+    "parts": [
+     null,
+     null
+    ],
+    "actions": {
+     "cible": 0.5,
+     "pct": 0.56,
+     "statut": "À équilibrer",
+     "ecart": 600.000000000001
+    },
+    "obligations": {
+     "cible": 0.5,
+     "pct": 0.44,
+     "statut": "À équilibrer",
+     "ecart": -600
+    }
+   },
+   "attendu_app": {
+    "total": 10000,
+    "cible_totale": 1,
+    "encaisse": {
+     "cible": 0,
+     "pct": 0,
+     "statut": "OK",
+     "ecart": 0
+    },
+    "fonds": [
+     {
+      "cible": 0.5,
+      "valeur": 5600,
+      "pct": 0.56,
+      "statut": "OK",
+      "ecart": 600
+     },
+     {
+      "cible": 0.5,
+      "valeur": 4400,
+      "pct": 0.44,
+      "statut": "OK",
+      "ecart": -600
+     }
+    ],
+    "parts": [
+     null,
+     null
+    ],
+    "actions": {
+     "cible": 0.5,
+     "pct": 0.56,
+     "statut": "À équilibrer",
+     "ecart": 600
+    },
+    "obligations": {
+     "cible": 0.5,
+     "pct": 0.44,
+     "statut": "À équilibrer",
+     "ecart": -600
+    },
+    "autres_actifs": {
+     "cible": 0,
+     "pct": 0,
+     "statut": "OK",
+     "ecart": 0
+    }
+   },
+   "comparaison": {
+    "egal": [
+     "total",
+     "encaisse",
+     "fonds",
+     "actions",
+     "obligations"
+    ],
+    "different": []
+   },
+   "verifications": []
+  },
+  {
+   "id": "reequilibrage-ecart-parts-01",
+   "onglet": "RÉÉQUILIBRAGE",
+   "etiquette": "ecart",
+   "ecart": "parts_fractionnaires",
+   "description": "Parts fractionnaires : l'outil donne un nombre de parts à bouger avec décimales, l'app arrondit vers zéro.",
+   "entrees": {
+    "cible_encaisse": 0,
+    "encaisse": 0,
+    "fonds": [
+     {
+      "symbole": "SYN-US",
+      "pct_cible": 0.4,
+      "valeur": 5000,
+      "prix": 61.37
+     },
+     {
+      "symbole": "SYN-CA",
+      "pct_cible": 0.2,
+      "valeur": 1000,
+      "prix": 33.11
+     },
+     {
+      "symbole": "SYN-OBL",
+      "pct_cible": 0.4,
+      "valeur": 4000,
+      "prix": 24.83
+     }
+    ]
+   },
+   "outil": {
+    "total": 10000,
+    "cible_totale": 1,
+    "encaisse": {
+     "cible": 0,
+     "pct": 0,
+     "statut": "OK",
+     "ecart": 0
+    },
+    "fonds": [
+     {
+      "cible": 0.4,
+      "valeur": 5000,
+      "pct": 0.5,
+      "statut": "À équilibrer",
+      "ecart": 1000
+     },
+     {
+      "cible": 0.2,
+      "valeur": 1000,
+      "pct": 0.1,
+      "statut": "À équilibrer",
+      "ecart": -1000
+     },
+     {
+      "cible": 0.4,
+      "valeur": 4000,
+      "pct": 0.4,
+      "statut": "OK",
+      "ecart": 0
+     }
+    ],
+    "parts": [
+     -16.294606485253,
+     30.202355783751,
+     0
+    ],
+    "actions": {
+     "cible": 0.6,
+     "pct": 0.6,
+     "statut": "OK",
+     "ecart": 0
+    },
+    "obligations": {
+     "cible": 0.4,
+     "pct": 0.4,
+     "statut": "OK",
+     "ecart": 0
+    }
+   },
+   "attendu_app": {
+    "total": 10000,
+    "cible_totale": 1,
+    "encaisse": {
+     "cible": 0,
+     "pct": 0,
+     "statut": "OK",
+     "ecart": 0
+    },
+    "fonds": [
+     {
+      "cible": 0.4,
+      "valeur": 5000,
+      "pct": 0.5,
+      "statut": "À équilibrer",
+      "ecart": 1000
+     },
+     {
+      "cible": 0.2,
+      "valeur": 1000,
+      "pct": 0.1,
+      "statut": "À équilibrer",
+      "ecart": -1000
+     },
+     {
+      "cible": 0.4,
+      "valeur": 4000,
+      "pct": 0.4,
+      "statut": "OK",
+      "ecart": 0
+     }
+    ],
+    "parts": [
+     -16,
+     30,
+     0
+    ],
+    "actions": {
+     "cible": 0.6,
+     "pct": 0.6,
+     "statut": "OK",
+     "ecart": 0
+    },
+    "obligations": {
+     "cible": 0.4,
+     "pct": 0.4,
+     "statut": "OK",
+     "ecart": 0
+    },
+    "autres_actifs": {
+     "cible": 0,
+     "pct": 0,
+     "statut": "OK",
+     "ecart": 0
+    }
+   },
+   "comparaison": {
+    "egal": [
+     "total",
+     "fonds",
+     "actions",
+     "obligations"
+    ],
+    "different": [
+     "parts"
+    ]
+   },
+   "verifications": []
+  },
+  {
+   "id": "reequilibrage-ecart-parts-02",
+   "onglet": "RÉÉQUILIBRAGE",
+   "etiquette": "ecart",
+   "ecart": "parts_fractionnaires",
+   "description": "Parts fractionnaires, quatre fonds et encaisse en bande.",
+   "entrees": {
+    "cible_encaisse": 0,
+    "encaisse": 400,
+    "fonds": [
+     {
+      "symbole": "SYN-INT",
+      "pct_cible": 0.25,
+      "valeur": 2200,
+      "prix": 28.9
+     },
+     {
+      "symbole": "SYN-US",
+      "pct_cible": 0.35,
+      "valeur": 3400,
+      "prix": 57.45
+     },
+     {
+      "symbole": "SYN-OBL",
+      "pct_cible": 0.3,
+      "valeur": 2900,
+      "prix": 25.62
+     },
+     {
+      "symbole": "SYN-CROIS",
+      "pct_cible": 0.1,
+      "valeur": 1100,
+      "prix": 41.0
+     }
+    ]
+   },
+   "outil": {
+    "total": 10000,
+    "cible_totale": 1,
+    "encaisse": {
+     "cible": 0,
+     "pct": 0.04,
+     "statut": "OK",
+     "ecart": 400
+    },
+    "fonds": [
+     {
+      "cible": 0.25,
+      "valeur": 2200,
+      "pct": 0.22,
+      "statut": "OK",
+      "ecart": -300
+     },
+     {
+      "cible": 0.35,
+      "valeur": 3400,
+      "pct": 0.34,
+      "statut": "OK",
+      "ecart": -100
+     },
+     {
+      "cible": 0.3,
+      "valeur": 2900,
+      "pct": 0.29,
+      "statut": "OK",
+      "ecart": -100
+     },
+     {
+      "cible": 0.1,
+      "valeur": 1100,
+      "pct": 0.11,
+      "statut": "OK",
+      "ecart": 100
+     }
+    ],
+    "parts": [
+     10.38062283737,
+     1.740644038294,
+     3.903200624512,
+     -2.439024390244
+    ],
+    "actions": {
+     "cible": 0.69,
+     "pct": 0.659,
+     "statut": "OK",
+     "ecart": -310.000000000001
+    },
+    "obligations": {
+     "cible": 0.31,
+     "pct": 0.301,
+     "statut": "OK",
+     "ecart": -90
+    }
+   },
+   "attendu_app": {
+    "total": 10000,
+    "cible_totale": 1,
+    "encaisse": {
+     "cible": 0,
+     "pct": 0.04,
+     "statut": "OK",
+     "ecart": 400
+    },
+    "fonds": [
+     {
+      "cible": 0.25,
+      "valeur": 2200,
+      "pct": 0.22,
+      "statut": "OK",
+      "ecart": -300
+     },
+     {
+      "cible": 0.35,
+      "valeur": 3400,
+      "pct": 0.34,
+      "statut": "OK",
+      "ecart": -100
+     },
+     {
+      "cible": 0.3,
+      "valeur": 2900,
+      "pct": 0.29,
+      "statut": "OK",
+      "ecart": -100
+     },
+     {
+      "cible": 0.1,
+      "valeur": 1100,
+      "pct": 0.11,
+      "statut": "OK",
+      "ecart": 100
+     }
+    ],
+    "parts": [
+     10,
+     1,
+     3,
+     -2
+    ],
+    "actions": {
+     "cible": 0.69,
+     "pct": 0.659,
+     "statut": "OK",
+     "ecart": -310
+    },
+    "obligations": {
+     "cible": 0.31,
+     "pct": 0.301,
+     "statut": "OK",
+     "ecart": -90
+    },
+    "autres_actifs": {
+     "cible": 0,
+     "pct": 0,
+     "statut": "OK",
+     "ecart": 0
+    }
+   },
+   "comparaison": {
+    "egal": [
+     "total",
+     "fonds",
+     "actions",
+     "obligations"
+    ],
+    "different": [
+     "parts"
+    ]
+   },
+   "verifications": []
+  },
+  {
+   "id": "reequilibrage-ecart-classes-01",
+   "onglet": "RÉÉQUILIBRAGE",
+   "etiquette": "ecart",
+   "ecart": "fonds_partiellement_classes",
+   "description": "Fonds partiellement classé : un fonds de métal précieux (0 % dans les 5 classes) disparaît du total de l'outil (7000 $ au lieu de 10000 $) et tous les % actuels sont faux.",
+   "entrees": {
+    "cible_encaisse": 0,
+    "encaisse": 0,
+    "fonds": [
+     {
+      "symbole": "SYN-US",
+      "pct_cible": 0.4,
+      "valeur": 4000,
+      "prix": null
+     },
+     {
+      "symbole": "SYN-OBL",
+      "pct_cible": 0.3,
+      "valeur": 3000,
+      "prix": null
+     },
+     {
+      "symbole": "SYN-OR",
+      "pct_cible": 0.3,
+      "valeur": 3000,
+      "prix": null
+     }
+    ]
+   },
+   "outil": {
+    "total": 7000,
+    "cible_totale": 0.7,
+    "encaisse": {
+     "cible": 0,
+     "pct": 0,
+     "statut": "OK",
+     "ecart": 0
+    },
+    "fonds": [
+     {
+      "cible": 0.4,
+      "valeur": 4000,
+      "pct": 0.571428571429,
+      "statut": "À équilibrer",
+      "ecart": 1200
+     },
+     {
+      "cible": 0.3,
+      "valeur": 3000,
+      "pct": 0.428571428571,
+      "statut": "À équilibrer",
+      "ecart": 900
+     },
+     {
+      "cible": 0.3,
+      "valeur": 3000,
+      "pct": 0.428571428571,
+      "statut": "À équilibrer",
+      "ecart": 900
+     }
+    ],
+    "parts": [
+     null,
+     null,
+     null
+    ],
+    "actions": {
+     "cible": 0.4,
+     "pct": 0.571428571429,
+     "statut": "À équilibrer",
+     "ecart": 1200
+    },
+    "obligations": {
+     "cible": 0.3,
+     "pct": 0.428571428571,
+     "statut": "À équilibrer",
+     "ecart": 900
+    }
+   },
+   "attendu_app": {
+    "total": 10000,
+    "cible_totale": 1,
+    "encaisse": {
+     "cible": 0,
+     "pct": 0,
+     "statut": "OK",
+     "ecart": 0
+    },
+    "fonds": [
+     {
+      "cible": 0.4,
+      "valeur": 4000,
+      "pct": 0.4,
+      "statut": "OK",
+      "ecart": 0
+     },
+     {
+      "cible": 0.3,
+      "valeur": 3000,
+      "pct": 0.3,
+      "statut": "OK",
+      "ecart": 0
+     },
+     {
+      "cible": 0.3,
+      "valeur": 3000,
+      "pct": 0.3,
+      "statut": "OK",
+      "ecart": 0
+     }
+    ],
+    "parts": [
+     null,
+     null,
+     null
+    ],
+    "actions": {
+     "cible": 0.4,
+     "pct": 0.4,
+     "statut": "OK",
+     "ecart": 0
+    },
+    "obligations": {
+     "cible": 0.3,
+     "pct": 0.3,
+     "statut": "OK",
+     "ecart": 0
+    },
+    "autres_actifs": {
+     "cible": 0.3,
+     "pct": 0.3,
+     "statut": "OK",
+     "ecart": 0
+    }
+   },
+   "comparaison": {
+    "egal": [
+     "encaisse"
+    ],
+    "different": [
+     "total",
+     "fonds",
+     "actions"
+    ]
+   },
+   "verifications": []
+  },
+  {
+   "id": "reequilibrage-ecart-classes-02",
+   "onglet": "RÉÉQUILIBRAGE",
+   "etiquette": "ecart",
+   "ecart": "fonds_partiellement_classes",
+   "description": "Fonds partiellement classé : un fonds immobilier classé à 30 % seulement ; l'app garde la valeur de marché et la classe « autres actifs ».",
+   "entrees": {
+    "cible_encaisse": 0,
+    "encaisse": 0,
+    "fonds": [
+     {
+      "symbole": "SYN-IMM",
+      "pct_cible": 0.25,
+      "valeur": 2500,
+      "prix": null
+     },
+     {
+      "symbole": "SYN-BAL",
+      "pct_cible": 0.5,
+      "valeur": 5000,
+      "prix": null
+     },
+     {
+      "symbole": "SYN-OBL",
+      "pct_cible": 0.25,
+      "valeur": 2500,
+      "prix": null
+     }
+    ]
+   },
+   "outil": {
+    "total": 8250,
+    "cible_totale": 0.825,
+    "encaisse": {
+     "cible": 0,
+     "pct": 0,
+     "statut": "OK",
+     "ecart": 0
+    },
+    "fonds": [
+     {
+      "cible": 0.25,
+      "valeur": 2500,
+      "pct": 0.30303030303,
+      "statut": "À équilibrer",
+      "ecart": 437.5
+     },
+     {
+      "cible": 0.5,
+      "valeur": 5000,
+      "pct": 0.606060606061,
+      "statut": "À équilibrer",
+      "ecart": 875
+     },
+     {
+      "cible": 0.25,
+      "valeur": 2500,
+      "pct": 0.30303030303,
+      "statut": "À équilibrer",
+      "ecart": 437.5
+     }
+    ],
+    "parts": [
+     null,
+     null,
+     null
+    ],
+    "actions": {
+     "cible": 0.375,
+     "pct": 0.454545454545,
+     "statut": "À équilibrer",
+     "ecart": 656.25
+    },
+    "obligations": {
+     "cible": 0.45,
+     "pct": 0.545454545455,
+     "statut": "À équilibrer",
+     "ecart": 787.5
+    }
+   },
+   "attendu_app": {
+    "total": 10000,
+    "cible_totale": 1,
+    "encaisse": {
+     "cible": 0,
+     "pct": 0,
+     "statut": "OK",
+     "ecart": 0
+    },
+    "fonds": [
+     {
+      "cible": 0.25,
+      "valeur": 2500,
+      "pct": 0.25,
+      "statut": "OK",
+      "ecart": 0
+     },
+     {
+      "cible": 0.5,
+      "valeur": 5000,
+      "pct": 0.5,
+      "statut": "OK",
+      "ecart": 0
+     },
+     {
+      "cible": 0.25,
+      "valeur": 2500,
+      "pct": 0.25,
+      "statut": "OK",
+      "ecart": 0
+     }
+    ],
+    "parts": [
+     null,
+     null,
+     null
+    ],
+    "actions": {
+     "cible": 0.375,
+     "pct": 0.375,
+     "statut": "OK",
+     "ecart": 0
+    },
+    "obligations": {
+     "cible": 0.45,
+     "pct": 0.45,
+     "statut": "OK",
+     "ecart": 0
+    },
+    "autres_actifs": {
+     "cible": 0.175,
+     "pct": 0.175,
+     "statut": "OK",
+     "ecart": 0
+    }
+   },
+   "comparaison": {
+    "egal": [
+     "encaisse"
+    ],
+    "different": [
+     "total",
+     "fonds",
+     "actions"
+    ]
+   },
+   "verifications": []
+  },
+  {
+   "id": "reequilibrage-ecart-cibles-01",
+   "onglet": "RÉÉQUILIBRAGE",
+   "etiquette": "ecart",
+   "ecart": "cibles_au_dela_de_100",
+   "description": "Cibles au-delà de 100 % : cible d'encaisse 25 % + fonds à 100 % = 125 % pour l'outil ; les fonds paraissent tous sous-pondérés.",
+   "entrees": {
+    "cible_encaisse": 0.25,
+    "encaisse": 2500,
+    "fonds": [
+     {
+      "symbole": "SYN-CROIS",
+      "pct_cible": 0.5,
+      "valeur": 3750,
+      "prix": null
+     },
+     {
+      "symbole": "SYN-OBL",
+      "pct_cible": 0.5,
+      "valeur": 3750,
+      "prix": null
+     }
+    ]
+   },
+   "outil": {
+    "total": 10000,
+    "cible_totale": 1.25,
+    "encaisse": {
+     "cible": 0.25,
+     "pct": 0.25,
+     "statut": "OK",
+     "ecart": 0
+    },
+    "fonds": [
+     {
+      "cible": 0.5,
+      "valeur": 3750,
+      "pct": 0.375,
+      "statut": "À équilibrer",
+      "ecart": -1250
+     },
+     {
+      "cible": 0.5,
+      "valeur": 3750,
+      "pct": 0.375,
+      "statut": "À équilibrer",
+      "ecart": -1250
+     }
+    ],
+    "parts": [
+     null,
+     null
+    ],
+    "actions": {
+     "cible": 0.45,
+     "pct": 0.3375,
+     "statut": "À équilibrer",
+     "ecart": -1125
+    },
+    "obligations": {
+     "cible": 0.55,
+     "pct": 0.4125,
+     "statut": "À équilibrer",
+     "ecart": -1375
+    }
+   },
+   "attendu_app": {
+    "total": 10000,
+    "cible_totale": 1,
+    "encaisse": {
+     "cible": 0.25,
+     "pct": 0.25,
+     "statut": "OK",
+     "ecart": 0
+    },
+    "fonds": [
+     {
+      "cible": 0.375,
+      "valeur": 3750,
+      "pct": 0.375,
+      "statut": "OK",
+      "ecart": 0
+     },
+     {
+      "cible": 0.375,
+      "valeur": 3750,
+      "pct": 0.375,
+      "statut": "OK",
+      "ecart": 0
+     }
+    ],
+    "parts": [
+     null,
+     null
+    ],
+    "actions": {
+     "cible": 0.3375,
+     "pct": 0.3375,
+     "statut": "OK",
+     "ecart": 0
+    },
+    "obligations": {
+     "cible": 0.4125,
+     "pct": 0.4125,
+     "statut": "OK",
+     "ecart": 0
+    },
+    "autres_actifs": {
+     "cible": 0,
+     "pct": 0,
+     "statut": "OK",
+     "ecart": 0
+    }
+   },
+   "comparaison": {
+    "egal": [
+     "total",
+     "encaisse"
+    ],
+    "different": [
+     "cible_totale",
+     "fonds",
+     "actions"
+    ]
+   },
+   "verifications": []
+  },
+  {
+   "id": "reequilibrage-ecart-cibles-02",
+   "onglet": "RÉÉQUILIBRAGE",
+   "etiquette": "ecart",
+   "ecart": "cibles_au_dela_de_100",
+   "description": "Cibles au-delà de 100 % : trois fonds, encaisse cible 25 %, portefeuille exactement sur la cible réelle.",
+   "entrees": {
+    "cible_encaisse": 0.25,
+    "encaisse": 2500,
+    "fonds": [
+     {
+      "symbole": "SYN-CA",
+      "pct_cible": 0.3,
+      "valeur": 2250,
+      "prix": null
+     },
+     {
+      "symbole": "SYN-US",
+      "pct_cible": 0.3,
+      "valeur": 2250,
+      "prix": null
+     },
+     {
+      "symbole": "SYN-OBL",
+      "pct_cible": 0.4,
+      "valeur": 3000,
+      "prix": null
+     }
+    ]
+   },
+   "outil": {
+    "total": 10000,
+    "cible_totale": 1.25,
+    "encaisse": {
+     "cible": 0.25,
+     "pct": 0.25,
+     "statut": "OK",
+     "ecart": 0
+    },
+    "fonds": [
+     {
+      "cible": 0.3,
+      "valeur": 2250,
+      "pct": 0.225,
+      "statut": "À équilibrer",
+      "ecart": -750
+     },
+     {
+      "cible": 0.3,
+      "valeur": 2250,
+      "pct": 0.225,
+      "statut": "À équilibrer",
+      "ecart": -750
+     },
+     {
+      "cible": 0.4,
+      "valeur": 3000,
+      "pct": 0.3,
+      "statut": "À équilibrer",
+      "ecart": -1000
+     }
+    ],
+    "parts": [
+     null,
+     null,
+     null
+    ],
+    "actions": {
+     "cible": 0.6,
+     "pct": 0.45,
+     "statut": "À équilibrer",
+     "ecart": -1500
+    },
+    "obligations": {
+     "cible": 0.4,
+     "pct": 0.3,
+     "statut": "À équilibrer",
+     "ecart": -1000
+    }
+   },
+   "attendu_app": {
+    "total": 10000,
+    "cible_totale": 1,
+    "encaisse": {
+     "cible": 0.25,
+     "pct": 0.25,
+     "statut": "OK",
+     "ecart": 0
+    },
+    "fonds": [
+     {
+      "cible": 0.225,
+      "valeur": 2250,
+      "pct": 0.225,
+      "statut": "OK",
+      "ecart": 0
+     },
+     {
+      "cible": 0.225,
+      "valeur": 2250,
+      "pct": 0.225,
+      "statut": "OK",
+      "ecart": 0
+     },
+     {
+      "cible": 0.3,
+      "valeur": 3000,
+      "pct": 0.3,
+      "statut": "OK",
+      "ecart": 0
+     }
+    ],
+    "parts": [
+     null,
+     null,
+     null
+    ],
+    "actions": {
+     "cible": 0.45,
+     "pct": 0.45,
+     "statut": "OK",
+     "ecart": 0
+    },
+    "obligations": {
+     "cible": 0.3,
+     "pct": 0.3,
+     "statut": "OK",
+     "ecart": 0
+    },
+    "autres_actifs": {
+     "cible": 0,
+     "pct": 0,
+     "statut": "OK",
+     "ecart": 0
+    }
+   },
+   "comparaison": {
+    "egal": [
+     "total",
+     "encaisse"
+    ],
+    "different": [
+     "cible_totale",
+     "fonds",
+     "actions"
+    ]
+   },
+   "verifications": []
+  },
+  {
+   "id": "creation-ecart-obligations-01",
+   "onglet": "CRÉATION",
+   "etiquette": "ecart",
+   "ecart": "obligations_autres_sans_cible",
+   "description": "Obligations « autres » : 60 % d'obligations dont 70 % de fonds mondiaux ; l'outil compare CAD (18 %) à la cible de toute la portion (60 %).",
+   "entrees": {
+    "part_actions": 0.4,
+    "fonds": [
+     {
+      "symbole": "SYN-US",
+      "pct": 0.4
+     },
+     {
+      "symbole": "SYN-GLB",
+      "pct": 0.6
+     }
+    ],
+    "cibles_obligations": {
+     "cad": 0.3,
+     "autres": 0.3
+    }
+   },
+   "outil": {
+    "exposition": {
+     "ca": 0,
+     "us": 0.4,
+     "intl": 0,
+     "obl_cad": 0.18,
+     "obl_autres": 0.42
+    },
+    "cible_obligations": {
+     "cad": 0.6,
+     "autres": null
+    },
+    "ecart_obligations": {
+     "cad": -0.42,
+     "autres": null
+    }
+   },
+   "attendu_app": {
+    "exposition": {
+     "ca": 0,
+     "us": 0.4,
+     "intl": 0,
+     "obl_cad": 0.18,
+     "obl_autres": 0.42
+    },
+    "autres_actifs": 0,
+    "cible_obligations": {
+     "cad": 0.3,
+     "autres": 0.3
+    },
+    "ecart_obligations": {
+     "cad": -0.12,
+     "autres": 0.12
+    }
+   },
+   "comparaison": {
+    "egal": [
+     "exposition"
+    ],
+    "different": [
+     "cible_obligations",
+     "ecart_obligations"
+    ]
+   },
+   "verifications": []
+  },
+  {
+   "id": "creation-ecart-obligations-02",
+   "onglet": "CRÉATION",
+   "etiquette": "ecart",
+   "ecart": "obligations_autres_sans_cible",
+   "description": "Obligations « autres » : cibles par classe 20 % CAD et 30 % autres.",
+   "entrees": {
+    "part_actions": 0.5,
+    "fonds": [
+     {
+      "symbole": "SYN-CA",
+      "pct": 0.25
+     },
+     {
+      "symbole": "SYN-US",
+      "pct": 0.25
+     },
+     {
+      "symbole": "SYN-GLB",
+      "pct": 0.5
+     }
+    ],
+    "cibles_obligations": {
+     "cad": 0.2,
+     "autres": 0.3
+    }
+   },
+   "outil": {
+    "exposition": {
+     "ca": 0.25,
+     "us": 0.25,
+     "intl": 0,
+     "obl_cad": 0.15,
+     "obl_autres": 0.35
+    },
+    "cible_obligations": {
+     "cad": 0.5,
+     "autres": null
+    },
+    "ecart_obligations": {
+     "cad": -0.35,
+     "autres": null
+    }
+   },
+   "attendu_app": {
+    "exposition": {
+     "ca": 0.25,
+     "us": 0.25,
+     "intl": 0,
+     "obl_cad": 0.15,
+     "obl_autres": 0.35
+    },
+    "autres_actifs": 0,
+    "cible_obligations": {
+     "cad": 0.2,
+     "autres": 0.3
+    },
+    "ecart_obligations": {
+     "cad": -0.05,
+     "autres": 0.05
+    }
+   },
+   "comparaison": {
+    "egal": [
+     "exposition"
+    ],
+    "different": [
+     "cible_obligations",
+     "ecart_obligations"
+    ]
+   },
+   "verifications": []
+  },
+  {
+   "id": "diversification-fidele-01",
+   "onglet": "DIVERSIFICATION",
+   "etiquette": "fidele",
+   "ecart": null,
+   "description": "Portefeuille de trois fonds : répartition actions et obligations de l'outil.",
+   "entrees": {
+    "positions": [
+     {
+      "symbole": "SYN-BAL",
+      "pct": 0.5
+     },
+     {
+      "symbole": "SYN-US",
+      "pct": 0.3
+     },
+     {
+      "symbole": "SYN-OBL",
+      "pct": 0.2
+     }
+    ]
+   },
+   "outil": {
+    "actions_pct": [
+     0.125,
+     0.708333333333,
+     0.166666666667
+    ],
+    "obligations_pct": [
+     0.875,
+     0.125
+    ],
+    "portion_actions": 0.6,
+    "portion_obligations": 0.4
+   },
+   "attendu_app": {
+    "actions_pct": [
+     0.125,
+     0.708333333333,
+     0.166666666667
+    ],
+    "obligations_pct": [
+     0.875,
+     0.125
+    ],
+    "portion_actions": 0.6,
+    "portion_obligations": 0.4
+   },
+   "comparaison": {
+    "egal": [
+     "actions_pct",
+     "obligations_pct",
+     "portion_actions",
+     "portion_obligations"
+    ],
+    "different": []
+   },
+   "verifications": []
+  },
+  {
+   "id": "diversification-fidele-02",
+   "onglet": "DIVERSIFICATION",
+   "etiquette": "fidele",
+   "ecart": null,
+   "description": "Portefeuille de deux fonds avec obligations étrangères.",
+   "entrees": {
+    "positions": [
+     {
+      "symbole": "SYN-INT",
+      "pct": 0.6
+     },
+     {
+      "symbole": "SYN-GLB",
+      "pct": 0.4
+     }
+    ]
+   },
+   "outil": {
+    "actions_pct": [
+     0,
+     0,
+     1
+    ],
+    "obligations_pct": [
+     0.3,
+     0.7
+    ],
+    "portion_actions": 0.6,
+    "portion_obligations": 0.4
+   },
+   "attendu_app": {
+    "actions_pct": [
+     0,
+     0,
+     1
+    ],
+    "obligations_pct": [
+     0.3,
+     0.7
+    ],
+    "portion_actions": 0.6,
+    "portion_obligations": 0.4
+   },
+   "comparaison": {
+    "egal": [
+     "actions_pct",
+     "obligations_pct",
+     "portion_actions",
+     "portion_obligations"
+    ],
+    "different": []
+   },
+   "verifications": []
+  },
+  {
+   "id": "diversification-ecart-vide-01",
+   "onglet": "DIVERSIFICATION",
+   "etiquette": "ecart",
+   "ecart": "erreurs_si_vide",
+   "description": "Erreurs si vide : aucune position, l'outil renvoie #VALUE! ; l'app ne renvoie aucun résultat.",
+   "entrees": {
+    "positions": []
+   },
+   "outil": {
+    "actions_pct": [
+     "#VALUE!",
+     "#VALUE!",
+     "#VALUE!"
+    ],
+    "obligations_pct": [
+     "#VALUE!",
+     "#VALUE!"
+    ],
+    "portion_actions": 0,
+    "portion_obligations": 0
+   },
+   "attendu_app": {
+    "actions_pct": [
+     null,
+     null,
+     null
+    ],
+    "obligations_pct": [
+     null,
+     null
+    ],
+    "portion_actions": null,
+    "portion_obligations": null
+   },
+   "comparaison": {
+    "egal": [],
+    "different": [
+     "actions_pct",
+     "obligations_pct"
+    ]
+   },
+   "verifications": []
+  },
+  {
+   "id": "diversification-ecart-vide-02",
+   "onglet": "DIVERSIFICATION",
+   "etiquette": "ecart",
+   "ecart": "erreurs_si_vide",
+   "description": "Erreurs si vide : portefeuille sans actions, la portion actions divise par zéro (#DIV/0!) ; l'app renvoie null.",
+   "entrees": {
+    "positions": [
+     {
+      "symbole": "SYN-OBL",
+      "pct": 1.0
+     }
+    ]
+   },
+   "outil": {
+    "actions_pct": [
+     "#DIV/0!",
+     "#DIV/0!",
+     "#DIV/0!"
+    ],
+    "obligations_pct": [
+     1,
+     0
+    ],
+    "portion_actions": 0,
+    "portion_obligations": 1
+   },
+   "attendu_app": {
+    "actions_pct": [
+     null,
+     null,
+     null
+    ],
+    "obligations_pct": [
+     1,
+     0
+    ],
+    "portion_actions": 0,
+    "portion_obligations": 1
+   },
+   "comparaison": {
+    "egal": [
+     "obligations_pct",
+     "portion_actions",
+     "portion_obligations"
+    ],
+    "different": [
+     "actions_pct"
+    ]
+   },
+   "verifications": []
+  },
+  {
+   "id": "catalogue-ecart-fige-01",
+   "onglet": "FNB",
+   "etiquette": "ecart",
+   "ecart": "catalogue_fige",
+   "description": "Catalogue figé : « 19,6% » et « 880M$ » sont du texte ; ISNUMBER est faux et SUM vaut 0. L'app stocke 0.196 et 880000000, datés.",
+   "entrees": {
+    "symbole": "SYN-CA",
+    "rendement_1an": "19,6%",
+    "rendement_3ans": "-",
+    "grosseur": "880M$"
+   },
+   "outil": {
+    "rendement_1an": "19,6%",
+    "rendement_3ans": "-",
+    "grosseur": "880M$",
+    "rendement_1an_numerique": false,
+    "grosseur_numerique": false,
+    "somme_rendement_1an": 0
+   },
+   "attendu_app": {
+    "rendement_1an": 0.196,
+    "rendement_3ans": null,
+    "grosseur": 880000000,
+    "rendement_1an_numerique": true,
+    "grosseur_numerique": true,
+    "somme_rendement_1an": 0.196
+   },
+   "comparaison": {
+    "egal": [],
+    "different": [
+     "rendement_1an",
+     "grosseur",
+     "rendement_3ans",
+     "rendement_1an_numerique",
+     "grosseur_numerique"
+    ]
+   },
+   "verifications": []
+  },
+  {
+   "id": "catalogue-ecart-fige-02",
+   "onglet": "FNB",
+   "etiquette": "ecart",
+   "ecart": "catalogue_fige",
+   "description": "Catalogue figé : rendement négatif « -2,4% » et petite taille « 12M$ », encore du texte.",
+   "entrees": {
+    "symbole": "SYN-OBL",
+    "rendement_1an": "-2,4%",
+    "rendement_3ans": "5,5%",
+    "grosseur": "12M$"
+   },
+   "outil": {
+    "rendement_1an": "-",
+    "rendement_3ans": "-",
+    "grosseur": "100M$",
+    "rendement_1an_numerique": null,
+    "grosseur_numerique": null,
+    "somme_rendement_1an": null
+   },
+   "attendu_app": {
+    "rendement_1an": -0.024,
+    "rendement_3ans": 0.055,
+    "grosseur": 12000000,
+    "rendement_1an_numerique": true,
+    "grosseur_numerique": true,
+    "somme_rendement_1an": -0.024
+   },
+   "comparaison": {
+    "egal": [],
+    "different": [
+     "rendement_1an",
+     "grosseur",
+     "rendement_3ans",
+     "rendement_1an_numerique",
+     "grosseur_numerique"
+    ]
+   },
+   "verifications": []
+  },
+  {
+   "id": "rendement-fidele-01",
+   "onglet": "RENDEMENT",
+   "etiquette": "fidele",
+   "ecart": null,
+   "description": "Un mois, sans flux : (fin - ajout) / début - 1 et AACJ du mois 1.",
+   "entrees": {
+    "depart": 10000,
+    "ajouts": [
+     0
+    ],
+    "fins": [
+     10120
+    ]
+   },
+   "outil": {
+    "rendement_mensuel": [
+     0.012
+    ],
+    "aacj_mois": [
+     0.012
+    ]
+   },
+   "attendu_app": {
+    "rendement_mensuel": [
+     0.012
+    ],
+    "aacj_mois": [
+     0.012
+    ],
+    "rendement_periode": 0.012
+   },
+   "comparaison": {
+    "egal": [
+     "rendement_mensuel",
+     "aacj_mois"
+    ],
+    "different": []
+   },
+   "verifications": []
+  },
+  {
+   "id": "rendement-fidele-02",
+   "onglet": "RENDEMENT",
+   "etiquette": "fidele",
+   "ecart": null,
+   "description": "Trois mois avec cotisation mensuelle de 500 $ (cotisation en fin de mois, D15).",
+   "entrees": {
+    "depart": 20000,
+    "ajouts": [
+     500,
+     500,
+     500
+    ],
+    "fins": [
+     20700,
+     21450,
+     21800
+    ]
+   },
+   "outil": {
+    "rendement_mensuel": [
+     0.01,
+     0.012077294686,
+     -0.006993006993
+    ],
+    "aacj_mois": [
+     0.01,
+     0.02222372988,
+     0.014635298856
+    ]
+   },
+   "attendu_app": {
+    "rendement_mensuel": [
+     0.01,
+     0.012077294686,
+     -0.006993006993
+    ],
+    "aacj_mois": [
+     0.01,
+     0.02222372988,
+     0.014635298856
+    ],
+    "rendement_periode": 0.015049829398
+   },
+   "comparaison": {
+    "egal": [
+     "rendement_mensuel",
+     "aacj_mois"
+    ],
+    "different": []
+   },
+   "verifications": []
+  },
+  {
+   "id": "rendement-fidele-03",
+   "onglet": "RENDEMENT",
+   "etiquette": "fidele",
+   "ecart": null,
+   "description": "Six mois avec un retrait de 1000 $ au mois 4 et un mois négatif.",
+   "entrees": {
+    "depart": 15000,
+    "ajouts": [
+     250,
+     0,
+     250,
+     -1000,
+     250,
+     0
+    ],
+    "fins": [
+     15400.0,
+     15350.0,
+     15900.0,
+     14700.0,
+     15200.0,
+     15600.0
+    ]
+   },
+   "outil": {
+    "rendement_mensuel": [
+     0.01,
+     -0.003246753247,
+     0.019543973941,
+     -0.012578616352,
+     0.017006802721,
+     0.026315789474
+    ],
+    "aacj_mois": [
+     0.01,
+     0.006611660269,
+     0.026374885721,
+     0.013115279381,
+     0.029799601334,
+     0.056500446958
+    ]
+   },
+   "attendu_app": {
+    "rendement_mensuel": [
+     0.01,
+     -0.003246753247,
+     0.019543973941,
+     -0.012578616352,
+     0.017006802721,
+     0.026315789474
+    ],
+    "aacj_mois": [
+     0.01,
+     0.006611660269,
+     0.026374885721,
+     0.013115279381,
+     0.029799601334,
+     0.056500446958
+    ],
+    "rendement_periode": 0.057845861229
+   },
+   "comparaison": {
+    "egal": [
+     "rendement_mensuel",
+     "aacj_mois"
+    ],
+    "different": []
+   },
+   "verifications": []
+  },
+  {
+   "id": "rendement-fidele-04",
+   "onglet": "RENDEMENT",
+   "etiquette": "fidele",
+   "ecart": null,
+   "description": "Année complète (12 mois) tirée de la graine : rendement mensuel, AACJ et TRI de l'année (U22).",
+   "entrees": {
+    "depart": 24000.0,
+    "ajouts": [
+     250.0,
+     250.0,
+     500.0,
+     1000.0,
+     500.0,
+     0.0,
+     0.0,
+     -300.0,
+     500.0,
+     250.0,
+     -300.0,
+     500.0
+    ],
+    "fins": [
+     23940.16,
+     24415.92,
+     24287.94,
+     25128.61,
+     26305.57,
+     26748.29,
+     26159.56,
+     26657.69,
+     27677.78,
+     27709.13,
+     26976.31,
+     26219.21
+    ]
+   },
+   "outil": {
+    "rendement_mensuel": [
+     -0.01291,
+     0.009430179247,
+     -0.025720103932,
+     -0.00656004585,
+     0.026939810837,
+     0.016829895722,
+     -0.022010005126,
+     0.030510069741,
+     0.019509942534,
+     -0.007899838788,
+     -0.015620122321,
+     -0.046600146573
+    ],
+    "aacj_mois": [
+     -0.01291,
+     -0.003485165586,
+     -0.029361294432,
+     -0.035652519996,
+     -0.007855281869,
+     0.009916065,
+     -0.01348077573,
+     0.018018396674,
+     0.03836741448,
+     0.029645112177,
+     0.012680649127,
+     -0.036046094132
+    ],
+    "tri_annee": -0.036046094132
+   },
+   "attendu_app": {
+    "rendement_mensuel": [
+     -0.01291,
+     0.009430179247,
+     -0.025720103932,
+     -0.00656004585,
+     0.026939810837,
+     0.016829895722,
+     -0.022010005126,
+     0.030510069741,
+     0.019509942534,
+     -0.007899838788,
+     -0.015620122321,
+     -0.046600146573
+    ],
+    "aacj_mois": [
+     -0.01291,
+     -0.003485165586,
+     -0.029361294432,
+     -0.035652519996,
+     -0.007855281869,
+     0.009916065,
+     -0.01348077573,
+     0.018018396674,
+     0.03836741448,
+     0.029645112177,
+     0.012680649127,
+     -0.036046094132
+    ],
+    "rendement_periode": -0.036563395071,
+    "tri_annee": -0.036046094132
+   },
+   "comparaison": {
+    "egal": [
+     "rendement_mensuel",
+     "aacj_mois",
+     "tri_annee"
+    ],
+    "different": []
+   },
+   "verifications": []
+  },
+  {
+   "id": "rendement-fidele-05",
+   "onglet": "RENDEMENT",
+   "etiquette": "fidele",
+   "ecart": null,
+   "description": "Année complète à dérive négative, avec cotisations et retraits.",
+   "entrees": {
+    "depart": 18500.0,
+    "ajouts": [
+     500.0,
+     500.0,
+     1000.0,
+     0.0,
+     -300.0,
+     -300.0,
+     500.0,
+     500.0,
+     500.0,
+     -300.0,
+     500.0,
+     0.0
+    ],
+    "fins": [
+     18636.1,
+     19449.56,
+     21683.05,
+     21085.03,
+     21600.6,
+     19716.2,
+     20318.53,
+     20670.81,
+     21323.15,
+     20339.74,
+     21259.76,
+     20616.86
+    ]
+   },
+   "outil": {
+    "rendement_mensuel": [
+     -0.01967027027,
+     0.01682004282,
+     0.06341994369,
+     -0.027580068302,
+     0.038680049305,
+     -0.073349814357,
+     0.005190148203,
+     -0.007270210985,
+     0.007369812794,
+     -0.032050142685,
+     0.020650214801,
+     -0.030240228488
+    ],
+    "aacj_mois": [
+     -0.01967027027,
+     -0.002690109179,
+     0.062287798119,
+     0.030204514204,
+     0.071514659664,
+     -0.009329086565,
+     -0.004129409524,
+     -0.011566894531,
+     -0.003855219307,
+     -0.037846369418,
+     -0.016863282674,
+     -0.048422614913
+    ],
+    "tri_annee": -0.048422614913
+   },
+   "attendu_app": {
+    "rendement_mensuel": [
+     -0.01967027027,
+     0.01682004282,
+     0.06341994369,
+     -0.027580068302,
+     0.038680049305,
+     -0.073349814357,
+     0.005190148203,
+     -0.007270210985,
+     0.007369812794,
+     -0.032050142685,
+     0.020650214801,
+     -0.030240228488
+    ],
+    "aacj_mois": [
+     -0.01967027027,
+     -0.002690109179,
+     0.062287798119,
+     0.030204514204,
+     0.071514659664,
+     -0.009329086565,
+     -0.004129409524,
+     -0.011566894531,
+     -0.003855219307,
+     -0.037846369418,
+     -0.016863282674,
+     -0.048422614913
+    ],
+    "rendement_periode": -0.044491186792,
+    "tri_annee": -0.048422614913
+   },
+   "comparaison": {
+    "egal": [
+     "rendement_mensuel",
+     "aacj_mois",
+     "tri_annee"
+    ],
+    "different": []
+   },
+   "verifications": []
+  },
+  {
+   "id": "rendement-fidele-06",
+   "onglet": "RENDEMENT",
+   "etiquette": "fidele",
+   "ecart": null,
+   "description": "Neuf mois tirés de la graine.",
+   "entrees": {
+    "depart": 52000.0,
+    "ajouts": [
+     -300.0,
+     1000.0,
+     250.0,
+     -300.0,
+     0.0,
+     500.0,
+     500.0,
+     500.0,
+     1000.0
+    ],
+    "fins": [
+     53771.68,
+     56207.92,
+     58413.96,
+     59060.85,
+     60470.04,
+     60845.47,
+     62409.05,
+     62356.73,
+     64712.37
+    ]
+   },
+   "outil": {
+    "rendement_mensuel": [
+     0.03984,
+     0.02670997075,
+     0.034800077996,
+     0.016209995008,
+     0.023859968151,
+     -0.002060028404,
+     0.017480019466,
+     -0.008849998518,
+     0.021740075209
+    ],
+    "aacj_mois": [
+     0.03984,
+     0.067651956444,
+     0.104822842991,
+     0.122522975754,
+     0.149277981262,
+     0.146777522368,
+     0.166756117359,
+     0.155842232087,
+     0.181058752914
+    ]
+   },
+   "attendu_app": {
+    "rendement_mensuel": [
+     0.03984,
+     0.02670997075,
+     0.034800077996,
+     0.016209995008,
+     0.023859968151,
+     -0.002060028404,
+     0.017480019466,
+     -0.008849998518,
+     0.021740075209
+    ],
+    "aacj_mois": [
+     0.03984,
+     0.067651956444,
+     0.104822842991,
+     0.122522975754,
+     0.149277981262,
+     0.146777522368,
+     0.166756117359,
+     0.155842232087,
+     0.181058752914
+    ],
+    "rendement_periode": 0.181965767932
+   },
+   "comparaison": {
+    "egal": [
+     "rendement_mensuel",
+     "aacj_mois"
+    ],
+    "different": []
+   },
+   "verifications": []
+  },
+  {
+   "id": "rendement-fidele-07",
+   "onglet": "RENDEMENT",
+   "etiquette": "fidele",
+   "ecart": null,
+   "description": "Rendement annualisé (K23) de trois rendements annuels saisis : moyenne géométrique.",
+   "entrees": {
+    "annuels": [
+     0.08,
+     -0.05,
+     0.12
+    ]
+   },
+   "outil": {
+    "annees": 3,
+    "rendement_annualise": 0.047422248222
+   },
+   "attendu_app": {
+    "annees": 3,
+    "rendement_annualise": 0.047422248222
+   },
+   "comparaison": {
+    "egal": [
+     "annees",
+     "rendement_annualise"
+    ],
+    "different": []
+   },
+   "verifications": []
+  },
+  {
+   "id": "rendement-fidele-08",
+   "onglet": "RENDEMENT",
+   "etiquette": "fidele",
+   "ecart": null,
+   "description": "Rendement annualisé d'une seule année saisie.",
+   "entrees": {
+    "annuels": [
+     0.0625
+    ]
+   },
+   "outil": {
+    "annees": 1,
+    "rendement_annualise": 0.0625
+   },
+   "attendu_app": {
+    "annees": 1,
+    "rendement_annualise": 0.0625
+   },
+   "comparaison": {
+    "egal": [
+     "annees",
+     "rendement_annualise"
+    ],
+    "different": []
+   },
+   "verifications": []
+  },
+  {
+   "id": "rendement-fidele-09",
+   "onglet": "RENDEMENT",
+   "etiquette": "fidele",
+   "ecart": null,
+   "description": "Rendement annualisé de douze années saisies (graine).",
+   "entrees": {
+    "annuels": [
+     0.358,
+     -0.1268,
+     0.0492,
+     0.0285,
+     0.1048,
+     0.1238,
+     0.1498,
+     0.0343,
+     0.1197,
+     0.008,
+     0.0776,
+     0.0573
+    ]
+   },
+   "outil": {
+    "annees": 12,
+    "rendement_annualise": 0.076782449943
+   },
+   "attendu_app": {
+    "annees": 12,
+    "rendement_annualise": 0.076782449943
+   },
+   "comparaison": {
+    "egal": [
+     "annees",
+     "rendement_annualise"
+    ],
+    "different": []
+   },
+   "verifications": []
+  },
+  {
+   "id": "rendement-ecart-annuel-01",
+   "onglet": "RENDEMENT",
+   "etiquette": "ecart",
+   "ecart": "rendements_annuels_a_part",
+   "description": "Rendements annuels à part : 5 % saisi à la main pour l'année 1 alors que les 12 mois calculés donnent autre chose.",
+   "entrees": {
+    "depart": 30000.0,
+    "ajouts": [
+     0.0,
+     500.0,
+     500.0,
+     -300.0,
+     250.0,
+     0.0,
+     500.0,
+     250.0,
+     0.0,
+     0.0,
+     0.0,
+     1000.0
+    ],
+    "fins": [
+     30164.1,
+     30915.07,
+     32105.09,
+     32313.63,
+     32095.73,
+     31916.64,
+     32373.87,
+     32538.73,
+     31619.84,
+     30631.4,
+     30458.03,
+     32562.44
+    ],
+    "annuel_saisi": 0.05
+   },
+   "outil": {
+    "rendement_mensuel": [
+     0.00547,
+     0.008320155417,
+     0.022319858891,
+     0.015839855923,
+     -0.014479957838,
+     -0.00557986997,
+     -0.001340053339,
+     -0.002629898742,
+     -0.028239885208,
+     -0.031260120228,
+     -0.005659878425,
+     0.036260060155
+    ],
+    "aacj_mois": [
+     0.00547,
+     0.013835666667,
+     0.036635240284,
+     0.053133507458,
+     0.037643352681,
+     0.031670463368,
+     0.030208904885,
+     0.02732875096,
+     -0.002602095439,
+     -0.034581809445,
+     -0.040095936847,
+     -0.004433142172
+    ],
+    "rendement_annuel": 0.05,
+    "annees": 1,
+    "rendement_annuel_depuis_mois": -0.00308317099
+   },
+   "attendu_app": {
+    "rendement_mensuel": [
+     0.00547,
+     0.008320155417,
+     0.022319858891,
+     0.015839855923,
+     -0.014479957838,
+     -0.00557986997,
+     -0.001340053339,
+     -0.002629898742,
+     -0.028239885208,
+     -0.031260120228,
+     -0.005659878425,
+     0.036260060155
+    ],
+    "aacj_mois": [
+     0.00547,
+     0.013835666667,
+     0.036635240284,
+     0.053133507458,
+     0.037643352681,
+     0.031670463368,
+     0.030208904885,
+     0.02732875096,
+     -0.002602095439,
+     -0.034581809445,
+     -0.040095936847,
+     -0.004433142172
+    ],
+    "rendement_annuel": -0.003083170989
+   },
+   "comparaison": {
+    "egal": [
+     "rendement_mensuel"
+    ],
+    "different": [
+     "rendement_annuel"
+    ]
+   },
+   "verifications": [
+    [
+     "outil.rendement_annuel_depuis_mois",
+     "attendu_app.rendement_annuel"
+    ]
+   ]
+  },
+  {
+   "id": "rendement-ecart-annuel-02",
+   "onglet": "RENDEMENT",
+   "etiquette": "ecart",
+   "ecart": "rendements_annuels_a_part",
+   "description": "Rendements annuels à part : 14 % saisi, six mois de données seulement.",
+   "entrees": {
+    "depart": 8000.0,
+    "ajouts": [
+     0.0,
+     500.0,
+     500.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "fins": [
+     8172.64,
+     9161.04,
+     9757.51,
+     9397.56,
+     9751.1,
+     9416.64
+    ],
+    "annuel_saisi": 0.14
+   },
+   "outil": {
+    "rendement_mensuel": [
+     0.02158,
+     0.05976037119,
+     0.01053046379,
+     -0.036889534318,
+     0.037620403594,
+     -0.034299720032
+    ],
+    "aacj_mois": [
+     0.02158,
+     0.08263,
+     0.092812079306,
+     0.047498587732,
+     0.088470572539,
+     0.048572306448
+    ],
+    "rendement_annuel": 0.14,
+    "annees": 1,
+    "rendement_annuel_depuis_mois": 0.055811602718
+   },
+   "attendu_app": {
+    "rendement_mensuel": [
+     0.02158,
+     0.05976037119,
+     0.01053046379,
+     -0.036889534318,
+     0.037620403594,
+     -0.034299720032
+    ],
+    "aacj_mois": [
+     0.02158,
+     0.08263,
+     0.092812079306,
+     0.047498587732,
+     0.088470572539,
+     0.048572306448
+    ],
+    "rendement_annuel": 0.055811602718
+   },
+   "comparaison": {
+    "egal": [
+     "rendement_mensuel"
+    ],
+    "different": [
+     "rendement_annuel"
+    ]
+   },
+   "verifications": [
+    [
+     "outil.rendement_annuel_depuis_mois",
+     "attendu_app.rendement_annuel"
+    ]
+   ]
+  },
+  {
+   "id": "rendement-ecart-comptes-01",
+   "onglet": "RENDEMENT",
+   "etiquette": "ecart",
+   "ecart": "un_compte_par_fichier",
+   "description": "Un compte par fichier : un CELI et un REER (six mois) ; l'outil ne sait rien d'un total, l'app consolide.",
+   "entrees": {
+    "comptes": [
+     {
+      "type": "CELI",
+      "depart": 12000.0,
+      "ajouts": [
+       250.0,
+       500.0,
+       0.0,
+       500.0,
+       0.0,
+       500.0
+      ],
+      "fins": [
+       12905.08,
+       13622.53,
+       14269.46,
+       14983.36,
+       15565.91,
+       16083.34
+      ]
+     },
+     {
+      "type": "REER",
+      "depart": 30000.0,
+      "ajouts": [
+       0.0,
+       500.0,
+       250.0,
+       250.0,
+       0.0,
+       500.0
+      ],
+      "fins": [
+       29528.7,
+       29138.41,
+       28508.43,
+       28676.61,
+       28491.65,
+       28504.16
+      ]
+     }
+    ]
+   },
+   "outil": {
+    "rendement_mensuel_par_compte": [
+     [
+      0.05459,
+      0.016849953662,
+      0.047489710061,
+      0.014990055685,
+      0.038879797322,
+      0.001119754643
+     ],
+     [
+      -0.01571,
+      -0.030149989671,
+      -0.030200000618,
+      -0.002870028269,
+      -0.006449855823,
+      -0.017109925189
+     ]
+    ],
+    "consolide": null
+   },
+   "attendu_app": {
+    "rendement_mensuel_par_compte": [
+     [
+      0.05459,
+      0.016849953662,
+      0.047489710061,
+      0.014990055685,
+      0.038879797322,
+      0.001119754643
+     ],
+     [
+      -0.01571,
+      -0.030149989671,
+      -0.030200000618,
+      -0.002870028269,
+      -0.006449855823,
+      -0.017109925189
+     ]
+    ],
+    "consolide": {
+     "rendement_mensuel": [
+      0.004375714286,
+      -0.015856235292,
+      -0.005450067281,
+      0.003087576316,
+      0.009106511067,
+      -0.010669224533
+     ],
+     "aacj_mois": [
+      0.004375714286,
+      -0.011609632365,
+      -0.016989871566,
+      -0.013801100235,
+      -0.004470043993,
+      -0.015316590784
+     ],
+     "rendement_periode": -0.015538538681
+    }
+   },
+   "comparaison": {
+    "egal": [
+     "rendement_mensuel_par_compte"
+    ],
+    "different": [
+     "consolide"
+    ]
+   },
+   "verifications": []
+  },
+  {
+   "id": "rendement-ecart-comptes-02",
+   "onglet": "RENDEMENT",
+   "etiquette": "ecart",
+   "ecart": "un_compte_par_fichier",
+   "description": "Un compte par fichier : CELI, REER et non enregistré (quatre mois).",
+   "entrees": {
+    "comptes": [
+     {
+      "type": "CELI",
+      "depart": 9000.0,
+      "ajouts": [
+       500.0,
+       250.0,
+       500.0,
+       250.0
+      ],
+      "fins": [
+       9719.33,
+       10031.73,
+       10523.2,
+       10935.99
+      ]
+     },
+     {
+      "type": "REER",
+      "depart": 41000.0,
+      "ajouts": [
+       0.0,
+       500.0,
+       1000.0,
+       500.0
+      ],
+      "fins": [
+       40801.97,
+       42474.62,
+       43850.95,
+       44181.69
+      ]
+     },
+     {
+      "type": "NON_ENREGISTRE",
+      "depart": 15000.0,
+      "ajouts": [
+       0.0,
+       -300.0,
+       0.0,
+       500.0
+      ],
+      "fins": [
+       14614.95,
+       13729.33,
+       13712.85,
+       14404.42
+      ]
+     }
+    ]
+   },
+   "outil": {
+    "rendement_mensuel_par_compte": [
+     [
+      0.02437,
+      0.006420195631,
+      -0.000850301992,
+      0.01546962901
+     ],
+     [
+      -0.00483,
+      0.028740033876,
+      0.008860114581,
+      -0.003859893571
+     ],
+     [
+      -0.02567,
+      -0.040069928395,
+      -0.001200349908,
+      0.013970108329
+     ]
+    ],
+    "consolide": null
+   },
+   "attendu_app": {
+    "rendement_mensuel_par_compte": [
+     [
+      0.02437,
+      0.006420195631,
+      -0.000850301992,
+      0.01546962901
+     ],
+     [
+      -0.00483,
+      0.028740033876,
+      0.008860114581,
+      -0.003859893571
+     ],
+     [
+      -0.02567,
+      -0.040069928395,
+      -0.001200349908,
+      0.013970108329
+     ]
+    ],
+    "consolide": {
+     "rendement_mensuel": [
+      -0.005596153846,
+      0.009970331421,
+      0.00530408988,
+      0.002718580639
+     ],
+     "aacj_mois": [
+      -0.005596153846,
+      0.004378255869,
+      0.009727817879,
+      0.01246135054
+     ],
+     "rendement_periode": 0.012390179407
+    }
+   },
+   "comparaison": {
+    "egal": [
+     "rendement_mensuel_par_compte"
+    ],
+    "different": [
+     "consolide"
+    ]
+   },
+   "verifications": []
+  }
+ ]
+}
