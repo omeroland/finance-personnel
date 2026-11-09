@@ -34,6 +34,10 @@ Quantités, prix, montants et frais sont toujours positifs : le sens vient du ty
 
 Lus en décimal exact. Virgule (`12,5`) ou point (`12.5`) décimal ; espaces, espaces insécables et `$` ignorés (`1 234,56`). Plus de 6 décimales : arrondi avec avertissement. Notation scientifique et nombres négatifs refusés.
 
+## Route (synchrone, D420 et D421)
+
+`POST /api/v1/accounts/{id}/imports/csv?broker=generic`, `multipart/form-data` avec le champ `file`. L'import est synchrone : la réponse 200 est le rapport (`CsvImportReport`), sans job. Seules les lignes du compte de la route sont écrites ; les autres sont refusées. 400 : fichier vide, sans en-têtes, illisible ou champ absent ; 404 : compte d'un autre propriétaire ; 413 : plus de 10 Mo.
+
 ## Rapport
 
 Une entrée par problème : numéro de ligne (en-têtes = ligne 1), niveau (`info`, `warning`, `error`), colonne, message. Une ligne invalide est signalée et sautée ; les autres sont importées. Fichier vide, sans en-têtes reconnus ou sans colonne obligatoire : erreur du fichier entier.

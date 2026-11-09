@@ -550,7 +550,11 @@ paths:
       operationId: importCsv
       tags: [imports]
       summary: Importer un relevé de courtier
-      description: Import multipart d'un fichier CSV (10 Mo au plus) vers le registre du compte, avec l'adapter du courtier. Répond 202 avec un job.
+      description: >-
+        Import multipart d'un fichier CSV (10 Mo au plus) vers le registre du compte, avec l'adapter du courtier
+        (`generic` : format de l'application). L'import est synchrone et répond 200 avec le rapport ligne par ligne,
+        sans job. Une ligne invalide ou refusée est signalée sans empêcher les autres ; ré-importer le même fichier
+        ne crée rien (doublons). Une ligne dont le compte n'est pas celui de la route est refusée.
       parameters:
         - $ref: '#/components/parameters/Broker'
       requestBody:
@@ -560,21 +564,23 @@ paths:
             schema:
               $ref: '#/components/schemas/ImportCsvRequest'
       responses:
-        '202':
-          description: Import accepté.
+        '200':
+          description: Import terminé ; le rapport dit ce qui a été créé, ignoré ou refusé.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Job'
+                $ref: '#/components/schemas/CsvImportReport'
               examples:
                 default:
-                  $ref: '#/components/examples/JobExample'
+                  $ref: '#/components/examples/CsvImportReportExample'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
   /api/v1/accounts/{id}/positions:
     parameters:
       - $ref: '#/components/parameters/AccountId'
@@ -990,6 +996,15 @@ components:
           examples:
             default:
               $ref: '#/components/examples/ConflictExample'
+    PayloadTooLarge:
+      description: Corps ou fichier trop volumineux (10 Mo au plus).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          examples:
+            default:
+              $ref: '#/components/examples/PayloadTooLargeExample'
     NotImplemented:
       description: Fonction prévue pour une phase ultérieure.
       content:
@@ -2058,6 +2073,77 @@ components:
           type: string
           format: binary
           description: Fichier CSV, 10 Mo au plus.
+    CsvImportEntry:
+      type: object
+      description: Un problème ou un fait notable relevé à une ligne du fichier.
+      required: [line, level, message]
+      properties:
+        line:
+          type: integer
+          description: Numéro de ligne dans le fichier (les en-têtes sont la ligne 1).
+          minimum: 1
+          example: 4
+        level:
+          type: string
+          description: Gravité (`info`, `warning` ou `error`).
+          example: error
+        kind:
+          type: string
+          description: Catégorie (`invalid`, `duplicate`, `rejected`…).
+          example: invalid
+        column:
+          type: string
+          description: Colonne en cause, si elle est connue.
+          example: quantité
+        message:
+          type: string
+          description: Explication destinée à l'utilisateur.
+          example: Quantité absente.
+    CsvImportReport:
+      type: object
+      description: Rapport d'un import CSV synchrone.
+      required: [rowsRead, valid, invalid, created, duplicates, rejected, warnings, entries]
+      properties:
+        rowsRead:
+          type: integer
+          description: Lignes de données lues.
+          minimum: 0
+          example: 9
+        valid:
+          type: integer
+          description: Lignes valides.
+          minimum: 0
+          example: 8
+        invalid:
+          type: integer
+          description: Lignes invalides, sautées.
+          minimum: 0
+          example: 1
+        created:
+          type: integer
+          description: Écritures ajoutées au registre.
+          minimum: 0
+          example: 8
+        duplicates:
+          type: integer
+          description: Lignes déjà au registre, ignorées.
+          minimum: 0
+          example: 0
+        rejected:
+          type: integer
+          description: Lignes refusées (compte inconnu ou autre que celui de la route, devise du compte).
+          minimum: 0
+          example: 0
+        warnings:
+          type: integer
+          description: Avertissements.
+          minimum: 0
+          example: 0
+        entries:
+          type: array
+          description: Une entrée par problème, avec numéro de ligne, niveau, colonne et message.
+          items:
+            $ref: '#/components/schemas/CsvImportEntry'
     Position:
       type: object
       description: Position dérivée du registre. Le prix et la valeur sont absents si aucun prix n'est connu.
@@ -3047,6 +3133,30 @@ components:
                       status: passed
                       value: 0.0912
                       strictThreshold: {description: '≥ 8 %', min: 0.08, minInclusive: true}
+    PayloadTooLargeExample:
+      summary: Fichier trop volumineux
+      value:
+        type: 'https://finance-privee.local/problems/payload-too-large'
+        title: Corps trop volumineux
+        status: 413
+        detail: Le fichier dépasse 10 Mo.
+        instance: /api/v1/accounts/3f2a9c1e-7b4d-4e68-a1c5-2d9e8f7b6a40/imports/csv
+    CsvImportReportExample:
+      summary: Import avec une ligne invalide
+      value:
+        rowsRead: 4
+        valid: 3
+        invalid: 1
+        created: 3
+        duplicates: 0
+        rejected: 0
+        warnings: 0
+        entries:
+          - line: 4
+            level: error
+            kind: invalid
+            column: quantité
+            message: Quantité absente.
     JobExample:
       summary: Import terminé
       value:
