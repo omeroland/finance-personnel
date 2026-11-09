@@ -9,7 +9,7 @@ WEB_API := web/src/app/api
 SQLC_OUT := $(BACKEND)/internal/modules/stockeval/store/storedb
 GENERATED := $(BACKEND)/internal/api/gen $(WEB_API) $(SQLC_OUT)
 
-.PHONY: test-keycloak-admin e2e-full up-test smoke help test-backup gen gen-api gen-sqlc gen-check lint test test-engine test-int e2e oracle mock up down ci govulncheck test-headers scan-images
+.PHONY: oracle-etf test-keycloak-admin e2e-full up-test smoke help test-backup gen gen-api gen-sqlc gen-check lint test test-engine test-int e2e oracle mock up down ci govulncheck test-headers scan-images
 
 help: ## Liste les cibles
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-12s %s\n", $$1, $$2}'
@@ -81,6 +81,13 @@ oracle: ## Recalcule l'oracle avec LibreOffice (conteneur épinglé)
 	docker build -q -t $(ORACLE_IMAGE) tools/oracle
 	docker run --rm --user "$$(id -u):$$(id -g)" -e HOME=/tmp \
 		-v "$(CURDIR)/testdata/xlsx:/data/xlsx:ro" -v "$(CURDIR)/testdata/oracle:/data/oracle" $(ORACLE_IMAGE)
+
+# P2-07 : oracle de l'outil SÉLECTION ET GESTION ; sortie : testdata/oracle/etf_cases.json. Hors `make ci` (Docker requis).
+oracle-etf: ## Recalcule l'oracle de l'outil SÉLECTION ET GESTION avec LibreOffice (conteneur épinglé)
+	docker build -q -t $(ORACLE_IMAGE) tools/oracle
+	docker run --rm --user "$$(id -u):$$(id -g)" -e HOME=/tmp --entrypoint python3 \
+		-v "$(CURDIR)/testdata/xlsx:/data/xlsx:ro" -v "$(CURDIR)/testdata/oracle:/data/oracle" $(ORACLE_IMAGE) \
+		etf_oracle.py --template /data/xlsx/selection_gestion_template.xlsx --out /data/oracle/etf_cases.json
 
 mock: $(API)/node_modules/.package-lock.json ## Serveur simulé Prism (port 4010)
 	cd $(API) && npx prism mock --host 127.0.0.1 --port 4010 openapi.yaml
