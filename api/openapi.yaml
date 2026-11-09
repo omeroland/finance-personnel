@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
-  title: Finance privée — API du module 1 (évaluation d'actions)
-  version: 1.0.0
-  summary: Contrat REST du module 1, grille d'évaluation Simply Investing.
+  title: Finance privée — API du socle et des modules 1 et 2
+  version: 1.1.0
+  summary: Contrat REST du socle (comptes, registre), du module 1 (évaluation d'actions) et du module 2 (portefeuille de FNB).
   description: |
     Source unique du contrat (CLAUDE.md). Serveur Go, client Angular et serveur simulé en sont générés.
 
@@ -26,6 +26,12 @@ servers:
 security:
   - bearerAuth: []
 tags:
+  - name: accounts
+    description: Comptes et positions dérivées du registre.
+  - name: transactions
+    description: Registre de transactions en insertion seule et relevés de valeur mensuels.
+  - name: portfolio
+    description: Catalogue de FNB, portefeuilles modèles, plans, exposition et rendement.
   - name: stocks
     description: Liste de suivi, fiche et saisie des données d'une action.
   - name: evaluations
@@ -393,6 +399,463 @@ paths:
                   $ref: '#/components/examples/RulesExample'
         '401':
           $ref: '#/components/responses/Unauthorized'
+  /api/v1/accounts:
+    get:
+      operationId: listAccounts
+      tags: [accounts]
+      summary: Lister les comptes
+      description: Comptes de l'utilisateur (CELI, REER, CELIAPP, REEE, non enregistré), toutes devises confondues.
+      responses:
+        '200':
+          description: Liste des comptes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountList'
+              examples:
+                default:
+                  $ref: '#/components/examples/AccountListExample'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      operationId: createAccount
+      tags: [accounts]
+      summary: Créer un compte
+      description: Crée un compte. Un compte ne porte ni solde ni position saisis ; ils viennent du registre de transactions.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountCreate'
+            examples:
+              default:
+                $ref: '#/components/examples/AccountCreateExample'
+      responses:
+        '201':
+          description: Compte créé.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+              examples:
+                default:
+                  $ref: '#/components/examples/AccountExample'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /api/v1/accounts/{id}/transactions:
+    parameters:
+      - $ref: '#/components/parameters/AccountId'
+    get:
+      operationId: listTransactions
+      tags: [transactions]
+      summary: Lire le registre d'un compte
+      description: Transactions du compte, de la plus ancienne à la plus récente, écritures inverses comprises.
+      parameters:
+        - $ref: '#/components/parameters/FromDate'
+        - $ref: '#/components/parameters/ToDate'
+      responses:
+        '200':
+          description: Registre du compte.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionList'
+              examples:
+                default:
+                  $ref: '#/components/examples/TransactionListExample'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      operationId: createTransaction
+      tags: [transactions]
+      summary: Ajouter une transaction
+      description: |
+        Le registre est en insertion seule : il n'existe ni modification ni suppression. Pour corriger une erreur,
+        on ajoute l'écriture inverse en renseignant `reversesId` avec l'identifiant de la transaction annulée.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionCreate'
+            examples:
+              default:
+                $ref: '#/components/examples/TransactionCreateExample'
+      responses:
+        '201':
+          description: Transaction inscrite.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+              examples:
+                default:
+                  $ref: '#/components/examples/TransactionExample'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /api/v1/accounts/{id}/statements:
+    parameters:
+      - $ref: '#/components/parameters/AccountId'
+    post:
+      operationId: createStatement
+      tags: [transactions]
+      summary: Saisir un relevé de valeur mensuel
+      description: Valeur de fin de mois (et cotisation du mois) d'un compte sans transactions. Un seul relevé par compte et par mois.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StatementCreate'
+            examples:
+              default:
+                $ref: '#/components/examples/StatementCreateExample'
+      responses:
+        '201':
+          description: Relevé enregistré.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Statement'
+              examples:
+                default:
+                  $ref: '#/components/examples/StatementExample'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /api/v1/accounts/{id}/imports/csv:
+    parameters:
+      - $ref: '#/components/parameters/AccountId'
+    post:
+      operationId: importCsv
+      tags: [imports]
+      summary: Importer un relevé de courtier
+      description: Import multipart d'un fichier CSV (10 Mo au plus) vers le registre du compte, avec l'adapter du courtier. Répond 202 avec un job.
+      parameters:
+        - $ref: '#/components/parameters/Broker'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ImportCsvRequest'
+      responses:
+        '202':
+          description: Import accepté.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+              examples:
+                default:
+                  $ref: '#/components/examples/JobExample'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/v1/accounts/{id}/positions:
+    parameters:
+      - $ref: '#/components/parameters/AccountId'
+    get:
+      operationId: listPositions
+      tags: [accounts]
+      summary: Positions et valeur d'un compte
+      description: Positions dérivées du registre (jamais saisies), valorisées aux derniers prix connus au jour demandé.
+      parameters:
+        - $ref: '#/components/parameters/AsOf'
+      responses:
+        '200':
+          description: Positions du compte.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PositionList'
+              examples:
+                default:
+                  $ref: '#/components/examples/PositionListExample'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/v1/portfolio/etfs:
+    get:
+      operationId: listEtfs
+      tags: [portfolio]
+      summary: Catalogue de FNB
+      description: Catalogue filtrable. Chaque profil porte la date de sa répartition et de son RFG.
+      parameters:
+        - name: type
+          in: query
+          required: false
+          description: Type de FNB.
+          schema:
+            $ref: '#/components/schemas/EtfType'
+        - name: region
+          in: query
+          required: false
+          description: Région principale.
+          schema:
+            $ref: '#/components/schemas/EtfRegion'
+        - name: maxMer
+          in: query
+          required: false
+          description: RFG maximal, en fraction (0.005 = 0,5 %).
+          schema:
+            type: number
+            format: double
+            minimum: 0
+            maximum: 1
+          example: 0.005
+      responses:
+        '200':
+          description: FNB du catalogue.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EtfList'
+              examples:
+                default:
+                  $ref: '#/components/examples/EtfListExample'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/v1/portfolio/models:
+    get:
+      operationId: listModels
+      tags: [portfolio]
+      summary: Portefeuilles modèles
+      description: Dernière version de chaque portefeuille modèle.
+      responses:
+        '200':
+          description: Portefeuilles modèles.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelList'
+              examples:
+                default:
+                  $ref: '#/components/examples/ModelListExample'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      operationId: createModel
+      tags: [portfolio]
+      summary: Créer un portefeuille modèle
+      description: Crée un modèle à la version 1. Les cibles sont validées (total de 100 %) et jamais corrigées en silence.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelWrite'
+            examples:
+              default:
+                $ref: '#/components/examples/ModelWriteExample'
+      responses:
+        '201':
+          description: Modèle créé.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Model'
+              examples:
+                default:
+                  $ref: '#/components/examples/ModelExample'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /api/v1/portfolio/models/{id}:
+    parameters:
+      - $ref: '#/components/parameters/ModelId'
+    put:
+      operationId: updateModel
+      tags: [portfolio]
+      summary: Publier une nouvelle version d'un modèle
+      description: Remplace le contenu du modèle en créant la version suivante. Les versions précédentes restent lisibles par les plans qui les citent.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelWrite'
+            examples:
+              default:
+                $ref: '#/components/examples/ModelWriteExample'
+      responses:
+        '200':
+          description: Nouvelle version du modèle.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Model'
+              examples:
+                default:
+                  $ref: '#/components/examples/ModelExample'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/v1/portfolio/models/{id}/purchase-plan:
+    parameters:
+      - $ref: '#/components/parameters/ModelId'
+    post:
+      operationId: createPurchasePlan
+      tags: [portfolio]
+      summary: Plan d'achat initial
+      description: Calcule, pour un montant donné, des ordres en parts entières ; le reste va en encaisse. Le plan est calculé, pas enregistré.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PurchasePlanRequest'
+            examples:
+              default:
+                $ref: '#/components/examples/PurchasePlanRequestExample'
+      responses:
+        '200':
+          description: Plan d'achat.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchasePlan'
+              examples:
+                default:
+                  $ref: '#/components/examples/PurchasePlanExample'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+  /api/v1/portfolio/rebalance-plans:
+    post:
+      operationId: createRebalancePlan
+      tags: [portfolio]
+      summary: Plan de rééquilibrage
+      description: |
+        Pour un ou plusieurs comptes, avec ou sans nouvelle cotisation. Ordre de calcul : détecter les écarts hors bande,
+        acheter avec l'encaisse et la cotisation, vendre en dernier recours (comptes enregistrés d'abord), arrondir aux
+        parts entières, ignorer les ordres sous le montant minimum. Le plan est calculé, pas enregistré.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RebalancePlanRequest'
+            examples:
+              default:
+                $ref: '#/components/examples/RebalancePlanRequestExample'
+      responses:
+        '200':
+          description: Plan de rééquilibrage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RebalancePlan'
+              examples:
+                default:
+                  $ref: '#/components/examples/RebalancePlanExample'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+  /api/v1/portfolio/exposure:
+    get:
+      operationId: getExposure
+      tags: [portfolio]
+      summary: Exposition par transparence
+      description: Exposition réelle des positions des comptes demandés par classe d'actifs, avec le RFG pondéré, comparée au modèle s'il est fourni.
+      parameters:
+        - $ref: '#/components/parameters/Accounts'
+        - name: modelId
+          in: query
+          required: false
+          description: Modèle de comparaison. Sans lui, aucune cible n'est renvoyée.
+          schema:
+            type: string
+            format: uuid
+          example: 5d7a2c64-9b1e-4f3a-8c2d-7e6f1a0b3c45
+      responses:
+        '200':
+          description: Exposition.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exposure'
+              examples:
+                default:
+                  $ref: '#/components/examples/ExposureExample'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/v1/portfolio/performance:
+    get:
+      operationId: getPerformance
+      tags: [portfolio]
+      summary: Rendement
+      description: |
+        Rendement pondéré dans le temps (performance des placements) et TRI (rendement personnel), consolidé et par compte,
+        par mois et par année. Un compte sans transactions utilise ses relevés de valeur mensuels.
+      parameters:
+        - $ref: '#/components/parameters/Accounts'
+        - $ref: '#/components/parameters/FromDate'
+        - $ref: '#/components/parameters/ToDate'
+      responses:
+        '200':
+          description: Rendement.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Performance'
+              examples:
+                default:
+                  $ref: '#/components/examples/PerformanceExample'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
 components:
   securitySchemes:
     bearerAuth:
@@ -422,6 +885,74 @@ components:
       description: Horizon en années. 10 par défaut.
       schema:
         $ref: '#/components/schemas/Horizon'
+    AccountId:
+      name: id
+      in: path
+      required: true
+      description: Identifiant du compte.
+      schema:
+        type: string
+        format: uuid
+      example: 3f2a9c1e-7b4d-4e68-a1c5-2d9e8f7b6a40
+    ModelId:
+      name: id
+      in: path
+      required: true
+      description: Identifiant du portefeuille modèle.
+      schema:
+        type: string
+        format: uuid
+      example: 5d7a2c64-9b1e-4f3a-8c2d-7e6f1a0b3c45
+    Accounts:
+      name: accounts
+      in: query
+      required: false
+      description: Identifiants de comptes séparés par des virgules. Sans ce paramètre, tous les comptes (vue consolidée).
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+          format: uuid
+        maxItems: 50
+      example: [3f2a9c1e-7b4d-4e68-a1c5-2d9e8f7b6a40]
+    FromDate:
+      name: from
+      in: query
+      required: false
+      description: Date de début incluse (ISO 8601).
+      schema:
+        type: string
+        format: date
+      example: '2025-01-01'
+    ToDate:
+      name: to
+      in: query
+      required: false
+      description: Date de fin incluse (ISO 8601).
+      schema:
+        type: string
+        format: date
+      example: '2025-12-31'
+    AsOf:
+      name: asOf
+      in: query
+      required: false
+      description: Jour de valorisation. Aujourd'hui par défaut.
+      schema:
+        type: string
+        format: date
+      example: '2025-12-31'
+    Broker:
+      name: broker
+      in: query
+      required: true
+      description: Adapter de courtier. `generic` lit le format CSV générique de l'application.
+      schema:
+        type: string
+        pattern: '^[a-z0-9_-]{1,32}$'
+      example: generic
   responses:
     BadRequest:
       description: Requête invalide.
@@ -468,6 +999,15 @@ components:
           examples:
             default:
               $ref: '#/components/examples/NotImplementedExample'
+    Unprocessable:
+      description: Requête valide mais calcul impossible (par exemple prix manquant pour un fonds du modèle).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          examples:
+            default:
+              $ref: '#/components/examples/UnprocessableExample'
   schemas:
     Symbol:
       type: string
@@ -1253,6 +1793,889 @@ components:
           description: Les 10 critères de 5a à 11c.
           items:
             $ref: '#/components/schemas/RuleDefinition'
+    AccountType:
+      type: string
+      description: Type de compte ; `taxable` désigne un compte non enregistré.
+      enum: [celi, reer, celiapp, reee, taxable]
+      example: celi
+    Account:
+      type: object
+      description: Compte de placement. Il ne porte aucun solde ; la valeur vient du registre et des prix.
+      required: [id, name, type, broker, currency, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Identifiant du compte.
+          example: 3f2a9c1e-7b4d-4e68-a1c5-2d9e8f7b6a40
+        name:
+          type: string
+          description: Nom affiché.
+          minLength: 1
+          maxLength: 100
+          example: CELI Questrade
+        type:
+          $ref: '#/components/schemas/AccountType'
+        broker:
+          type: string
+          description: Nom du courtier.
+          minLength: 1
+          maxLength: 100
+          example: Questrade
+        currency:
+          $ref: '#/components/schemas/Currency'
+        createdAt:
+          type: string
+          format: date-time
+          description: Création du compte.
+          example: '2025-01-15T14:30:00Z'
+    AccountCreate:
+      type: object
+      description: Création d'un compte.
+      required: [name, type, broker, currency]
+      properties:
+        name:
+          type: string
+          description: Nom affiché.
+          minLength: 1
+          maxLength: 100
+          example: CELI Questrade
+        type:
+          $ref: '#/components/schemas/AccountType'
+        broker:
+          type: string
+          description: Nom du courtier.
+          minLength: 1
+          maxLength: 100
+          example: Questrade
+        currency:
+          $ref: '#/components/schemas/Currency'
+    AccountList:
+      type: object
+      description: Liste de comptes.
+      required: [items]
+      properties:
+        items:
+          type: array
+          description: Comptes.
+          items:
+            $ref: '#/components/schemas/Account'
+    TransactionType:
+      type: string
+      description: |
+        `buy` achat, `sell` vente, `dividend` dividende ou distribution en espèces, `drip` distribution réinvestie,
+        `contribution` cotisation, `withdrawal` retrait, `fee` frais, `transfer` transfert entre comptes, `split` fractionnement.
+      enum: [buy, sell, dividend, drip, contribution, withdrawal, fee, transfer, split]
+      example: buy
+    Transaction:
+      type: object
+      description: Écriture du registre, en insertion seule. Les montants sont dans la devise de la transaction.
+      required: [id, accountId, type, tradeDate, currency, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Identifiant de la transaction.
+          example: 8c1d4e2f-6a3b-4c7d-9e0f-1a2b3c4d5e6f
+        accountId:
+          type: string
+          format: uuid
+          description: Compte du registre.
+          example: 3f2a9c1e-7b4d-4e68-a1c5-2d9e8f7b6a40
+        type:
+          $ref: '#/components/schemas/TransactionType'
+        tradeDate:
+          type: string
+          format: date
+          description: Date d'exécution.
+          example: '2025-03-14'
+        symbol:
+          allOf:
+            - $ref: '#/components/schemas/Symbol'
+          description: Instrument concerné (achat, vente, dividende, distribution réinvestie, fractionnement, transfert de titres).
+        quantity:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          description: Nombre de parts, positif (peut être fractionnaire pour une distribution réinvestie).
+        price:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          description: Prix par part.
+        amount:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          description: Montant brut de l'opération, positif ; le type donne le sens.
+        fee:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          description: Frais de l'opération, positifs.
+        splitRatio:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          description: Pour un fractionnement, nombre de parts nouvelles pour une ancienne (`2` pour 2 contre 1).
+        counterpartAccountId:
+          type: string
+          format: uuid
+          description: Pour un transfert, l'autre compte.
+          example: 7a6b5c4d-3e2f-4a1b-8c9d-0e1f2a3b4c5d
+        currency:
+          $ref: '#/components/schemas/Currency'
+        reversesId:
+          type: string
+          format: uuid
+          description: Présent si cette écriture est l'écriture inverse de la transaction désignée.
+          example: 9d8c7b6a-5f4e-4d3c-a2b1-0f9e8d7c6b5a
+        note:
+          type: string
+          description: Note libre.
+          maxLength: 500
+          example: Achat mensuel
+        createdAt:
+          type: string
+          format: date-time
+          description: Inscription au registre.
+          example: '2025-03-14T15:02:11Z'
+    TransactionCreate:
+      type: object
+      description: |
+        Nouvelle transaction. Champs requis selon le type : `buy` et `sell` demandent symbol, quantity et price ;
+        `dividend` demande symbol et amount ; `drip` demande symbol, quantity et price ; `contribution`, `withdrawal` et `fee`
+        demandent amount ; `transfer` demande counterpartAccountId et amount (ou symbol et quantity) ; `split` demande symbol et splitRatio.
+        Une violation répond 400.
+      required: [type, tradeDate, currency]
+      properties:
+        type:
+          $ref: '#/components/schemas/TransactionType'
+        tradeDate:
+          type: string
+          format: date
+          description: Date d'exécution.
+          example: '2025-03-14'
+        symbol:
+          $ref: '#/components/schemas/Symbol'
+        quantity:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          description: Nombre de parts, positif.
+        price:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          description: Prix par part.
+        amount:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          description: Montant brut, positif.
+        fee:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          description: Frais, positifs.
+        splitRatio:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          description: Parts nouvelles pour une ancienne.
+        counterpartAccountId:
+          type: string
+          format: uuid
+          description: Autre compte d'un transfert.
+          example: 7a6b5c4d-3e2f-4a1b-8c9d-0e1f2a3b4c5d
+        currency:
+          $ref: '#/components/schemas/Currency'
+        reversesId:
+          type: string
+          format: uuid
+          description: Transaction annulée par cette écriture inverse. Les autres champs reprennent ceux de l'original.
+          example: 9d8c7b6a-5f4e-4d3c-a2b1-0f9e8d7c6b5a
+        note:
+          type: string
+          description: Note libre.
+          maxLength: 500
+          example: Achat mensuel
+    TransactionList:
+      type: object
+      description: Registre d'un compte.
+      required: [items]
+      properties:
+        items:
+          type: array
+          description: Transactions, de la plus ancienne à la plus récente.
+          items:
+            $ref: '#/components/schemas/Transaction'
+    YearMonth:
+      type: string
+      description: Mois au format `AAAA-MM`.
+      pattern: '^[0-9]{4}-(0[1-9]|1[0-2])$'
+      example: 2025-03
+    Statement:
+      type: object
+      description: Relevé de valeur de fin de mois d'un compte sans transactions.
+      required: [id, accountId, month, endValue, currency]
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Identifiant du relevé.
+          example: 1b2c3d4e-5f60-4a7b-8c9d-0e1f2a3b4c5d
+        accountId:
+          type: string
+          format: uuid
+          description: Compte du relevé.
+          example: 3f2a9c1e-7b4d-4e68-a1c5-2d9e8f7b6a40
+        month:
+          $ref: '#/components/schemas/YearMonth'
+        endValue:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          description: Valeur du compte à la fin du mois.
+        contribution:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          description: Cotisation nette du mois (négative pour un retrait). Absente si aucune.
+        currency:
+          $ref: '#/components/schemas/Currency'
+    StatementCreate:
+      type: object
+      description: Saisie d'un relevé mensuel.
+      required: [month, endValue, currency]
+      properties:
+        month:
+          $ref: '#/components/schemas/YearMonth'
+        endValue:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          description: Valeur du compte à la fin du mois.
+        contribution:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          description: Cotisation nette du mois (négative pour un retrait).
+        currency:
+          $ref: '#/components/schemas/Currency'
+    ImportCsvRequest:
+      type: object
+      description: Import d'un relevé CSV de courtier.
+      required: [file]
+      properties:
+        file:
+          type: string
+          format: binary
+          description: Fichier CSV, 10 Mo au plus.
+    Position:
+      type: object
+      description: Position dérivée du registre. Le prix et la valeur sont absents si aucun prix n'est connu.
+      required: [symbol, quantity, currency]
+      properties:
+        symbol:
+          $ref: '#/components/schemas/Symbol'
+        name:
+          type: string
+          description: Nom de l'instrument.
+          example: iShares Core Equity ETF Portfolio
+        quantity:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          description: Nombre de parts détenues.
+        averageCost:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          description: Coût moyen par part.
+        price:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          description: Dernier prix connu au jour demandé.
+        priceDate:
+          type: string
+          format: date
+          description: Date du prix.
+          example: '2025-12-31'
+        marketValue:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          description: Valeur de marché.
+        currency:
+          $ref: '#/components/schemas/Currency'
+    PositionList:
+      type: object
+      description: Positions d'un compte au jour demandé.
+      required: [accountId, asOf, currency, cash, positions]
+      properties:
+        accountId:
+          type: string
+          format: uuid
+          description: Compte.
+          example: 3f2a9c1e-7b4d-4e68-a1c5-2d9e8f7b6a40
+        asOf:
+          type: string
+          format: date
+          description: Jour de valorisation.
+          example: '2025-12-31'
+        currency:
+          $ref: '#/components/schemas/Currency'
+        cash:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          description: Encaisse du compte, dérivée du registre.
+        totalValue:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          description: Encaisse plus valeur de marché. Absente si une position n'a pas de prix.
+        positions:
+          type: array
+          description: Positions ouvertes.
+          items:
+            $ref: '#/components/schemas/Position'
+    AssetClass:
+      type: string
+      description: |
+        Les six classes d'actifs. `equity_ca` actions canadiennes, `equity_us` actions américaines, `equity_intl` actions internationales,
+        `bond_ca` obligations canadiennes, `bond_other` autres obligations, `other_assets` autres actifs (immobilier, or, crypto).
+      enum: [equity_ca, equity_us, equity_intl, bond_ca, bond_other, other_assets]
+      example: equity_ca
+    EtfType:
+      type: string
+      description: Type de FNB.
+      enum: [equity, fixed_income, balanced, other]
+      example: equity
+    EtfRegion:
+      type: string
+      description: Région principale du FNB.
+      enum: [ca, us, intl, global]
+      example: global
+    AssetAllocation:
+      type: object
+      description: Part d'une classe d'actifs dans un fonds.
+      required: [assetClass, weight]
+      properties:
+        assetClass:
+          $ref: '#/components/schemas/AssetClass'
+        weight:
+          type: number
+          format: double
+          description: Part de la classe, en fraction (0.30 = 30 %).
+          minimum: 0
+          maximum: 1
+          example: 0.3
+    EtfReturn:
+      type: object
+      description: Rendement annualisé d'un FNB sur un nombre d'années.
+      required: [years, annualized]
+      properties:
+        years:
+          type: integer
+          description: Nombre d'années, de 1 à 10.
+          minimum: 1
+          maximum: 10
+          example: 5
+        annualized:
+          type: number
+          format: double
+          description: Rendement annualisé, en fraction (0.07 = 7 %).
+          example: 0.071
+    Etf:
+      type: object
+      description: Profil d'un FNB du catalogue. Une valeur inconnue est une propriété absente.
+      required: [symbol, name, type, currency, allocation, asOf]
+      properties:
+        symbol:
+          $ref: '#/components/schemas/Symbol'
+        name:
+          type: string
+          description: Nom du fonds.
+          example: iShares Core Equity ETF Portfolio
+        type:
+          $ref: '#/components/schemas/EtfType'
+        region:
+          $ref: '#/components/schemas/EtfRegion'
+        currency:
+          $ref: '#/components/schemas/Currency'
+        allocation:
+          type: array
+          description: Répartition par classe d'actifs. Les parts totalisent 1, six classes au plus.
+          maxItems: 6
+          items:
+            $ref: '#/components/schemas/AssetAllocation'
+        mer:
+          type: number
+          format: double
+          description: Ratio de frais de gestion (RFG), en fraction (0.002 = 0,20 %).
+          minimum: 0
+          maximum: 1
+          example: 0.002
+        size:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          description: Actif net du fonds, dans la devise du fonds.
+        esg:
+          type: boolean
+          description: Vrai si le fonds suit une stratégie ESG.
+          example: false
+        returns:
+          type: array
+          description: Rendements annualisés de 1 à 10 ans.
+          items:
+            $ref: '#/components/schemas/EtfReturn'
+        asOf:
+          type: string
+          format: date
+          description: Date de la répartition et du RFG.
+          example: '2025-10-31'
+    EtfList:
+      type: object
+      description: FNB du catalogue.
+      required: [items]
+      properties:
+        items:
+          type: array
+          description: FNB correspondant aux filtres.
+          items:
+            $ref: '#/components/schemas/Etf'
+    ClassTarget:
+      type: object
+      description: Cible d'une classe d'actifs.
+      required: [assetClass, target]
+      properties:
+        assetClass:
+          $ref: '#/components/schemas/AssetClass'
+        target:
+          type: number
+          format: double
+          description: Cible, en fraction (0.275 = 27,5 %).
+          minimum: 0
+          maximum: 1
+          example: 0.275
+    ModelHolding:
+      type: object
+      description: Fonds retenu dans un modèle.
+      required: [symbol, weight]
+      properties:
+        symbol:
+          $ref: '#/components/schemas/Symbol'
+        weight:
+          type: number
+          format: double
+          description: Poids du fonds dans le portefeuille, en fraction (0.35 = 35 %).
+          minimum: 0
+          maximum: 1
+          example: 0.35
+    Bands:
+      type: object
+      description: Bandes de rééquilibrage.
+      properties:
+        relative:
+          type: number
+          format: double
+          description: Bande relative d'un fonds autour de sa cible, en fraction (0.20 = ±20 % de la cible). 0.20 par défaut.
+          minimum: 0
+          maximum: 1
+          example: 0.2
+        cashPoints:
+          type: number
+          format: double
+          description: Écart absolu toléré au-dessus de la cible d'encaisse, en fraction du portefeuille (0.05 = 5 points). 0.05 par défaut.
+          minimum: 0
+          maximum: 1
+          example: 0.05
+    ModelWrite:
+      type: object
+      description: |
+        Contenu d'un modèle. Les cibles par classe et la cible d'encaisse totalisent 1 (tolérance 1e-6) ;
+        les poids des fonds et la cible d'encaisse totalisent aussi 1. Vingt fonds au plus.
+      required: [name, targets, holdings]
+      properties:
+        name:
+          type: string
+          description: Nom du modèle.
+          minLength: 1
+          maxLength: 100
+          example: Croissance 80/20
+        targets:
+          type: array
+          description: Une cible par classe d'actifs.
+          maxItems: 6
+          items:
+            $ref: '#/components/schemas/ClassTarget'
+        cashTarget:
+          type: number
+          format: double
+          description: Cible d'encaisse, en fraction. Si absente, aucune encaisse cible.
+          minimum: 0
+          maximum: 1
+          example: 0
+        holdings:
+          type: array
+          description: Fonds retenus.
+          maxItems: 20
+          items:
+            $ref: '#/components/schemas/ModelHolding'
+        bands:
+          $ref: '#/components/schemas/Bands'
+    Model:
+      type: object
+      description: Portefeuille modèle, dans une version donnée.
+      required: [id, name, version, targets, holdings, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Identifiant du modèle, stable d'une version à l'autre.
+          example: 5d7a2c64-9b1e-4f3a-8c2d-7e6f1a0b3c45
+        name:
+          type: string
+          description: Nom du modèle.
+          example: Croissance 80/20
+        version:
+          type: integer
+          description: Numéro de version, à partir de 1.
+          minimum: 1
+          example: 1
+        targets:
+          type: array
+          description: Une cible par classe d'actifs.
+          items:
+            $ref: '#/components/schemas/ClassTarget'
+        cashTarget:
+          type: number
+          format: double
+          description: Cible d'encaisse, en fraction.
+          example: 0
+        holdings:
+          type: array
+          description: Fonds retenus.
+          items:
+            $ref: '#/components/schemas/ModelHolding'
+        bands:
+          $ref: '#/components/schemas/Bands'
+        createdAt:
+          type: string
+          format: date-time
+          description: Création de cette version.
+          example: '2025-11-01T12:00:00Z'
+    ModelList:
+      type: object
+      description: Portefeuilles modèles.
+      required: [items]
+      properties:
+        items:
+          type: array
+          description: Dernière version de chaque modèle.
+          items:
+            $ref: '#/components/schemas/Model'
+    PurchasePlanRequest:
+      type: object
+      description: Montant à investir.
+      required: [amount, currency]
+      properties:
+        amount:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          description: Montant à investir, positif.
+        currency:
+          $ref: '#/components/schemas/Currency'
+    OrderSide:
+      type: string
+      description: Sens de l'ordre.
+      enum: [buy, sell]
+      example: buy
+    PlanOrder:
+      type: object
+      description: Ordre prêt à saisir chez le courtier, en parts entières.
+      required: [side, symbol, shares, price, amount]
+      properties:
+        side:
+          $ref: '#/components/schemas/OrderSide'
+        symbol:
+          $ref: '#/components/schemas/Symbol'
+        accountId:
+          type: string
+          format: uuid
+          description: Compte visé (plan de rééquilibrage seulement).
+          example: 3f2a9c1e-7b4d-4e68-a1c5-2d9e8f7b6a40
+        shares:
+          type: integer
+          description: Nombre de parts entières, au moins 1.
+          minimum: 1
+          example: 120
+        price:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          description: Prix utilisé pour le calcul.
+        amount:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          description: Montant de l'ordre, parts fois prix.
+    PurchasePlan:
+      type: object
+      description: Plan d'achat initial. Le reste non investi va en encaisse.
+      required: [modelId, modelVersion, currency, amount, invested, cashRemainder, orders]
+      properties:
+        modelId:
+          type: string
+          format: uuid
+          description: Modèle utilisé.
+          example: 5d7a2c64-9b1e-4f3a-8c2d-7e6f1a0b3c45
+        modelVersion:
+          type: integer
+          description: Version du modèle utilisée.
+          example: 1
+        currency:
+          $ref: '#/components/schemas/Currency'
+        amount:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          description: Montant demandé.
+        invested:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          description: Somme des ordres.
+        cashRemainder:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          description: Reste en encaisse (montant moins somme des ordres).
+        orders:
+          type: array
+          description: Ordres d'achat.
+          items:
+            $ref: '#/components/schemas/PlanOrder'
+    RebalancePlanRequest:
+      type: object
+      description: Demande de plan de rééquilibrage.
+      required: [modelId, currency]
+      properties:
+        modelId:
+          type: string
+          format: uuid
+          description: Modèle cible, dans sa dernière version.
+          example: 5d7a2c64-9b1e-4f3a-8c2d-7e6f1a0b3c45
+        accountIds:
+          type: array
+          description: Comptes à rééquilibrer. Si absent, tous les comptes.
+          maxItems: 50
+          items:
+            type: string
+            format: uuid
+          example: [3f2a9c1e-7b4d-4e68-a1c5-2d9e8f7b6a40]
+        contribution:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          description: Nouvelle cotisation à investir, utilisée avant toute vente. Si absente, aucune.
+        currency:
+          $ref: '#/components/schemas/Currency'
+        minOrderAmount:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          description: Montant sous lequel un ordre est ignoré.
+        bands:
+          $ref: '#/components/schemas/Bands'
+    ClassStatus:
+      type: object
+      description: Situation d'une classe d'actifs avant le plan.
+      required: [assetClass, actual, target, outOfBand]
+      properties:
+        assetClass:
+          $ref: '#/components/schemas/AssetClass'
+        actual:
+          type: number
+          format: double
+          description: Poids réel, en fraction de la valeur de marché totale.
+          example: 0.31
+        target:
+          type: number
+          format: double
+          description: Cible du modèle, en fraction.
+          example: 0.275
+        outOfBand:
+          type: boolean
+          description: Vrai si la classe est hors de sa bande (« à équilibrer »).
+          example: true
+    SkippedOrder:
+      type: object
+      description: Ordre écarté.
+      required: [side, symbol, amount, reason]
+      properties:
+        side:
+          $ref: '#/components/schemas/OrderSide'
+        symbol:
+          $ref: '#/components/schemas/Symbol'
+        amount:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          description: Montant de l'ordre écarté.
+        reason:
+          type: string
+          description: Motif de l'écart.
+          enum: [below_minimum, no_whole_share]
+          example: below_minimum
+    RebalancePlan:
+      type: object
+      description: Plan de rééquilibrage. Aucun ordre si tout est dans les bandes.
+      required: [modelId, modelVersion, currency, classes, orders, skipped, cashAfter]
+      properties:
+        modelId:
+          type: string
+          format: uuid
+          description: Modèle utilisé.
+          example: 5d7a2c64-9b1e-4f3a-8c2d-7e6f1a0b3c45
+        modelVersion:
+          type: integer
+          description: Version du modèle utilisée.
+          example: 1
+        currency:
+          $ref: '#/components/schemas/Currency'
+        totalValue:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          description: Valeur de marché totale avant le plan. Absente si un prix manque.
+        classes:
+          type: array
+          description: Situation de chaque classe avant le plan.
+          items:
+            $ref: '#/components/schemas/ClassStatus'
+        orders:
+          type: array
+          description: Ordres, achats avant ventes.
+          items:
+            $ref: '#/components/schemas/PlanOrder'
+        skipped:
+          type: array
+          description: Ordres écartés.
+          items:
+            $ref: '#/components/schemas/SkippedOrder'
+        cashAfter:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          description: Encaisse restante après exécution des ordres.
+    ClassExposure:
+      type: object
+      description: Exposition à une classe d'actifs. Cible et écart sont absents sans modèle.
+      required: [assetClass, actual]
+      properties:
+        assetClass:
+          $ref: '#/components/schemas/AssetClass'
+        actual:
+          type: number
+          format: double
+          description: Exposition réelle par transparence, en fraction.
+          example: 0.31
+        target:
+          type: number
+          format: double
+          description: Cible du modèle, en fraction.
+          example: 0.275
+        deviation:
+          type: number
+          format: double
+          description: Exposition réelle moins cible, en points de fraction.
+          example: 0.035
+    Exposure:
+      type: object
+      description: Exposition par transparence. Vide (aucune classe) si les comptes n'ont aucune position.
+      required: [asOf, currency, classes]
+      properties:
+        asOf:
+          type: string
+          format: date
+          description: Jour de valorisation.
+          example: '2025-12-31'
+        currency:
+          $ref: '#/components/schemas/Currency'
+        totalValue:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          description: Valeur de marché des positions.
+        weightedMer:
+          type: number
+          format: double
+          description: RFG pondéré, en fraction. Absent si aucun fonds n'a de RFG.
+          example: 0.0021
+        modelId:
+          type: string
+          format: uuid
+          description: Modèle de comparaison, s'il a été fourni.
+          example: 5d7a2c64-9b1e-4f3a-8c2d-7e6f1a0b3c45
+        classes:
+          type: array
+          description: Une entrée par classe d'actifs.
+          items:
+            $ref: '#/components/schemas/ClassExposure'
+    PerformancePoint:
+      type: object
+      description: Rendement d'une période. Une mesure inconnue est absente.
+      required: [period]
+      properties:
+        period:
+          type: string
+          description: Mois `AAAA-MM` ou année `AAAA`.
+          pattern: '^[0-9]{4}(-(0[1-9]|1[0-2]))?$'
+          example: 2025-03
+        twr:
+          type: number
+          format: double
+          description: Rendement pondéré dans le temps de la période, en fraction.
+          example: 0.012
+        irr:
+          type: number
+          format: double
+          description: TRI de la période, en fraction (annualisé au-delà d'un an).
+          example: 0.013
+    PerformanceMethod:
+      type: string
+      description: |
+        `transactions` : calcul sur le registre et les prix. `statements` : calcul sur les relevés de valeur mensuels
+        ((valeur de fin − cotisation) / valeur de début − 1).
+      enum: [transactions, statements]
+      example: transactions
+    PerformanceSeries:
+      type: object
+      description: Rendement d'un compte ou du consolidé.
+      required: [monthly, annual]
+      properties:
+        accountId:
+          type: string
+          format: uuid
+          description: Compte. Absent pour le consolidé.
+          example: 3f2a9c1e-7b4d-4e68-a1c5-2d9e8f7b6a40
+        method:
+          $ref: '#/components/schemas/PerformanceMethod'
+        twr:
+          type: number
+          format: double
+          description: Rendement pondéré dans le temps sur toute la période, cumulé, en fraction.
+          example: 0.082
+        irr:
+          type: number
+          format: double
+          description: TRI annualisé sur toute la période, en fraction.
+          example: 0.079
+        monthly:
+          type: array
+          description: Rendements mensuels.
+          items:
+            $ref: '#/components/schemas/PerformancePoint'
+        annual:
+          type: array
+          description: Rendements annuels, calculés depuis la même série que les mois.
+          items:
+            $ref: '#/components/schemas/PerformancePoint'
+    Performance:
+      type: object
+      description: Rendement pondéré dans le temps et TRI, consolidé et par compte.
+      required: [from, to, consolidated, accounts]
+      properties:
+        from:
+          type: string
+          format: date
+          description: Début de la période.
+          example: '2025-01-01'
+        to:
+          type: string
+          format: date
+          description: Fin de la période.
+          example: '2025-12-31'
+        consolidated:
+          $ref: '#/components/schemas/PerformanceSeries'
+        accounts:
+          type: array
+          description: Rendement de chaque compte demandé.
+          items:
+            $ref: '#/components/schemas/PerformanceSeries'
   examples:
     BadRequestExample:
       summary: Requête invalide
@@ -1659,3 +3082,346 @@ components:
               - horizon: 10
                 strict: {description: '≥ 4 hausses', min: 4, minInclusive: true}
                 relaxed: {description: '≥ 3 hausses', min: 3, minInclusive: true}
+    UnprocessableExample:
+      summary: Prix manquant
+      value:
+        type: 'https://finance-privee.local/problems/unprocessable'
+        title: Calcul impossible
+        status: 422
+        detail: Aucun prix connu pour TSX:XEQT.
+        instance: /api/v1/portfolio/rebalance-plans
+    AccountExample:
+      summary: Compte
+      value:
+        id: 3f2a9c1e-7b4d-4e68-a1c5-2d9e8f7b6a40
+        name: CELI Questrade
+        type: celi
+        broker: Questrade
+        currency: CAD
+        createdAt: '2025-01-15T14:30:00Z'
+    AccountCreateExample:
+      summary: Création d'un compte
+      value:
+        name: CELI Questrade
+        type: celi
+        broker: Questrade
+        currency: CAD
+    AccountListExample:
+      summary: Deux comptes
+      value:
+        items:
+          - id: 3f2a9c1e-7b4d-4e68-a1c5-2d9e8f7b6a40
+            name: CELI Questrade
+            type: celi
+            broker: Questrade
+            currency: CAD
+            createdAt: '2025-01-15T14:30:00Z'
+          - id: 7a6b5c4d-3e2f-4a1b-8c9d-0e1f2a3b4c5d
+            name: REER Desjardins
+            type: reer
+            broker: Desjardins
+            currency: CAD
+            createdAt: '2025-01-16T09:00:00Z'
+    TransactionExample:
+      summary: Achat de 120 parts
+      value:
+        id: 8c1d4e2f-6a3b-4c7d-9e0f-1a2b3c4d5e6f
+        accountId: 3f2a9c1e-7b4d-4e68-a1c5-2d9e8f7b6a40
+        type: buy
+        tradeDate: '2025-03-14'
+        symbol: 'TSX:XEQT'
+        quantity: '120'
+        price: '31.25'
+        amount: '3750.00'
+        fee: '0.00'
+        currency: CAD
+        note: Achat mensuel
+        createdAt: '2025-03-14T15:02:11Z'
+    TransactionCreateExample:
+      summary: Achat de 120 parts
+      value:
+        type: buy
+        tradeDate: '2025-03-14'
+        symbol: 'TSX:XEQT'
+        quantity: '120'
+        price: '31.25'
+        fee: '0.00'
+        currency: CAD
+        note: Achat mensuel
+    TransactionListExample:
+      summary: Achat et son écriture inverse
+      value:
+        items:
+          - id: 8c1d4e2f-6a3b-4c7d-9e0f-1a2b3c4d5e6f
+            accountId: 3f2a9c1e-7b4d-4e68-a1c5-2d9e8f7b6a40
+            type: buy
+            tradeDate: '2025-03-14'
+            symbol: 'TSX:XEQT'
+            quantity: '120'
+            price: '31.25'
+            amount: '3750.00'
+            currency: CAD
+            createdAt: '2025-03-14T15:02:11Z'
+          - id: 9d8c7b6a-5f4e-4d3c-a2b1-0f9e8d7c6b5a
+            accountId: 3f2a9c1e-7b4d-4e68-a1c5-2d9e8f7b6a40
+            type: sell
+            tradeDate: '2025-03-14'
+            symbol: 'TSX:XEQT'
+            quantity: '120'
+            price: '31.25'
+            amount: '3750.00'
+            currency: CAD
+            reversesId: 8c1d4e2f-6a3b-4c7d-9e0f-1a2b3c4d5e6f
+            note: Correction d'une saisie erronée
+            createdAt: '2025-03-15T10:00:00Z'
+    StatementExample:
+      summary: Relevé de mars 2025
+      value:
+        id: 1b2c3d4e-5f60-4a7b-8c9d-0e1f2a3b4c5d
+        accountId: 3f2a9c1e-7b4d-4e68-a1c5-2d9e8f7b6a40
+        month: 2025-03
+        endValue: '25480.55'
+        contribution: '500.00'
+        currency: CAD
+    StatementCreateExample:
+      summary: Relevé de mars 2025
+      value:
+        month: 2025-03
+        endValue: '25480.55'
+        contribution: '500.00'
+        currency: CAD
+    PositionListExample:
+      summary: Une position et de l'encaisse
+      value:
+        accountId: 3f2a9c1e-7b4d-4e68-a1c5-2d9e8f7b6a40
+        asOf: '2025-12-31'
+        currency: CAD
+        cash: '120.40'
+        totalValue: '4620.40'
+        positions:
+          - symbol: 'TSX:XEQT'
+            name: iShares Core Equity ETF Portfolio
+            quantity: '120'
+            averageCost: '31.25'
+            price: '37.50'
+            priceDate: '2025-12-31'
+            marketValue: '4500.00'
+            currency: CAD
+    EtfListExample:
+      summary: Deux FNB
+      value:
+        items:
+          - symbol: 'TSX:XEQT'
+            name: iShares Core Equity ETF Portfolio
+            type: equity
+            region: global
+            currency: CAD
+            allocation:
+              - assetClass: equity_ca
+                weight: 0.25
+              - assetClass: equity_us
+                weight: 0.45
+              - assetClass: equity_intl
+                weight: 0.3
+            mer: 0.002
+            size: '5200000000'
+            esg: false
+            returns:
+              - years: 1
+                annualized: 0.142
+              - years: 5
+                annualized: 0.091
+            asOf: '2025-10-31'
+          - symbol: 'TSX:ZAG'
+            name: BMO Aggregate Bond Index ETF
+            type: fixed_income
+            region: ca
+            currency: CAD
+            allocation:
+              - assetClass: bond_ca
+                weight: 1
+            mer: 0.0009
+            asOf: '2025-10-31'
+    ModelWriteExample:
+      summary: Modèle 80/20
+      value:
+        name: Croissance 80/20
+        targets:
+          - assetClass: equity_ca
+            target: 0.22
+          - assetClass: equity_us
+            target: 0.348
+          - assetClass: equity_intl
+            target: 0.232
+          - assetClass: bond_ca
+            target: 0.2
+        cashTarget: 0
+        holdings:
+          - symbol: 'TSX:XEQT'
+            weight: 0.8
+          - symbol: 'TSX:ZAG'
+            weight: 0.2
+        bands:
+          relative: 0.2
+          cashPoints: 0.05
+    ModelExample:
+      summary: Modèle 80/20, version 1
+      value:
+        id: 5d7a2c64-9b1e-4f3a-8c2d-7e6f1a0b3c45
+        name: Croissance 80/20
+        version: 1
+        targets:
+          - assetClass: equity_ca
+            target: 0.22
+          - assetClass: equity_us
+            target: 0.348
+          - assetClass: equity_intl
+            target: 0.232
+          - assetClass: bond_ca
+            target: 0.2
+        cashTarget: 0
+        holdings:
+          - symbol: 'TSX:XEQT'
+            weight: 0.8
+          - symbol: 'TSX:ZAG'
+            weight: 0.2
+        bands:
+          relative: 0.2
+          cashPoints: 0.05
+        createdAt: '2025-11-01T12:00:00Z'
+    ModelListExample:
+      summary: Un modèle
+      value:
+        items:
+          - id: 5d7a2c64-9b1e-4f3a-8c2d-7e6f1a0b3c45
+            name: Croissance 80/20
+            version: 1
+            targets:
+              - assetClass: equity_ca
+                target: 0.22
+              - assetClass: equity_us
+                target: 0.348
+              - assetClass: equity_intl
+                target: 0.232
+              - assetClass: bond_ca
+                target: 0.2
+            cashTarget: 0
+            holdings:
+              - symbol: 'TSX:XEQT'
+                weight: 0.8
+              - symbol: 'TSX:ZAG'
+                weight: 0.2
+            createdAt: '2025-11-01T12:00:00Z'
+    PurchasePlanRequestExample:
+      summary: 10 000 $ à investir
+      value:
+        amount: '10000.00'
+        currency: CAD
+    PurchasePlanExample:
+      summary: Parts entières, reste en encaisse
+      value:
+        modelId: 5d7a2c64-9b1e-4f3a-8c2d-7e6f1a0b3c45
+        modelVersion: 1
+        currency: CAD
+        amount: '10000.00'
+        invested: '9990.15'
+        cashRemainder: '9.85'
+        orders:
+          - side: buy
+            symbol: 'TSX:XEQT'
+            shares: 213
+            price: '37.50'
+            amount: '7987.50'
+          - side: buy
+            symbol: 'TSX:ZAG'
+            shares: 142
+            price: '14.15'
+            amount: '2009.30'
+    RebalancePlanRequestExample:
+      summary: Cotisation de 1 000 $
+      value:
+        modelId: 5d7a2c64-9b1e-4f3a-8c2d-7e6f1a0b3c45
+        accountIds: [3f2a9c1e-7b4d-4e68-a1c5-2d9e8f7b6a40]
+        contribution: '1000.00'
+        currency: CAD
+        minOrderAmount: '100.00'
+    RebalancePlanExample:
+      summary: Achat avec la cotisation, sans vente
+      value:
+        modelId: 5d7a2c64-9b1e-4f3a-8c2d-7e6f1a0b3c45
+        modelVersion: 1
+        currency: CAD
+        totalValue: '25000.00'
+        classes:
+          - assetClass: equity_ca
+            actual: 0.31
+            target: 0.22
+            outOfBand: true
+          - assetClass: bond_ca
+            actual: 0.12
+            target: 0.2
+            outOfBand: true
+        orders:
+          - side: buy
+            symbol: 'TSX:ZAG'
+            accountId: 3f2a9c1e-7b4d-4e68-a1c5-2d9e8f7b6a40
+            shares: 70
+            price: '14.15'
+            amount: '990.50'
+        skipped:
+          - side: buy
+            symbol: 'TSX:XEQT'
+            amount: '9.50'
+            reason: below_minimum
+        cashAfter: '9.50'
+    ExposureExample:
+      summary: Exposition et cibles
+      value:
+        asOf: '2025-12-31'
+        currency: CAD
+        totalValue: '25000.00'
+        weightedMer: 0.0021
+        modelId: 5d7a2c64-9b1e-4f3a-8c2d-7e6f1a0b3c45
+        classes:
+          - assetClass: equity_ca
+            actual: 0.31
+            target: 0.22
+            deviation: 0.09
+          - assetClass: equity_us
+            actual: 0.3
+            target: 0.348
+            deviation: -0.048
+          - assetClass: bond_ca
+            actual: 0.12
+            target: 0.2
+            deviation: -0.08
+    PerformanceExample:
+      summary: Rendement 2025
+      value:
+        from: '2025-01-01'
+        to: '2025-12-31'
+        consolidated:
+          method: transactions
+          twr: 0.082
+          irr: 0.079
+          monthly:
+            - period: 2025-01
+              twr: 0.012
+              irr: 0.013
+          annual:
+            - period: '2025'
+              twr: 0.082
+              irr: 0.079
+        accounts:
+          - accountId: 3f2a9c1e-7b4d-4e68-a1c5-2d9e8f7b6a40
+            method: transactions
+            twr: 0.082
+            irr: 0.079
+            monthly:
+              - period: 2025-01
+                twr: 0.012
+                irr: 0.013
+            annual:
+              - period: '2025'
+                twr: 0.082
+                irr: 0.079

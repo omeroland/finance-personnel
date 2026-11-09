@@ -23,6 +23,33 @@ const (
 	BearerAuthScopes bearerAuthContextKey = "bearerAuth.Scopes"
 )
 
+// Defines values for AccountType.
+const (
+	Celi    AccountType = "celi"
+	Celiapp AccountType = "celiapp"
+	Reee    AccountType = "reee"
+	Reer    AccountType = "reer"
+	Taxable AccountType = "taxable"
+)
+
+// Valid indicates whether the value is a known member of the AccountType enum.
+func (e AccountType) Valid() bool {
+	switch e {
+	case Celi:
+		return true
+	case Celiapp:
+		return true
+	case Reee:
+		return true
+	case Reer:
+		return true
+	case Taxable:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for Answer.
 const (
 	No         Answer = "no"
@@ -38,6 +65,36 @@ func (e Answer) Valid() bool {
 	case Unanswered:
 		return true
 	case Yes:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AssetClass.
+const (
+	BondCa      AssetClass = "bond_ca"
+	BondOther   AssetClass = "bond_other"
+	EquityCa    AssetClass = "equity_ca"
+	EquityIntl  AssetClass = "equity_intl"
+	EquityUs    AssetClass = "equity_us"
+	OtherAssets AssetClass = "other_assets"
+)
+
+// Valid indicates whether the value is a known member of the AssetClass enum.
+func (e AssetClass) Valid() bool {
+	switch e {
+	case BondCa:
+		return true
+	case BondOther:
+		return true
+	case EquityCa:
+		return true
+	case EquityIntl:
+		return true
+	case EquityUs:
+		return true
+	case OtherAssets:
 		return true
 	default:
 		return false
@@ -128,6 +185,54 @@ func (e Currency) Valid() bool {
 	case CAD:
 		return true
 	case USD:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for EtfRegion.
+const (
+	Ca     EtfRegion = "ca"
+	Global EtfRegion = "global"
+	Intl   EtfRegion = "intl"
+	Us     EtfRegion = "us"
+)
+
+// Valid indicates whether the value is a known member of the EtfRegion enum.
+func (e EtfRegion) Valid() bool {
+	switch e {
+	case Ca:
+		return true
+	case Global:
+		return true
+	case Intl:
+		return true
+	case Us:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for EtfType.
+const (
+	Balanced    EtfType = "balanced"
+	Equity      EtfType = "equity"
+	FixedIncome EtfType = "fixed_income"
+	Other       EtfType = "other"
+)
+
+// Valid indicates whether the value is a known member of the EtfType enum.
+func (e EtfType) Valid() bool {
+	switch e {
+	case Balanced:
+		return true
+	case Equity:
+		return true
+	case FixedIncome:
+		return true
+	case Other:
 		return true
 	default:
 		return false
@@ -311,6 +416,99 @@ func (e Mode) Valid() bool {
 	}
 }
 
+// Defines values for OrderSide.
+const (
+	OrderSideBuy  OrderSide = "buy"
+	OrderSideSell OrderSide = "sell"
+)
+
+// Valid indicates whether the value is a known member of the OrderSide enum.
+func (e OrderSide) Valid() bool {
+	switch e {
+	case OrderSideBuy:
+		return true
+	case OrderSideSell:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for PerformanceMethod.
+const (
+	Statements   PerformanceMethod = "statements"
+	Transactions PerformanceMethod = "transactions"
+)
+
+// Valid indicates whether the value is a known member of the PerformanceMethod enum.
+func (e PerformanceMethod) Valid() bool {
+	switch e {
+	case Statements:
+		return true
+	case Transactions:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for SkippedOrderReason.
+const (
+	BelowMinimum SkippedOrderReason = "below_minimum"
+	NoWholeShare SkippedOrderReason = "no_whole_share"
+)
+
+// Valid indicates whether the value is a known member of the SkippedOrderReason enum.
+func (e SkippedOrderReason) Valid() bool {
+	switch e {
+	case BelowMinimum:
+		return true
+	case NoWholeShare:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for TransactionType.
+const (
+	TransactionTypeBuy          TransactionType = "buy"
+	TransactionTypeContribution TransactionType = "contribution"
+	TransactionTypeDividend     TransactionType = "dividend"
+	TransactionTypeDrip         TransactionType = "drip"
+	TransactionTypeFee          TransactionType = "fee"
+	TransactionTypeSell         TransactionType = "sell"
+	TransactionTypeSplit        TransactionType = "split"
+	TransactionTypeTransfer     TransactionType = "transfer"
+	TransactionTypeWithdrawal   TransactionType = "withdrawal"
+)
+
+// Valid indicates whether the value is a known member of the TransactionType enum.
+func (e TransactionType) Valid() bool {
+	switch e {
+	case TransactionTypeBuy:
+		return true
+	case TransactionTypeContribution:
+		return true
+	case TransactionTypeDividend:
+		return true
+	case TransactionTypeDrip:
+		return true
+	case TransactionTypeFee:
+		return true
+	case TransactionTypeSell:
+		return true
+	case TransactionTypeSplit:
+		return true
+	case TransactionTypeTransfer:
+		return true
+	case TransactionTypeWithdrawal:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for Verdict.
 const (
 	Candidate Verdict = "candidate"
@@ -334,6 +532,51 @@ func (e Verdict) Valid() bool {
 		return false
 	}
 }
+
+// Account Compte de placement. Il ne porte aucun solde ; la valeur vient du registre et des prix.
+type Account struct {
+	// Broker Nom du courtier.
+	Broker string `json:"broker"`
+
+	// CreatedAt Création du compte.
+	CreatedAt time.Time `json:"createdAt"`
+
+	// Currency Code de devise ISO 4217.
+	Currency Currency `json:"currency"`
+
+	// Id Identifiant du compte.
+	Id openapi_types.UUID `json:"id"`
+
+	// Name Nom affiché.
+	Name string `json:"name"`
+
+	// Type Type de compte ; `taxable` désigne un compte non enregistré.
+	Type AccountType `json:"type"`
+}
+
+// AccountCreate Création d'un compte.
+type AccountCreate struct {
+	// Broker Nom du courtier.
+	Broker string `json:"broker"`
+
+	// Currency Code de devise ISO 4217.
+	Currency Currency `json:"currency"`
+
+	// Name Nom affiché.
+	Name string `json:"name"`
+
+	// Type Type de compte ; `taxable` désigne un compte non enregistré.
+	Type AccountType `json:"type"`
+}
+
+// AccountList Liste de comptes.
+type AccountList struct {
+	// Items Comptes.
+	Items []Account `json:"items"`
+}
+
+// AccountType Type de compte ; `taxable` désigne un compte non enregistré.
+type AccountType string
 
 // AnnualFact Valeur annuelle d'une mesure pour une année fiscale.
 type AnnualFact struct {
@@ -359,6 +602,71 @@ type AnnualFact struct {
 
 // Answer Réponse à une règle qualitative.
 type Answer string
+
+// AssetAllocation Part d'une classe d'actifs dans un fonds.
+type AssetAllocation struct {
+	// AssetClass Les six classes d'actifs. `equity_ca` actions canadiennes, `equity_us` actions américaines, `equity_intl` actions internationales,
+	// `bond_ca` obligations canadiennes, `bond_other` autres obligations, `other_assets` autres actifs (immobilier, or, crypto).
+	AssetClass AssetClass `json:"assetClass"`
+
+	// Weight Part de la classe, en fraction (0.30 = 30 %).
+	Weight float64 `json:"weight"`
+}
+
+// AssetClass Les six classes d'actifs. `equity_ca` actions canadiennes, `equity_us` actions américaines, `equity_intl` actions internationales,
+// `bond_ca` obligations canadiennes, `bond_other` autres obligations, `other_assets` autres actifs (immobilier, or, crypto).
+type AssetClass string
+
+// Bands Bandes de rééquilibrage.
+type Bands struct {
+	// CashPoints Écart absolu toléré au-dessus de la cible d'encaisse, en fraction du portefeuille (0.05 = 5 points). 0.05 par défaut.
+	CashPoints *float64 `json:"cashPoints,omitempty"`
+
+	// Relative Bande relative d'un fonds autour de sa cible, en fraction (0.20 = ±20 % de la cible). 0.20 par défaut.
+	Relative *float64 `json:"relative,omitempty"`
+}
+
+// ClassExposure Exposition à une classe d'actifs. Cible et écart sont absents sans modèle.
+type ClassExposure struct {
+	// Actual Exposition réelle par transparence, en fraction.
+	Actual float64 `json:"actual"`
+
+	// AssetClass Les six classes d'actifs. `equity_ca` actions canadiennes, `equity_us` actions américaines, `equity_intl` actions internationales,
+	// `bond_ca` obligations canadiennes, `bond_other` autres obligations, `other_assets` autres actifs (immobilier, or, crypto).
+	AssetClass AssetClass `json:"assetClass"`
+
+	// Deviation Exposition réelle moins cible, en points de fraction.
+	Deviation *float64 `json:"deviation,omitempty"`
+
+	// Target Cible du modèle, en fraction.
+	Target *float64 `json:"target,omitempty"`
+}
+
+// ClassStatus Situation d'une classe d'actifs avant le plan.
+type ClassStatus struct {
+	// Actual Poids réel, en fraction de la valeur de marché totale.
+	Actual float64 `json:"actual"`
+
+	// AssetClass Les six classes d'actifs. `equity_ca` actions canadiennes, `equity_us` actions américaines, `equity_intl` actions internationales,
+	// `bond_ca` obligations canadiennes, `bond_other` autres obligations, `other_assets` autres actifs (immobilier, or, crypto).
+	AssetClass AssetClass `json:"assetClass"`
+
+	// OutOfBand Vrai si la classe est hors de sa bande (« à équilibrer »).
+	OutOfBand bool `json:"outOfBand"`
+
+	// Target Cible du modèle, en fraction.
+	Target float64 `json:"target"`
+}
+
+// ClassTarget Cible d'une classe d'actifs.
+type ClassTarget struct {
+	// AssetClass Les six classes d'actifs. `equity_ca` actions canadiennes, `equity_us` actions américaines, `equity_intl` actions internationales,
+	// `bond_ca` obligations canadiennes, `bond_other` autres obligations, `other_assets` autres actifs (immobilier, or, crypto).
+	AssetClass AssetClass `json:"assetClass"`
+
+	// Target Cible, en fraction (0.275 = 27,5 %).
+	Target float64 `json:"target"`
+}
 
 // Criterion Résultat d'un critère, avec ses deux seuils côte à côte. Le seuil assoupli ne remplace jamais le strict.
 type Criterion struct {
@@ -400,6 +708,63 @@ type Currency string
 
 // Decimal Nombre décimal exact en chaîne (jamais de virgule flottante).
 type Decimal = string
+
+// Etf Profil d'un FNB du catalogue. Une valeur inconnue est une propriété absente.
+type Etf struct {
+	// Allocation Répartition par classe d'actifs. Les parts totalisent 1, six classes au plus.
+	Allocation []AssetAllocation `json:"allocation"`
+
+	// AsOf Date de la répartition et du RFG.
+	AsOf openapi_types.Date `json:"asOf"`
+
+	// Currency Code de devise ISO 4217.
+	Currency Currency `json:"currency"`
+
+	// Esg Vrai si le fonds suit une stratégie ESG.
+	Esg *bool `json:"esg,omitempty"`
+
+	// Mer Ratio de frais de gestion (RFG), en fraction (0.002 = 0,20 %).
+	Mer *float64 `json:"mer,omitempty"`
+
+	// Name Nom du fonds.
+	Name string `json:"name"`
+
+	// Region Région principale du FNB.
+	Region *EtfRegion `json:"region,omitempty"`
+
+	// Returns Rendements annualisés de 1 à 10 ans.
+	Returns *[]EtfReturn `json:"returns,omitempty"`
+
+	// Size Actif net du fonds, dans la devise du fonds.
+	Size *Decimal `json:"size,omitempty"`
+
+	// Symbol Symbole canonique `BOURSE:SYMBOLE`, en majuscules.
+	Symbol Symbol `json:"symbol"`
+
+	// Type Type de FNB.
+	Type EtfType `json:"type"`
+}
+
+// EtfList FNB du catalogue.
+type EtfList struct {
+	// Items FNB correspondant aux filtres.
+	Items []Etf `json:"items"`
+}
+
+// EtfRegion Région principale du FNB.
+type EtfRegion string
+
+// EtfReturn Rendement annualisé d'un FNB sur un nombre d'années.
+type EtfReturn struct {
+	// Annualized Rendement annualisé, en fraction (0.07 = 7 %).
+	Annualized float64 `json:"annualized"`
+
+	// Years Nombre d'années, de 1 à 10.
+	Years int `json:"years"`
+}
+
+// EtfType Type de FNB.
+type EtfType string
 
 // Evaluation Évaluation d'une action, aux deux profils de seuils.
 type Evaluation struct {
@@ -463,6 +828,27 @@ type EvaluationRecordList struct {
 
 // Exchange Bourse de cotation.
 type Exchange string
+
+// Exposure Exposition par transparence. Vide (aucune classe) si les comptes n'ont aucune position.
+type Exposure struct {
+	// AsOf Jour de valorisation.
+	AsOf openapi_types.Date `json:"asOf"`
+
+	// Classes Une entrée par classe d'actifs.
+	Classes []ClassExposure `json:"classes"`
+
+	// Currency Code de devise ISO 4217.
+	Currency Currency `json:"currency"`
+
+	// ModelId Modèle de comparaison, s'il a été fourni.
+	ModelId *openapi_types.UUID `json:"modelId,omitempty"`
+
+	// TotalValue Valeur de marché des positions.
+	TotalValue *Decimal `json:"totalValue,omitempty"`
+
+	// WeightedMer RFG pondéré, en fraction. Absent si aucun fonds n'a de RFG.
+	WeightedMer *float64 `json:"weightedMer,omitempty"`
+}
 
 // FactList Séries annuelles d'une action.
 type FactList struct {
@@ -538,6 +924,12 @@ type HorizonThreshold struct {
 	Strict Threshold `json:"strict"`
 }
 
+// ImportCsvRequest Import d'un relevé CSV de courtier.
+type ImportCsvRequest struct {
+	// File Fichier CSV, 10 Mo au plus.
+	File openapi_types.File `json:"file"`
+}
+
 // ImportXlsxRequest Import de la feuille xlsx.
 type ImportXlsxRequest struct {
 	// File Fichier xlsx, 10 Mo au plus.
@@ -609,6 +1001,192 @@ type Metric string
 // `compat` : reproduit la feuille d'origine, sur l'horizon de 20 ans seulement.
 type Mode string
 
+// Model Portefeuille modèle, dans une version donnée.
+type Model struct {
+	// Bands Bandes de rééquilibrage.
+	Bands *Bands `json:"bands,omitempty"`
+
+	// CashTarget Cible d'encaisse, en fraction.
+	CashTarget *float64 `json:"cashTarget,omitempty"`
+
+	// CreatedAt Création de cette version.
+	CreatedAt time.Time `json:"createdAt"`
+
+	// Holdings Fonds retenus.
+	Holdings []ModelHolding `json:"holdings"`
+
+	// Id Identifiant du modèle, stable d'une version à l'autre.
+	Id openapi_types.UUID `json:"id"`
+
+	// Name Nom du modèle.
+	Name string `json:"name"`
+
+	// Targets Une cible par classe d'actifs.
+	Targets []ClassTarget `json:"targets"`
+
+	// Version Numéro de version, à partir de 1.
+	Version int `json:"version"`
+}
+
+// ModelHolding Fonds retenu dans un modèle.
+type ModelHolding struct {
+	// Symbol Symbole canonique `BOURSE:SYMBOLE`, en majuscules.
+	Symbol Symbol `json:"symbol"`
+
+	// Weight Poids du fonds dans le portefeuille, en fraction (0.35 = 35 %).
+	Weight float64 `json:"weight"`
+}
+
+// ModelList Portefeuilles modèles.
+type ModelList struct {
+	// Items Dernière version de chaque modèle.
+	Items []Model `json:"items"`
+}
+
+// ModelWrite Contenu d'un modèle. Les cibles par classe et la cible d'encaisse totalisent 1 (tolérance 1e-6) ;
+// les poids des fonds et la cible d'encaisse totalisent aussi 1. Vingt fonds au plus.
+type ModelWrite struct {
+	// Bands Bandes de rééquilibrage.
+	Bands *Bands `json:"bands,omitempty"`
+
+	// CashTarget Cible d'encaisse, en fraction. Si absente, aucune encaisse cible.
+	CashTarget *float64 `json:"cashTarget,omitempty"`
+
+	// Holdings Fonds retenus.
+	Holdings []ModelHolding `json:"holdings"`
+
+	// Name Nom du modèle.
+	Name string `json:"name"`
+
+	// Targets Une cible par classe d'actifs.
+	Targets []ClassTarget `json:"targets"`
+}
+
+// OrderSide Sens de l'ordre.
+type OrderSide string
+
+// Performance Rendement pondéré dans le temps et TRI, consolidé et par compte.
+type Performance struct {
+	// Accounts Rendement de chaque compte demandé.
+	Accounts []PerformanceSeries `json:"accounts"`
+
+	// Consolidated Rendement d'un compte ou du consolidé.
+	Consolidated PerformanceSeries `json:"consolidated"`
+
+	// From Début de la période.
+	From openapi_types.Date `json:"from"`
+
+	// To Fin de la période.
+	To openapi_types.Date `json:"to"`
+}
+
+// PerformanceMethod `transactions` : calcul sur le registre et les prix. `statements` : calcul sur les relevés de valeur mensuels
+// ((valeur de fin − cotisation) / valeur de début − 1).
+type PerformanceMethod string
+
+// PerformancePoint Rendement d'une période. Une mesure inconnue est absente.
+type PerformancePoint struct {
+	// Irr TRI de la période, en fraction (annualisé au-delà d'un an).
+	Irr *float64 `json:"irr,omitempty"`
+
+	// Period Mois `AAAA-MM` ou année `AAAA`.
+	Period string `json:"period"`
+
+	// Twr Rendement pondéré dans le temps de la période, en fraction.
+	Twr *float64 `json:"twr,omitempty"`
+}
+
+// PerformanceSeries Rendement d'un compte ou du consolidé.
+type PerformanceSeries struct {
+	// AccountId Compte. Absent pour le consolidé.
+	AccountId *openapi_types.UUID `json:"accountId,omitempty"`
+
+	// Annual Rendements annuels, calculés depuis la même série que les mois.
+	Annual []PerformancePoint `json:"annual"`
+
+	// Irr TRI annualisé sur toute la période, en fraction.
+	Irr *float64 `json:"irr,omitempty"`
+
+	// Method `transactions` : calcul sur le registre et les prix. `statements` : calcul sur les relevés de valeur mensuels
+	// ((valeur de fin − cotisation) / valeur de début − 1).
+	Method *PerformanceMethod `json:"method,omitempty"`
+
+	// Monthly Rendements mensuels.
+	Monthly []PerformancePoint `json:"monthly"`
+
+	// Twr Rendement pondéré dans le temps sur toute la période, cumulé, en fraction.
+	Twr *float64 `json:"twr,omitempty"`
+}
+
+// PlanOrder Ordre prêt à saisir chez le courtier, en parts entières.
+type PlanOrder struct {
+	// AccountId Compte visé (plan de rééquilibrage seulement).
+	AccountId *openapi_types.UUID `json:"accountId,omitempty"`
+
+	// Amount Montant de l'ordre, parts fois prix.
+	Amount Decimal `json:"amount"`
+
+	// Price Prix utilisé pour le calcul.
+	Price Decimal `json:"price"`
+
+	// Shares Nombre de parts entières, au moins 1.
+	Shares int `json:"shares"`
+
+	// Side Sens de l'ordre.
+	Side OrderSide `json:"side"`
+
+	// Symbol Symbole canonique `BOURSE:SYMBOLE`, en majuscules.
+	Symbol Symbol `json:"symbol"`
+}
+
+// Position Position dérivée du registre. Le prix et la valeur sont absents si aucun prix n'est connu.
+type Position struct {
+	// AverageCost Coût moyen par part.
+	AverageCost *Decimal `json:"averageCost,omitempty"`
+
+	// Currency Code de devise ISO 4217.
+	Currency Currency `json:"currency"`
+
+	// MarketValue Valeur de marché.
+	MarketValue *Decimal `json:"marketValue,omitempty"`
+
+	// Name Nom de l'instrument.
+	Name *string `json:"name,omitempty"`
+
+	// Price Dernier prix connu au jour demandé.
+	Price *Decimal `json:"price,omitempty"`
+
+	// PriceDate Date du prix.
+	PriceDate *openapi_types.Date `json:"priceDate,omitempty"`
+
+	// Quantity Nombre de parts détenues.
+	Quantity Decimal `json:"quantity"`
+
+	// Symbol Symbole canonique `BOURSE:SYMBOLE`, en majuscules.
+	Symbol Symbol `json:"symbol"`
+}
+
+// PositionList Positions d'un compte au jour demandé.
+type PositionList struct {
+	// AccountId Compte.
+	AccountId openapi_types.UUID `json:"accountId"`
+
+	// AsOf Jour de valorisation.
+	AsOf openapi_types.Date `json:"asOf"`
+
+	// Cash Encaisse du compte, dérivée du registre.
+	Cash Decimal `json:"cash"`
+
+	// Currency Code de devise ISO 4217.
+	Currency Currency `json:"currency"`
+
+	// Positions Positions ouvertes.
+	Positions []Position `json:"positions"`
+
+	// TotalValue Encaisse plus valeur de marché. Absente si une position n'a pas de prix.
+	TotalValue *Decimal `json:"totalValue,omitempty"`
+}
+
 // Problem Erreur au format RFC 9457 (`application/problem+json`).
 type Problem struct {
 	// Detail Explication propre à cette occurrence, sans trace interne.
@@ -630,6 +1208,39 @@ type Problem struct {
 	Type string `json:"type"`
 }
 
+// PurchasePlan Plan d'achat initial. Le reste non investi va en encaisse.
+type PurchasePlan struct {
+	// Amount Montant demandé.
+	Amount Decimal `json:"amount"`
+
+	// CashRemainder Reste en encaisse (montant moins somme des ordres).
+	CashRemainder Decimal `json:"cashRemainder"`
+
+	// Currency Code de devise ISO 4217.
+	Currency Currency `json:"currency"`
+
+	// Invested Somme des ordres.
+	Invested Decimal `json:"invested"`
+
+	// ModelId Modèle utilisé.
+	ModelId openapi_types.UUID `json:"modelId"`
+
+	// ModelVersion Version du modèle utilisée.
+	ModelVersion int `json:"modelVersion"`
+
+	// Orders Ordres d'achat.
+	Orders []PlanOrder `json:"orders"`
+}
+
+// PurchasePlanRequest Montant à investir.
+type PurchasePlanRequest struct {
+	// Amount Montant à investir, positif.
+	Amount Decimal `json:"amount"`
+
+	// Currency Code de devise ISO 4217.
+	Currency Currency `json:"currency"`
+}
+
 // Qualitative Jugement du propriétaire. Les quatre règles doivent être à `yes` pour éviter l'exclusion.
 type Qualitative struct {
 	// ManualBuyback Rachat d'actions saisi à la main pour la règle 10 (oui ou non). Absent si non saisi.
@@ -649,6 +1260,54 @@ type Qualitative struct {
 
 	// Rule4 Réponse et note pour une règle qualitative.
 	Rule4 RuleAnswer `json:"rule4"`
+}
+
+// RebalancePlan Plan de rééquilibrage. Aucun ordre si tout est dans les bandes.
+type RebalancePlan struct {
+	// CashAfter Encaisse restante après exécution des ordres.
+	CashAfter Decimal `json:"cashAfter"`
+
+	// Classes Situation de chaque classe avant le plan.
+	Classes []ClassStatus `json:"classes"`
+
+	// Currency Code de devise ISO 4217.
+	Currency Currency `json:"currency"`
+
+	// ModelId Modèle utilisé.
+	ModelId openapi_types.UUID `json:"modelId"`
+
+	// ModelVersion Version du modèle utilisée.
+	ModelVersion int `json:"modelVersion"`
+
+	// Orders Ordres, achats avant ventes.
+	Orders []PlanOrder `json:"orders"`
+
+	// Skipped Ordres écartés.
+	Skipped []SkippedOrder `json:"skipped"`
+
+	// TotalValue Valeur de marché totale avant le plan. Absente si un prix manque.
+	TotalValue *Decimal `json:"totalValue,omitempty"`
+}
+
+// RebalancePlanRequest Demande de plan de rééquilibrage.
+type RebalancePlanRequest struct {
+	// AccountIds Comptes à rééquilibrer. Si absent, tous les comptes.
+	AccountIds *[]openapi_types.UUID `json:"accountIds,omitempty"`
+
+	// Bands Bandes de rééquilibrage.
+	Bands *Bands `json:"bands,omitempty"`
+
+	// Contribution Nouvelle cotisation à investir, utilisée avant toute vente. Si absente, aucune.
+	Contribution *Decimal `json:"contribution,omitempty"`
+
+	// Currency Code de devise ISO 4217.
+	Currency Currency `json:"currency"`
+
+	// MinOrderAmount Montant sous lequel un ordre est ignoré.
+	MinOrderAmount *Decimal `json:"minOrderAmount,omitempty"`
+
+	// ModelId Modèle cible, dans sa dernière version.
+	ModelId openapi_types.UUID `json:"modelId"`
 }
 
 // RuleAnswer Réponse et note pour une règle qualitative.
@@ -731,6 +1390,24 @@ type ScoreSummary struct {
 	Verdict *Verdict `json:"verdict,omitempty"`
 }
 
+// SkippedOrder Ordre écarté.
+type SkippedOrder struct {
+	// Amount Montant de l'ordre écarté.
+	Amount Decimal `json:"amount"`
+
+	// Reason Motif de l'écart.
+	Reason SkippedOrderReason `json:"reason"`
+
+	// Side Sens de l'ordre.
+	Side OrderSide `json:"side"`
+
+	// Symbol Symbole canonique `BOURSE:SYMBOLE`, en majuscules.
+	Symbol Symbol `json:"symbol"`
+}
+
+// SkippedOrderReason Motif de l'écart.
+type SkippedOrderReason string
+
 // Snapshot Valeurs courantes de l'action. Chaque montant est dans la devise indiquée.
 type Snapshot struct {
 	// AnnualDividend Dividende annuel prévu par action.
@@ -793,6 +1470,42 @@ type SourceValue struct {
 
 	// Value Nombre décimal exact en chaîne (jamais de virgule flottante).
 	Value Decimal `json:"value"`
+}
+
+// Statement Relevé de valeur de fin de mois d'un compte sans transactions.
+type Statement struct {
+	// AccountId Compte du relevé.
+	AccountId openapi_types.UUID `json:"accountId"`
+
+	// Contribution Cotisation nette du mois (négative pour un retrait). Absente si aucune.
+	Contribution *Decimal `json:"contribution,omitempty"`
+
+	// Currency Code de devise ISO 4217.
+	Currency Currency `json:"currency"`
+
+	// EndValue Valeur du compte à la fin du mois.
+	EndValue Decimal `json:"endValue"`
+
+	// Id Identifiant du relevé.
+	Id openapi_types.UUID `json:"id"`
+
+	// Month Mois au format `AAAA-MM`.
+	Month YearMonth `json:"month"`
+}
+
+// StatementCreate Saisie d'un relevé mensuel.
+type StatementCreate struct {
+	// Contribution Cotisation nette du mois (négative pour un retrait).
+	Contribution *Decimal `json:"contribution,omitempty"`
+
+	// Currency Code de devise ISO 4217.
+	Currency Currency `json:"currency"`
+
+	// EndValue Valeur du compte à la fin du mois.
+	EndValue Decimal `json:"endValue"`
+
+	// Month Mois au format `AAAA-MM`.
+	Month YearMonth `json:"month"`
 }
 
 // Stock Action de la liste de suivi.
@@ -925,9 +1638,135 @@ type Threshold struct {
 	MinInclusive *bool `json:"minInclusive,omitempty"`
 }
 
+// Transaction Écriture du registre, en insertion seule. Les montants sont dans la devise de la transaction.
+type Transaction struct {
+	// AccountId Compte du registre.
+	AccountId openapi_types.UUID `json:"accountId"`
+
+	// Amount Montant brut de l'opération, positif ; le type donne le sens.
+	Amount *Decimal `json:"amount,omitempty"`
+
+	// CounterpartAccountId Pour un transfert, l'autre compte.
+	CounterpartAccountId *openapi_types.UUID `json:"counterpartAccountId,omitempty"`
+
+	// CreatedAt Inscription au registre.
+	CreatedAt time.Time `json:"createdAt"`
+
+	// Currency Code de devise ISO 4217.
+	Currency Currency `json:"currency"`
+
+	// Fee Frais de l'opération, positifs.
+	Fee *Decimal `json:"fee,omitempty"`
+
+	// Id Identifiant de la transaction.
+	Id openapi_types.UUID `json:"id"`
+
+	// Note Note libre.
+	Note *string `json:"note,omitempty"`
+
+	// Price Prix par part.
+	Price *Decimal `json:"price,omitempty"`
+
+	// Quantity Nombre de parts, positif (peut être fractionnaire pour une distribution réinvestie).
+	Quantity *Decimal `json:"quantity,omitempty"`
+
+	// ReversesId Présent si cette écriture est l'écriture inverse de la transaction désignée.
+	ReversesId *openapi_types.UUID `json:"reversesId,omitempty"`
+
+	// SplitRatio Pour un fractionnement, nombre de parts nouvelles pour une ancienne (`2` pour 2 contre 1).
+	SplitRatio *Decimal `json:"splitRatio,omitempty"`
+
+	// Symbol Instrument concerné (achat, vente, dividende, distribution réinvestie, fractionnement, transfert de titres).
+	Symbol *Symbol `json:"symbol,omitempty"`
+
+	// TradeDate Date d'exécution.
+	TradeDate openapi_types.Date `json:"tradeDate"`
+
+	// Type `buy` achat, `sell` vente, `dividend` dividende ou distribution en espèces, `drip` distribution réinvestie,
+	// `contribution` cotisation, `withdrawal` retrait, `fee` frais, `transfer` transfert entre comptes, `split` fractionnement.
+	Type TransactionType `json:"type"`
+}
+
+// TransactionCreate Nouvelle transaction. Champs requis selon le type : `buy` et `sell` demandent symbol, quantity et price ;
+// `dividend` demande symbol et amount ; `drip` demande symbol, quantity et price ; `contribution`, `withdrawal` et `fee`
+// demandent amount ; `transfer` demande counterpartAccountId et amount (ou symbol et quantity) ; `split` demande symbol et splitRatio.
+// Une violation répond 400.
+type TransactionCreate struct {
+	// Amount Montant brut, positif.
+	Amount *Decimal `json:"amount,omitempty"`
+
+	// CounterpartAccountId Autre compte d'un transfert.
+	CounterpartAccountId *openapi_types.UUID `json:"counterpartAccountId,omitempty"`
+
+	// Currency Code de devise ISO 4217.
+	Currency Currency `json:"currency"`
+
+	// Fee Frais, positifs.
+	Fee *Decimal `json:"fee,omitempty"`
+
+	// Note Note libre.
+	Note *string `json:"note,omitempty"`
+
+	// Price Prix par part.
+	Price *Decimal `json:"price,omitempty"`
+
+	// Quantity Nombre de parts, positif.
+	Quantity *Decimal `json:"quantity,omitempty"`
+
+	// ReversesId Transaction annulée par cette écriture inverse. Les autres champs reprennent ceux de l'original.
+	ReversesId *openapi_types.UUID `json:"reversesId,omitempty"`
+
+	// SplitRatio Parts nouvelles pour une ancienne.
+	SplitRatio *Decimal `json:"splitRatio,omitempty"`
+
+	// Symbol Symbole canonique `BOURSE:SYMBOLE`, en majuscules.
+	Symbol *Symbol `json:"symbol,omitempty"`
+
+	// TradeDate Date d'exécution.
+	TradeDate openapi_types.Date `json:"tradeDate"`
+
+	// Type `buy` achat, `sell` vente, `dividend` dividende ou distribution en espèces, `drip` distribution réinvestie,
+	// `contribution` cotisation, `withdrawal` retrait, `fee` frais, `transfer` transfert entre comptes, `split` fractionnement.
+	Type TransactionType `json:"type"`
+}
+
+// TransactionList Registre d'un compte.
+type TransactionList struct {
+	// Items Transactions, de la plus ancienne à la plus récente.
+	Items []Transaction `json:"items"`
+}
+
+// TransactionType `buy` achat, `sell` vente, `dividend` dividende ou distribution en espèces, `drip` distribution réinvestie,
+// `contribution` cotisation, `withdrawal` retrait, `fee` frais, `transfer` transfert entre comptes, `split` fractionnement.
+type TransactionType string
+
 // Verdict `excluded` : une des règles 1 à 4 n'est pas à « oui ». `candidate` : 10/10 au seuil strict sur un horizon d'au moins 10 ans.
 // `watch` : 10/10 seulement au seuil assoupli. `rejected` : autrement.
 type Verdict string
+
+// YearMonth Mois au format `AAAA-MM`.
+type YearMonth = string
+
+// AccountId defines model for AccountId.
+type AccountId = openapi_types.UUID
+
+// Accounts defines model for Accounts.
+type Accounts = []openapi_types.UUID
+
+// AsOf defines model for AsOf.
+type AsOf = openapi_types.Date
+
+// Broker defines model for Broker.
+type Broker = string
+
+// FromDate defines model for FromDate.
+type FromDate = openapi_types.Date
+
+// ModelId defines model for ModelId.
+type ModelId = openapi_types.UUID
+
+// ToDate defines model for ToDate.
+type ToDate = openapi_types.Date
 
 // BadRequest Erreur au format RFC 9457 (`application/problem+json`).
 type BadRequest = Problem
@@ -944,8 +1783,65 @@ type NotImplemented = Problem
 // Unauthorized Erreur au format RFC 9457 (`application/problem+json`).
 type Unauthorized = Problem
 
+// Unprocessable Erreur au format RFC 9457 (`application/problem+json`).
+type Unprocessable = Problem
+
 // bearerAuthContextKey is the context key for bearerAuth security scheme
 type bearerAuthContextKey string
+
+// ImportCsvParams defines parameters for ImportCsv.
+type ImportCsvParams struct {
+	// Broker Adapter de courtier. `generic` lit le format CSV générique de l'application.
+	Broker Broker `form:"broker" json:"broker"`
+}
+
+// ListPositionsParams defines parameters for ListPositions.
+type ListPositionsParams struct {
+	// AsOf Jour de valorisation. Aujourd'hui par défaut.
+	AsOf *AsOf `form:"asOf,omitempty" json:"asOf,omitempty"`
+}
+
+// ListTransactionsParams defines parameters for ListTransactions.
+type ListTransactionsParams struct {
+	// From Date de début incluse (ISO 8601).
+	From *FromDate `form:"from,omitempty" json:"from,omitempty"`
+
+	// To Date de fin incluse (ISO 8601).
+	To *ToDate `form:"to,omitempty" json:"to,omitempty"`
+}
+
+// ListEtfsParams defines parameters for ListEtfs.
+type ListEtfsParams struct {
+	// Type Type de FNB.
+	Type *EtfType `form:"type,omitempty" json:"type,omitempty"`
+
+	// Region Région principale.
+	Region *EtfRegion `form:"region,omitempty" json:"region,omitempty"`
+
+	// MaxMer RFG maximal, en fraction (0.005 = 0,5 %).
+	MaxMer *float64 `form:"maxMer,omitempty" json:"maxMer,omitempty"`
+}
+
+// GetExposureParams defines parameters for GetExposure.
+type GetExposureParams struct {
+	// Accounts Identifiants de comptes séparés par des virgules. Sans ce paramètre, tous les comptes (vue consolidée).
+	Accounts *Accounts `form:"accounts,omitempty" json:"accounts,omitempty"`
+
+	// ModelId Modèle de comparaison. Sans lui, aucune cible n'est renvoyée.
+	ModelId *openapi_types.UUID `form:"modelId,omitempty" json:"modelId,omitempty"`
+}
+
+// GetPerformanceParams defines parameters for GetPerformance.
+type GetPerformanceParams struct {
+	// Accounts Identifiants de comptes séparés par des virgules. Sans ce paramètre, tous les comptes (vue consolidée).
+	Accounts *Accounts `form:"accounts,omitempty" json:"accounts,omitempty"`
+
+	// From Date de début incluse (ISO 8601).
+	From *FromDate `form:"from,omitempty" json:"from,omitempty"`
+
+	// To Date de fin incluse (ISO 8601).
+	To *ToDate `form:"to,omitempty" json:"to,omitempty"`
+}
 
 // ListStocksParams defines parameters for ListStocks.
 type ListStocksParams struct {
@@ -962,8 +1858,32 @@ type GetEvaluationParams struct {
 	Mode *Mode `form:"mode,omitempty" json:"mode,omitempty"`
 }
 
+// CreateAccountJSONRequestBody defines body for CreateAccount for application/json ContentType.
+type CreateAccountJSONRequestBody = AccountCreate
+
+// ImportCsvMultipartRequestBody defines body for ImportCsv for multipart/form-data ContentType.
+type ImportCsvMultipartRequestBody = ImportCsvRequest
+
+// CreateStatementJSONRequestBody defines body for CreateStatement for application/json ContentType.
+type CreateStatementJSONRequestBody = StatementCreate
+
+// CreateTransactionJSONRequestBody defines body for CreateTransaction for application/json ContentType.
+type CreateTransactionJSONRequestBody = TransactionCreate
+
 // ImportXlsxMultipartRequestBody defines body for ImportXlsx for multipart/form-data ContentType.
 type ImportXlsxMultipartRequestBody = ImportXlsxRequest
+
+// CreateModelJSONRequestBody defines body for CreateModel for application/json ContentType.
+type CreateModelJSONRequestBody = ModelWrite
+
+// UpdateModelJSONRequestBody defines body for UpdateModel for application/json ContentType.
+type UpdateModelJSONRequestBody = ModelWrite
+
+// CreatePurchasePlanJSONRequestBody defines body for CreatePurchasePlan for application/json ContentType.
+type CreatePurchasePlanJSONRequestBody = PurchasePlanRequest
+
+// CreateRebalancePlanJSONRequestBody defines body for CreateRebalancePlan for application/json ContentType.
+type CreateRebalancePlanJSONRequestBody = RebalancePlanRequest
 
 // AddStockJSONRequestBody defines body for AddStock for application/json ContentType.
 type AddStockJSONRequestBody = StockCreate
@@ -982,12 +1902,57 @@ type ReplaceQualitativeJSONRequestBody = Qualitative
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+	// Lister les comptes
+	// (GET /api/v1/accounts)
+	ListAccounts(w http.ResponseWriter, r *http.Request)
+	// Créer un compte
+	// (POST /api/v1/accounts)
+	CreateAccount(w http.ResponseWriter, r *http.Request)
+	// Importer un relevé de courtier
+	// (POST /api/v1/accounts/{id}/imports/csv)
+	ImportCsv(w http.ResponseWriter, r *http.Request, id AccountId, params ImportCsvParams)
+	// Positions et valeur d'un compte
+	// (GET /api/v1/accounts/{id}/positions)
+	ListPositions(w http.ResponseWriter, r *http.Request, id AccountId, params ListPositionsParams)
+	// Saisir un relevé de valeur mensuel
+	// (POST /api/v1/accounts/{id}/statements)
+	CreateStatement(w http.ResponseWriter, r *http.Request, id AccountId)
+	// Lire le registre d'un compte
+	// (GET /api/v1/accounts/{id}/transactions)
+	ListTransactions(w http.ResponseWriter, r *http.Request, id AccountId, params ListTransactionsParams)
+	// Ajouter une transaction
+	// (POST /api/v1/accounts/{id}/transactions)
+	CreateTransaction(w http.ResponseWriter, r *http.Request, id AccountId)
 	// Importer la feuille xlsx
 	// (POST /api/v1/imports/xlsx)
 	ImportXlsx(w http.ResponseWriter, r *http.Request)
 	// État d'un import
 	// (GET /api/v1/imports/{id})
 	GetImport(w http.ResponseWriter, r *http.Request, id openapi_types.UUID)
+	// Catalogue de FNB
+	// (GET /api/v1/portfolio/etfs)
+	ListEtfs(w http.ResponseWriter, r *http.Request, params ListEtfsParams)
+	// Exposition par transparence
+	// (GET /api/v1/portfolio/exposure)
+	GetExposure(w http.ResponseWriter, r *http.Request, params GetExposureParams)
+	// Portefeuilles modèles
+	// (GET /api/v1/portfolio/models)
+	ListModels(w http.ResponseWriter, r *http.Request)
+	// Créer un portefeuille modèle
+	// (POST /api/v1/portfolio/models)
+	CreateModel(w http.ResponseWriter, r *http.Request)
+	// Publier une nouvelle version d'un modèle
+	// (PUT /api/v1/portfolio/models/{id})
+	UpdateModel(w http.ResponseWriter, r *http.Request, id ModelId)
+	// Plan d'achat initial
+	// (POST /api/v1/portfolio/models/{id}/purchase-plan)
+	CreatePurchasePlan(w http.ResponseWriter, r *http.Request, id ModelId)
+	// Rendement
+	// (GET /api/v1/portfolio/performance)
+	GetPerformance(w http.ResponseWriter, r *http.Request, params GetPerformanceParams)
+	// Plan de rééquilibrage
+	// (POST /api/v1/portfolio/rebalance-plans)
+	CreateRebalancePlan(w http.ResponseWriter, r *http.Request)
 	// Version et seuils des règles
 	// (GET /api/v1/rules)
 	GetRules(w http.ResponseWriter, r *http.Request)
@@ -1035,6 +2000,267 @@ type ServerInterfaceWrapper struct {
 
 type MiddlewareFunc func(http.Handler) http.Handler
 
+// ListAccounts operation middleware
+func (siw *ServerInterfaceWrapper) ListAccounts(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListAccounts(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreateAccount operation middleware
+func (siw *ServerInterfaceWrapper) CreateAccount(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateAccount(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ImportCsv operation middleware
+func (siw *ServerInterfaceWrapper) ImportCsv(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "id" -------------
+	var id AccountId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid"})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ImportCsvParams
+
+	// ------------- Required query parameter "broker" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, true, "broker", r.URL.Query(), &params.Broker, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "broker"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "broker", Err: err})
+		}
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ImportCsv(w, r, id, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ListPositions operation middleware
+func (siw *ServerInterfaceWrapper) ListPositions(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "id" -------------
+	var id AccountId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid"})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListPositionsParams
+
+	// ------------- Optional query parameter "asOf" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "asOf", r.URL.Query(), &params.AsOf, runtime.BindQueryParameterOptions{Type: "string", Format: "date"})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "asOf"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "asOf", Err: err})
+		}
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListPositions(w, r, id, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreateStatement operation middleware
+func (siw *ServerInterfaceWrapper) CreateStatement(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "id" -------------
+	var id AccountId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid"})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateStatement(w, r, id)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ListTransactions operation middleware
+func (siw *ServerInterfaceWrapper) ListTransactions(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "id" -------------
+	var id AccountId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid"})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListTransactionsParams
+
+	// ------------- Optional query parameter "from" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "from", r.URL.Query(), &params.From, runtime.BindQueryParameterOptions{Type: "string", Format: "date"})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "from"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "from", Err: err})
+		}
+		return
+	}
+
+	// ------------- Optional query parameter "to" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "to", r.URL.Query(), &params.To, runtime.BindQueryParameterOptions{Type: "string", Format: "date"})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "to"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "to", Err: err})
+		}
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListTransactions(w, r, id, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreateTransaction operation middleware
+func (siw *ServerInterfaceWrapper) CreateTransaction(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "id" -------------
+	var id AccountId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid"})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateTransaction(w, r, id)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 // ImportXlsx operation middleware
 func (siw *ServerInterfaceWrapper) ImportXlsx(w http.ResponseWriter, r *http.Request) {
 
@@ -1078,6 +2304,312 @@ func (siw *ServerInterfaceWrapper) GetImport(w http.ResponseWriter, r *http.Requ
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetImport(w, r, id)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ListEtfs operation middleware
+func (siw *ServerInterfaceWrapper) ListEtfs(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListEtfsParams
+
+	// ------------- Optional query parameter "type" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "type", r.URL.Query(), &params.Type, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "type"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "type", Err: err})
+		}
+		return
+	}
+
+	// ------------- Optional query parameter "region" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "region", r.URL.Query(), &params.Region, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "region"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "region", Err: err})
+		}
+		return
+	}
+
+	// ------------- Optional query parameter "maxMer" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "maxMer", r.URL.Query(), &params.MaxMer, runtime.BindQueryParameterOptions{Type: "number", Format: "double"})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "maxMer"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "maxMer", Err: err})
+		}
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListEtfs(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetExposure operation middleware
+func (siw *ServerInterfaceWrapper) GetExposure(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetExposureParams
+
+	// ------------- Optional query parameter "accounts" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", false, false, "accounts", r.URL.Query(), &params.Accounts, runtime.BindQueryParameterOptions{Type: "array", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "accounts"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "accounts", Err: err})
+		}
+		return
+	}
+
+	// ------------- Optional query parameter "modelId" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "modelId", r.URL.Query(), &params.ModelId, runtime.BindQueryParameterOptions{Type: "string", Format: "uuid"})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "modelId"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "modelId", Err: err})
+		}
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetExposure(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ListModels operation middleware
+func (siw *ServerInterfaceWrapper) ListModels(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListModels(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreateModel operation middleware
+func (siw *ServerInterfaceWrapper) CreateModel(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateModel(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// UpdateModel operation middleware
+func (siw *ServerInterfaceWrapper) UpdateModel(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "id" -------------
+	var id ModelId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid"})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.UpdateModel(w, r, id)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreatePurchasePlan operation middleware
+func (siw *ServerInterfaceWrapper) CreatePurchasePlan(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "id" -------------
+	var id ModelId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid"})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreatePurchasePlan(w, r, id)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetPerformance operation middleware
+func (siw *ServerInterfaceWrapper) GetPerformance(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetPerformanceParams
+
+	// ------------- Optional query parameter "accounts" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", false, false, "accounts", r.URL.Query(), &params.Accounts, runtime.BindQueryParameterOptions{Type: "array", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "accounts"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "accounts", Err: err})
+		}
+		return
+	}
+
+	// ------------- Optional query parameter "from" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "from", r.URL.Query(), &params.From, runtime.BindQueryParameterOptions{Type: "string", Format: "date"})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "from"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "from", Err: err})
+		}
+		return
+	}
+
+	// ------------- Optional query parameter "to" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "to", r.URL.Query(), &params.To, runtime.BindQueryParameterOptions{Type: "string", Format: "date"})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "to"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "to", Err: err})
+		}
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetPerformance(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreateRebalancePlan operation middleware
+func (siw *ServerInterfaceWrapper) CreateRebalancePlan(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateRebalancePlan(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1603,8 +3135,23 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 		ErrorHandlerFunc:   options.ErrorHandlerFunc,
 	}
 
+	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/api/v1/accounts", wrapper.ListAccounts)
+	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/api/v1/accounts", wrapper.CreateAccount)
+	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/api/v1/accounts/{id}/imports/csv", wrapper.ImportCsv)
+	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/api/v1/accounts/{id}/positions", wrapper.ListPositions)
+	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/api/v1/accounts/{id}/statements", wrapper.CreateStatement)
+	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/api/v1/accounts/{id}/transactions", wrapper.ListTransactions)
+	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/api/v1/accounts/{id}/transactions", wrapper.CreateTransaction)
 	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/api/v1/imports/xlsx", wrapper.ImportXlsx)
 	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/api/v1/imports/{id}", wrapper.GetImport)
+	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/api/v1/portfolio/etfs", wrapper.ListEtfs)
+	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/api/v1/portfolio/exposure", wrapper.GetExposure)
+	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/api/v1/portfolio/models", wrapper.ListModels)
+	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/api/v1/portfolio/models", wrapper.CreateModel)
+	m.HandleFunc(http.MethodPut+" "+options.BaseURL+"/api/v1/portfolio/models/{id}", wrapper.UpdateModel)
+	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/api/v1/portfolio/models/{id}/purchase-plan", wrapper.CreatePurchasePlan)
+	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/api/v1/portfolio/performance", wrapper.GetPerformance)
+	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/api/v1/portfolio/rebalance-plans", wrapper.CreateRebalancePlan)
 	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/api/v1/rules", wrapper.GetRules)
 	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/api/v1/stocks", wrapper.ListStocks)
 	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/api/v1/stocks", wrapper.AddStock)
@@ -1630,6 +3177,503 @@ type NotFoundApplicationProblemPlusJSONResponse Problem
 type NotImplementedApplicationProblemPlusJSONResponse Problem
 
 type UnauthorizedApplicationProblemPlusJSONResponse Problem
+
+type UnprocessableApplicationProblemPlusJSONResponse Problem
+
+type ListAccountsRequestObject struct {
+}
+
+type ListAccountsResponseObject interface {
+	VisitListAccountsResponse(w http.ResponseWriter) error
+}
+
+type ListAccounts200JSONResponse AccountList
+
+func (response ListAccounts200JSONResponse) VisitListAccountsResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ListAccounts401ApplicationProblemPlusJSONResponse struct {
+	UnauthorizedApplicationProblemPlusJSONResponse
+}
+
+func (response ListAccounts401ApplicationProblemPlusJSONResponse) VisitListAccountsResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateAccountRequestObject struct {
+	Body *CreateAccountJSONRequestBody
+}
+
+type CreateAccountResponseObject interface {
+	VisitCreateAccountResponse(w http.ResponseWriter) error
+}
+
+type CreateAccount201JSONResponse Account
+
+func (response CreateAccount201JSONResponse) VisitCreateAccountResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateAccount400ApplicationProblemPlusJSONResponse struct {
+	BadRequestApplicationProblemPlusJSONResponse
+}
+
+func (response CreateAccount400ApplicationProblemPlusJSONResponse) VisitCreateAccountResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(400)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateAccount401ApplicationProblemPlusJSONResponse struct {
+	UnauthorizedApplicationProblemPlusJSONResponse
+}
+
+func (response CreateAccount401ApplicationProblemPlusJSONResponse) VisitCreateAccountResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateAccount409ApplicationProblemPlusJSONResponse struct {
+	ConflictApplicationProblemPlusJSONResponse
+}
+
+func (response CreateAccount409ApplicationProblemPlusJSONResponse) VisitCreateAccountResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(409)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ImportCsvRequestObject struct {
+	Id     AccountId `json:"id"`
+	Params ImportCsvParams
+	Body   *multipart.Reader
+}
+
+type ImportCsvResponseObject interface {
+	VisitImportCsvResponse(w http.ResponseWriter) error
+}
+
+type ImportCsv202JSONResponse Job
+
+func (response ImportCsv202JSONResponse) VisitImportCsvResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(202)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ImportCsv400ApplicationProblemPlusJSONResponse struct {
+	BadRequestApplicationProblemPlusJSONResponse
+}
+
+func (response ImportCsv400ApplicationProblemPlusJSONResponse) VisitImportCsvResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(400)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ImportCsv401ApplicationProblemPlusJSONResponse struct {
+	UnauthorizedApplicationProblemPlusJSONResponse
+}
+
+func (response ImportCsv401ApplicationProblemPlusJSONResponse) VisitImportCsvResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ImportCsv404ApplicationProblemPlusJSONResponse struct {
+	NotFoundApplicationProblemPlusJSONResponse
+}
+
+func (response ImportCsv404ApplicationProblemPlusJSONResponse) VisitImportCsvResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ListPositionsRequestObject struct {
+	Id     AccountId `json:"id"`
+	Params ListPositionsParams
+}
+
+type ListPositionsResponseObject interface {
+	VisitListPositionsResponse(w http.ResponseWriter) error
+}
+
+type ListPositions200JSONResponse PositionList
+
+func (response ListPositions200JSONResponse) VisitListPositionsResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ListPositions400ApplicationProblemPlusJSONResponse struct {
+	BadRequestApplicationProblemPlusJSONResponse
+}
+
+func (response ListPositions400ApplicationProblemPlusJSONResponse) VisitListPositionsResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(400)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ListPositions401ApplicationProblemPlusJSONResponse struct {
+	UnauthorizedApplicationProblemPlusJSONResponse
+}
+
+func (response ListPositions401ApplicationProblemPlusJSONResponse) VisitListPositionsResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ListPositions404ApplicationProblemPlusJSONResponse struct {
+	NotFoundApplicationProblemPlusJSONResponse
+}
+
+func (response ListPositions404ApplicationProblemPlusJSONResponse) VisitListPositionsResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateStatementRequestObject struct {
+	Id   AccountId `json:"id"`
+	Body *CreateStatementJSONRequestBody
+}
+
+type CreateStatementResponseObject interface {
+	VisitCreateStatementResponse(w http.ResponseWriter) error
+}
+
+type CreateStatement201JSONResponse Statement
+
+func (response CreateStatement201JSONResponse) VisitCreateStatementResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateStatement400ApplicationProblemPlusJSONResponse struct {
+	BadRequestApplicationProblemPlusJSONResponse
+}
+
+func (response CreateStatement400ApplicationProblemPlusJSONResponse) VisitCreateStatementResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(400)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateStatement401ApplicationProblemPlusJSONResponse struct {
+	UnauthorizedApplicationProblemPlusJSONResponse
+}
+
+func (response CreateStatement401ApplicationProblemPlusJSONResponse) VisitCreateStatementResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateStatement404ApplicationProblemPlusJSONResponse struct {
+	NotFoundApplicationProblemPlusJSONResponse
+}
+
+func (response CreateStatement404ApplicationProblemPlusJSONResponse) VisitCreateStatementResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateStatement409ApplicationProblemPlusJSONResponse struct {
+	ConflictApplicationProblemPlusJSONResponse
+}
+
+func (response CreateStatement409ApplicationProblemPlusJSONResponse) VisitCreateStatementResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(409)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ListTransactionsRequestObject struct {
+	Id     AccountId `json:"id"`
+	Params ListTransactionsParams
+}
+
+type ListTransactionsResponseObject interface {
+	VisitListTransactionsResponse(w http.ResponseWriter) error
+}
+
+type ListTransactions200JSONResponse TransactionList
+
+func (response ListTransactions200JSONResponse) VisitListTransactionsResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ListTransactions400ApplicationProblemPlusJSONResponse struct {
+	BadRequestApplicationProblemPlusJSONResponse
+}
+
+func (response ListTransactions400ApplicationProblemPlusJSONResponse) VisitListTransactionsResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(400)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ListTransactions401ApplicationProblemPlusJSONResponse struct {
+	UnauthorizedApplicationProblemPlusJSONResponse
+}
+
+func (response ListTransactions401ApplicationProblemPlusJSONResponse) VisitListTransactionsResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ListTransactions404ApplicationProblemPlusJSONResponse struct {
+	NotFoundApplicationProblemPlusJSONResponse
+}
+
+func (response ListTransactions404ApplicationProblemPlusJSONResponse) VisitListTransactionsResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateTransactionRequestObject struct {
+	Id   AccountId `json:"id"`
+	Body *CreateTransactionJSONRequestBody
+}
+
+type CreateTransactionResponseObject interface {
+	VisitCreateTransactionResponse(w http.ResponseWriter) error
+}
+
+type CreateTransaction201JSONResponse Transaction
+
+func (response CreateTransaction201JSONResponse) VisitCreateTransactionResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateTransaction400ApplicationProblemPlusJSONResponse struct {
+	BadRequestApplicationProblemPlusJSONResponse
+}
+
+func (response CreateTransaction400ApplicationProblemPlusJSONResponse) VisitCreateTransactionResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(400)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateTransaction401ApplicationProblemPlusJSONResponse struct {
+	UnauthorizedApplicationProblemPlusJSONResponse
+}
+
+func (response CreateTransaction401ApplicationProblemPlusJSONResponse) VisitCreateTransactionResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateTransaction404ApplicationProblemPlusJSONResponse struct {
+	NotFoundApplicationProblemPlusJSONResponse
+}
+
+func (response CreateTransaction404ApplicationProblemPlusJSONResponse) VisitCreateTransactionResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateTransaction409ApplicationProblemPlusJSONResponse struct {
+	ConflictApplicationProblemPlusJSONResponse
+}
+
+func (response CreateTransaction409ApplicationProblemPlusJSONResponse) VisitCreateTransactionResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(409)
+	_, err := buf.WriteTo(w)
+	return err
+}
 
 type ImportXlsxRequestObject struct {
 	Body *multipart.Reader
@@ -1735,6 +3779,551 @@ func (response GetImport404ApplicationProblemPlusJSONResponse) VisitGetImportRes
 	}
 	w.Header().Set("Content-Type", "application/problem+json")
 	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ListEtfsRequestObject struct {
+	Params ListEtfsParams
+}
+
+type ListEtfsResponseObject interface {
+	VisitListEtfsResponse(w http.ResponseWriter) error
+}
+
+type ListEtfs200JSONResponse EtfList
+
+func (response ListEtfs200JSONResponse) VisitListEtfsResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ListEtfs400ApplicationProblemPlusJSONResponse struct {
+	BadRequestApplicationProblemPlusJSONResponse
+}
+
+func (response ListEtfs400ApplicationProblemPlusJSONResponse) VisitListEtfsResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(400)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ListEtfs401ApplicationProblemPlusJSONResponse struct {
+	UnauthorizedApplicationProblemPlusJSONResponse
+}
+
+func (response ListEtfs401ApplicationProblemPlusJSONResponse) VisitListEtfsResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type GetExposureRequestObject struct {
+	Params GetExposureParams
+}
+
+type GetExposureResponseObject interface {
+	VisitGetExposureResponse(w http.ResponseWriter) error
+}
+
+type GetExposure200JSONResponse Exposure
+
+func (response GetExposure200JSONResponse) VisitGetExposureResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type GetExposure400ApplicationProblemPlusJSONResponse struct {
+	BadRequestApplicationProblemPlusJSONResponse
+}
+
+func (response GetExposure400ApplicationProblemPlusJSONResponse) VisitGetExposureResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(400)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type GetExposure401ApplicationProblemPlusJSONResponse struct {
+	UnauthorizedApplicationProblemPlusJSONResponse
+}
+
+func (response GetExposure401ApplicationProblemPlusJSONResponse) VisitGetExposureResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type GetExposure404ApplicationProblemPlusJSONResponse struct {
+	NotFoundApplicationProblemPlusJSONResponse
+}
+
+func (response GetExposure404ApplicationProblemPlusJSONResponse) VisitGetExposureResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ListModelsRequestObject struct {
+}
+
+type ListModelsResponseObject interface {
+	VisitListModelsResponse(w http.ResponseWriter) error
+}
+
+type ListModels200JSONResponse ModelList
+
+func (response ListModels200JSONResponse) VisitListModelsResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ListModels401ApplicationProblemPlusJSONResponse struct {
+	UnauthorizedApplicationProblemPlusJSONResponse
+}
+
+func (response ListModels401ApplicationProblemPlusJSONResponse) VisitListModelsResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateModelRequestObject struct {
+	Body *CreateModelJSONRequestBody
+}
+
+type CreateModelResponseObject interface {
+	VisitCreateModelResponse(w http.ResponseWriter) error
+}
+
+type CreateModel201JSONResponse Model
+
+func (response CreateModel201JSONResponse) VisitCreateModelResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateModel400ApplicationProblemPlusJSONResponse struct {
+	BadRequestApplicationProblemPlusJSONResponse
+}
+
+func (response CreateModel400ApplicationProblemPlusJSONResponse) VisitCreateModelResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(400)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateModel401ApplicationProblemPlusJSONResponse struct {
+	UnauthorizedApplicationProblemPlusJSONResponse
+}
+
+func (response CreateModel401ApplicationProblemPlusJSONResponse) VisitCreateModelResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateModel409ApplicationProblemPlusJSONResponse struct {
+	ConflictApplicationProblemPlusJSONResponse
+}
+
+func (response CreateModel409ApplicationProblemPlusJSONResponse) VisitCreateModelResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(409)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type UpdateModelRequestObject struct {
+	Id   ModelId `json:"id"`
+	Body *UpdateModelJSONRequestBody
+}
+
+type UpdateModelResponseObject interface {
+	VisitUpdateModelResponse(w http.ResponseWriter) error
+}
+
+type UpdateModel200JSONResponse Model
+
+func (response UpdateModel200JSONResponse) VisitUpdateModelResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type UpdateModel400ApplicationProblemPlusJSONResponse struct {
+	BadRequestApplicationProblemPlusJSONResponse
+}
+
+func (response UpdateModel400ApplicationProblemPlusJSONResponse) VisitUpdateModelResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(400)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type UpdateModel401ApplicationProblemPlusJSONResponse struct {
+	UnauthorizedApplicationProblemPlusJSONResponse
+}
+
+func (response UpdateModel401ApplicationProblemPlusJSONResponse) VisitUpdateModelResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type UpdateModel404ApplicationProblemPlusJSONResponse struct {
+	NotFoundApplicationProblemPlusJSONResponse
+}
+
+func (response UpdateModel404ApplicationProblemPlusJSONResponse) VisitUpdateModelResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreatePurchasePlanRequestObject struct {
+	Id   ModelId `json:"id"`
+	Body *CreatePurchasePlanJSONRequestBody
+}
+
+type CreatePurchasePlanResponseObject interface {
+	VisitCreatePurchasePlanResponse(w http.ResponseWriter) error
+}
+
+type CreatePurchasePlan200JSONResponse PurchasePlan
+
+func (response CreatePurchasePlan200JSONResponse) VisitCreatePurchasePlanResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreatePurchasePlan400ApplicationProblemPlusJSONResponse struct {
+	BadRequestApplicationProblemPlusJSONResponse
+}
+
+func (response CreatePurchasePlan400ApplicationProblemPlusJSONResponse) VisitCreatePurchasePlanResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(400)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreatePurchasePlan401ApplicationProblemPlusJSONResponse struct {
+	UnauthorizedApplicationProblemPlusJSONResponse
+}
+
+func (response CreatePurchasePlan401ApplicationProblemPlusJSONResponse) VisitCreatePurchasePlanResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreatePurchasePlan404ApplicationProblemPlusJSONResponse struct {
+	NotFoundApplicationProblemPlusJSONResponse
+}
+
+func (response CreatePurchasePlan404ApplicationProblemPlusJSONResponse) VisitCreatePurchasePlanResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreatePurchasePlan422ApplicationProblemPlusJSONResponse struct {
+	UnprocessableApplicationProblemPlusJSONResponse
+}
+
+func (response CreatePurchasePlan422ApplicationProblemPlusJSONResponse) VisitCreatePurchasePlanResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(422)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type GetPerformanceRequestObject struct {
+	Params GetPerformanceParams
+}
+
+type GetPerformanceResponseObject interface {
+	VisitGetPerformanceResponse(w http.ResponseWriter) error
+}
+
+type GetPerformance200JSONResponse Performance
+
+func (response GetPerformance200JSONResponse) VisitGetPerformanceResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type GetPerformance400ApplicationProblemPlusJSONResponse struct {
+	BadRequestApplicationProblemPlusJSONResponse
+}
+
+func (response GetPerformance400ApplicationProblemPlusJSONResponse) VisitGetPerformanceResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(400)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type GetPerformance401ApplicationProblemPlusJSONResponse struct {
+	UnauthorizedApplicationProblemPlusJSONResponse
+}
+
+func (response GetPerformance401ApplicationProblemPlusJSONResponse) VisitGetPerformanceResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type GetPerformance404ApplicationProblemPlusJSONResponse struct {
+	NotFoundApplicationProblemPlusJSONResponse
+}
+
+func (response GetPerformance404ApplicationProblemPlusJSONResponse) VisitGetPerformanceResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateRebalancePlanRequestObject struct {
+	Body *CreateRebalancePlanJSONRequestBody
+}
+
+type CreateRebalancePlanResponseObject interface {
+	VisitCreateRebalancePlanResponse(w http.ResponseWriter) error
+}
+
+type CreateRebalancePlan200JSONResponse RebalancePlan
+
+func (response CreateRebalancePlan200JSONResponse) VisitCreateRebalancePlanResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateRebalancePlan400ApplicationProblemPlusJSONResponse struct {
+	BadRequestApplicationProblemPlusJSONResponse
+}
+
+func (response CreateRebalancePlan400ApplicationProblemPlusJSONResponse) VisitCreateRebalancePlanResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(400)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateRebalancePlan401ApplicationProblemPlusJSONResponse struct {
+	UnauthorizedApplicationProblemPlusJSONResponse
+}
+
+func (response CreateRebalancePlan401ApplicationProblemPlusJSONResponse) VisitCreateRebalancePlanResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateRebalancePlan404ApplicationProblemPlusJSONResponse struct {
+	NotFoundApplicationProblemPlusJSONResponse
+}
+
+func (response CreateRebalancePlan404ApplicationProblemPlusJSONResponse) VisitCreateRebalancePlanResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateRebalancePlan422ApplicationProblemPlusJSONResponse struct {
+	UnprocessableApplicationProblemPlusJSONResponse
+}
+
+func (response CreateRebalancePlan422ApplicationProblemPlusJSONResponse) VisitCreateRebalancePlanResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(422)
 	_, err := buf.WriteTo(w)
 	return err
 }
@@ -2483,12 +5072,57 @@ func (response RefreshStock501ApplicationProblemPlusJSONResponse) VisitRefreshSt
 
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
+	// Lister les comptes
+	// (GET /api/v1/accounts)
+	ListAccounts(ctx context.Context, request ListAccountsRequestObject) (ListAccountsResponseObject, error)
+	// Créer un compte
+	// (POST /api/v1/accounts)
+	CreateAccount(ctx context.Context, request CreateAccountRequestObject) (CreateAccountResponseObject, error)
+	// Importer un relevé de courtier
+	// (POST /api/v1/accounts/{id}/imports/csv)
+	ImportCsv(ctx context.Context, request ImportCsvRequestObject) (ImportCsvResponseObject, error)
+	// Positions et valeur d'un compte
+	// (GET /api/v1/accounts/{id}/positions)
+	ListPositions(ctx context.Context, request ListPositionsRequestObject) (ListPositionsResponseObject, error)
+	// Saisir un relevé de valeur mensuel
+	// (POST /api/v1/accounts/{id}/statements)
+	CreateStatement(ctx context.Context, request CreateStatementRequestObject) (CreateStatementResponseObject, error)
+	// Lire le registre d'un compte
+	// (GET /api/v1/accounts/{id}/transactions)
+	ListTransactions(ctx context.Context, request ListTransactionsRequestObject) (ListTransactionsResponseObject, error)
+	// Ajouter une transaction
+	// (POST /api/v1/accounts/{id}/transactions)
+	CreateTransaction(ctx context.Context, request CreateTransactionRequestObject) (CreateTransactionResponseObject, error)
 	// Importer la feuille xlsx
 	// (POST /api/v1/imports/xlsx)
 	ImportXlsx(ctx context.Context, request ImportXlsxRequestObject) (ImportXlsxResponseObject, error)
 	// État d'un import
 	// (GET /api/v1/imports/{id})
 	GetImport(ctx context.Context, request GetImportRequestObject) (GetImportResponseObject, error)
+	// Catalogue de FNB
+	// (GET /api/v1/portfolio/etfs)
+	ListEtfs(ctx context.Context, request ListEtfsRequestObject) (ListEtfsResponseObject, error)
+	// Exposition par transparence
+	// (GET /api/v1/portfolio/exposure)
+	GetExposure(ctx context.Context, request GetExposureRequestObject) (GetExposureResponseObject, error)
+	// Portefeuilles modèles
+	// (GET /api/v1/portfolio/models)
+	ListModels(ctx context.Context, request ListModelsRequestObject) (ListModelsResponseObject, error)
+	// Créer un portefeuille modèle
+	// (POST /api/v1/portfolio/models)
+	CreateModel(ctx context.Context, request CreateModelRequestObject) (CreateModelResponseObject, error)
+	// Publier une nouvelle version d'un modèle
+	// (PUT /api/v1/portfolio/models/{id})
+	UpdateModel(ctx context.Context, request UpdateModelRequestObject) (UpdateModelResponseObject, error)
+	// Plan d'achat initial
+	// (POST /api/v1/portfolio/models/{id}/purchase-plan)
+	CreatePurchasePlan(ctx context.Context, request CreatePurchasePlanRequestObject) (CreatePurchasePlanResponseObject, error)
+	// Rendement
+	// (GET /api/v1/portfolio/performance)
+	GetPerformance(ctx context.Context, request GetPerformanceRequestObject) (GetPerformanceResponseObject, error)
+	// Plan de rééquilibrage
+	// (POST /api/v1/portfolio/rebalance-plans)
+	CreateRebalancePlan(ctx context.Context, request CreateRebalancePlanRequestObject) (CreateRebalancePlanResponseObject, error)
 	// Version et seuils des règles
 	// (GET /api/v1/rules)
 	GetRules(ctx context.Context, request GetRulesRequestObject) (GetRulesResponseObject, error)
@@ -2556,6 +5190,215 @@ type strictHandler struct {
 	options     StrictHTTPServerOptions
 }
 
+// ListAccounts operation middleware
+func (sh *strictHandler) ListAccounts(w http.ResponseWriter, r *http.Request) {
+	var request ListAccountsRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ListAccounts(ctx, request.(ListAccountsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ListAccounts")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ListAccountsResponseObject); ok {
+		if err := validResponse.VisitListAccountsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// CreateAccount operation middleware
+func (sh *strictHandler) CreateAccount(w http.ResponseWriter, r *http.Request) {
+	var request CreateAccountRequestObject
+
+	var body CreateAccountJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.CreateAccount(ctx, request.(CreateAccountRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CreateAccount")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(CreateAccountResponseObject); ok {
+		if err := validResponse.VisitCreateAccountResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ImportCsv operation middleware
+func (sh *strictHandler) ImportCsv(w http.ResponseWriter, r *http.Request, id AccountId, params ImportCsvParams) {
+	var request ImportCsvRequestObject
+
+	request.Id = id
+	request.Params = params
+
+	if reader, err := r.MultipartReader(); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode multipart body: %w", err))
+		return
+	} else {
+		request.Body = reader
+	}
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ImportCsv(ctx, request.(ImportCsvRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ImportCsv")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ImportCsvResponseObject); ok {
+		if err := validResponse.VisitImportCsvResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ListPositions operation middleware
+func (sh *strictHandler) ListPositions(w http.ResponseWriter, r *http.Request, id AccountId, params ListPositionsParams) {
+	var request ListPositionsRequestObject
+
+	request.Id = id
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ListPositions(ctx, request.(ListPositionsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ListPositions")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ListPositionsResponseObject); ok {
+		if err := validResponse.VisitListPositionsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// CreateStatement operation middleware
+func (sh *strictHandler) CreateStatement(w http.ResponseWriter, r *http.Request, id AccountId) {
+	var request CreateStatementRequestObject
+
+	request.Id = id
+
+	var body CreateStatementJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.CreateStatement(ctx, request.(CreateStatementRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CreateStatement")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(CreateStatementResponseObject); ok {
+		if err := validResponse.VisitCreateStatementResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ListTransactions operation middleware
+func (sh *strictHandler) ListTransactions(w http.ResponseWriter, r *http.Request, id AccountId, params ListTransactionsParams) {
+	var request ListTransactionsRequestObject
+
+	request.Id = id
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ListTransactions(ctx, request.(ListTransactionsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ListTransactions")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ListTransactionsResponseObject); ok {
+		if err := validResponse.VisitListTransactionsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// CreateTransaction operation middleware
+func (sh *strictHandler) CreateTransaction(w http.ResponseWriter, r *http.Request, id AccountId) {
+	var request CreateTransactionRequestObject
+
+	request.Id = id
+
+	var body CreateTransactionJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.CreateTransaction(ctx, request.(CreateTransactionRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CreateTransaction")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(CreateTransactionResponseObject); ok {
+		if err := validResponse.VisitCreateTransactionResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
 // ImportXlsx operation middleware
 func (sh *strictHandler) ImportXlsx(w http.ResponseWriter, r *http.Request) {
 	var request ImportXlsxRequestObject
@@ -2606,6 +5449,236 @@ func (sh *strictHandler) GetImport(w http.ResponseWriter, r *http.Request, id op
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(GetImportResponseObject); ok {
 		if err := validResponse.VisitGetImportResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ListEtfs operation middleware
+func (sh *strictHandler) ListEtfs(w http.ResponseWriter, r *http.Request, params ListEtfsParams) {
+	var request ListEtfsRequestObject
+
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ListEtfs(ctx, request.(ListEtfsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ListEtfs")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ListEtfsResponseObject); ok {
+		if err := validResponse.VisitListEtfsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetExposure operation middleware
+func (sh *strictHandler) GetExposure(w http.ResponseWriter, r *http.Request, params GetExposureParams) {
+	var request GetExposureRequestObject
+
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetExposure(ctx, request.(GetExposureRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetExposure")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetExposureResponseObject); ok {
+		if err := validResponse.VisitGetExposureResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ListModels operation middleware
+func (sh *strictHandler) ListModels(w http.ResponseWriter, r *http.Request) {
+	var request ListModelsRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ListModels(ctx, request.(ListModelsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ListModels")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ListModelsResponseObject); ok {
+		if err := validResponse.VisitListModelsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// CreateModel operation middleware
+func (sh *strictHandler) CreateModel(w http.ResponseWriter, r *http.Request) {
+	var request CreateModelRequestObject
+
+	var body CreateModelJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.CreateModel(ctx, request.(CreateModelRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CreateModel")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(CreateModelResponseObject); ok {
+		if err := validResponse.VisitCreateModelResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// UpdateModel operation middleware
+func (sh *strictHandler) UpdateModel(w http.ResponseWriter, r *http.Request, id ModelId) {
+	var request UpdateModelRequestObject
+
+	request.Id = id
+
+	var body UpdateModelJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.UpdateModel(ctx, request.(UpdateModelRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "UpdateModel")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(UpdateModelResponseObject); ok {
+		if err := validResponse.VisitUpdateModelResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// CreatePurchasePlan operation middleware
+func (sh *strictHandler) CreatePurchasePlan(w http.ResponseWriter, r *http.Request, id ModelId) {
+	var request CreatePurchasePlanRequestObject
+
+	request.Id = id
+
+	var body CreatePurchasePlanJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.CreatePurchasePlan(ctx, request.(CreatePurchasePlanRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CreatePurchasePlan")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(CreatePurchasePlanResponseObject); ok {
+		if err := validResponse.VisitCreatePurchasePlanResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetPerformance operation middleware
+func (sh *strictHandler) GetPerformance(w http.ResponseWriter, r *http.Request, params GetPerformanceParams) {
+	var request GetPerformanceRequestObject
+
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetPerformance(ctx, request.(GetPerformanceRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetPerformance")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetPerformanceResponseObject); ok {
+		if err := validResponse.VisitGetPerformanceResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// CreateRebalancePlan operation middleware
+func (sh *strictHandler) CreateRebalancePlan(w http.ResponseWriter, r *http.Request) {
+	var request CreateRebalancePlanRequestObject
+
+	var body CreateRebalancePlanJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.CreateRebalancePlan(ctx, request.(CreateRebalancePlanRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CreateRebalancePlan")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(CreateRebalancePlanResponseObject); ok {
+		if err := validResponse.VisitCreateRebalancePlanResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

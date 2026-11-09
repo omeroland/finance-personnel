@@ -1,5 +1,5 @@
 /**
- * Finance privée — API du module 1 (évaluation d\'actions)
+ * Finance privée — API du socle et des modules 1 et 2
  *
  * 
  *
