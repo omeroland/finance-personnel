@@ -42,13 +42,13 @@ func (t AccountType) Registered() bool {
 
 func (t AccountType) valid() bool { return t.Registered() || t == AccountTaxable }
 
-// Side est le sens d'un ordre.
-type Side string
+// RebalSide est le sens d'un ordre.
+type RebalSide string
 
 // Les sens d'ordre.
 const (
-	Buy  Side = "buy"
-	Sell Side = "sell"
+	SideBuy  RebalSide = "buy"
+	SideSell RebalSide = "sell"
 )
 
 // SkipBelowMinimum est le motif d'un ordre écarté parce qu'il est sous le
@@ -57,24 +57,9 @@ const SkipBelowMinimum = "below_minimum"
 
 // Erreurs sentinelles du rééquilibrage.
 var (
-	// ErrPrice : prix manquant, nul ou négatif.
-	ErrPrice = errors.New("prix manquant ou invalide")
 	// ErrRebalanceInput : entrée incohérente (doublon, fonds inconnu, quantité ou encaisse négative, bande invalide, type de compte inconnu).
 	ErrRebalanceInput = errors.New("entrée de rééquilibrage invalide")
 )
-
-// PriceError décrit un prix manquant ou invalide.
-type PriceError struct {
-	Fund  string
-	Price decimal.Decimal
-}
-
-func (e *PriceError) Error() string {
-	return fmt.Sprintf("fonds %q: prix %s manquant ou <= 0", e.Fund, e.Price)
-}
-
-// Unwrap permet errors.Is(err, ErrPrice).
-func (e *PriceError) Unwrap() error { return ErrPrice }
 
 // Bands donne les bandes de tolérance, en fractions.
 type Bands struct {
@@ -122,21 +107,21 @@ type RebalanceInput struct {
 	ClassTargets *Allocation
 }
 
-// Order est un ordre en parts entières dans un compte.
-type Order struct {
+// RebalOrder est un ordre en parts entières dans un compte.
+type RebalOrder struct {
 	AccountID string
 	FundID    string
-	Side      Side
+	Side      RebalSide
 	Shares    int64
 	Price     decimal.Decimal
 	Amount    decimal.Decimal // Shares × Price
 }
 
-// SkippedOrder est un ordre écarté avec son motif.
-type SkippedOrder struct {
+// RebalSkipped est un ordre écarté avec son motif.
+type RebalSkipped struct {
 	AccountID string
 	FundID    string
-	Side      Side
+	Side      RebalSide
 	Shares    int64
 	Amount    decimal.Decimal
 	Reason    string
@@ -174,8 +159,8 @@ type AccountCash struct {
 
 // RebalancePlan est le résultat du rééquilibrage. Un plan sans ordre est vide.
 type RebalancePlan struct {
-	Orders      []Order
-	Skipped     []SkippedOrder
+	Orders      []RebalOrder
+	Skipped     []RebalSkipped
 	EndCash     decimal.Decimal
 	AccountCash []AccountCash
 	Before      Weights
@@ -199,7 +184,7 @@ type rbFund struct {
 
 type orderKey struct {
 	acc, fund string
-	side      Side
+	side      RebalSide
 }
 
 type rebalancer struct {
@@ -212,7 +197,7 @@ type rebalancer struct {
 	bands      Bands
 	classT     Allocation
 	orders     map[orderKey]int64
-	skipped    []SkippedOrder
+	skipped    []RebalSkipped
 }
 
 func badInput(format string, a ...any) error {
@@ -282,7 +267,7 @@ func newRebalancer(in RebalanceInput) (*rebalancer, error) {
 		}
 		seenFund[f.ID] = true
 		if !f.Price.IsPositive() {
-			return nil, &PriceError{Fund: f.ID, Price: f.Price}
+			return nil, &PriceError{Fund: f.ID, Reason: "prix manquant ou non positif"}
 		}
 		if !validPart(f.Target) {
 			return nil, &TargetsError{Sum: math.NaN(), Reason: fmt.Sprintf("cible du fonds %q hors de [0, 1]", f.ID)}
@@ -443,7 +428,7 @@ func (r *rebalancer) anyFundOver() bool {
 func (r *rebalancer) buyShares(a *rbAccount, f rbFund, n int64) {
 	a.cash = a.cash.Sub(f.price.Mul(decimal.NewFromInt(n)))
 	a.held[f.id] = a.held[f.id].Add(decimal.NewFromInt(n))
-	r.orders[orderKey{a.id, f.id, Buy}] += n
+	r.orders[orderKey{a.id, f.id, SideBuy}] += n
 }
 
 // buyPass achète les fonds sous-pondérés avec l'encaisse au-delà de la cible
@@ -546,12 +531,12 @@ func (r *rebalancer) sellPass(minOrder decimal.Decimal) bool {
 			amount := f.price.Mul(decimal.NewFromInt(n))
 			left -= n
 			if amount.LessThan(minOrder) {
-				r.skipped = append(r.skipped, SkippedOrder{AccountID: a.id, FundID: f.id, Side: Sell, Shares: n, Amount: amount, Reason: SkipBelowMinimum})
+				r.skipped = append(r.skipped, RebalSkipped{AccountID: a.id, FundID: f.id, Side: SideSell, Shares: n, Amount: amount, Reason: SkipBelowMinimum})
 				continue
 			}
 			a.held[f.id] = a.held[f.id].Sub(decimal.NewFromInt(n))
 			a.cash = a.cash.Add(amount)
-			r.orders[orderKey{a.id, f.id, Sell}] += n
+			r.orders[orderKey{a.id, f.id, SideSell}] += n
 			sold = true
 		}
 	}
@@ -562,7 +547,7 @@ func (r *rebalancer) sellPass(minOrder decimal.Decimal) bool {
 func (r *rebalancer) dropSmallBuys(minOrder decimal.Decimal) {
 	if minOrder.IsPositive() {
 		for k, n := range r.orders {
-			if k.side != Buy {
+			if k.side != SideBuy {
 				continue
 			}
 			f := r.funds[r.byID[k.fund]]
@@ -577,7 +562,7 @@ func (r *rebalancer) dropSmallBuys(minOrder decimal.Decimal) {
 				}
 			}
 			delete(r.orders, k)
-			r.skipped = append(r.skipped, SkippedOrder{AccountID: k.acc, FundID: k.fund, Side: Buy, Shares: n, Amount: amount, Reason: SkipBelowMinimum})
+			r.skipped = append(r.skipped, RebalSkipped{AccountID: k.acc, FundID: k.fund, Side: SideBuy, Shares: n, Amount: amount, Reason: SkipBelowMinimum})
 		}
 	}
 	sort.Slice(r.skipped, func(i, j int) bool {
@@ -592,11 +577,11 @@ func (r *rebalancer) dropSmallBuys(minOrder decimal.Decimal) {
 	})
 }
 
-func (r *rebalancer) orderList() []Order {
-	out := make([]Order, 0, len(r.orders))
+func (r *rebalancer) orderList() []RebalOrder {
+	out := make([]RebalOrder, 0, len(r.orders))
 	for k, n := range r.orders {
 		p := r.funds[r.byID[k.fund]].price
-		out = append(out, Order{AccountID: k.acc, FundID: k.fund, Side: k.side, Shares: n, Price: p, Amount: p.Mul(decimal.NewFromInt(n))})
+		out = append(out, RebalOrder{AccountID: k.acc, FundID: k.fund, Side: k.side, Shares: n, Price: p, Amount: p.Mul(decimal.NewFromInt(n))})
 	}
 	sort.Slice(out, func(i, j int) bool {
 		a, b := out[i], out[j]
@@ -604,7 +589,7 @@ func (r *rebalancer) orderList() []Order {
 			return a.AccountID < b.AccountID
 		}
 		if a.Side != b.Side {
-			return a.Side == Sell // ventes avant achats
+			return a.Side == SideSell // ventes avant achats
 		}
 		return a.FundID < b.FundID
 	})

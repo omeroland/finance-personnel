@@ -52,7 +52,7 @@ func TestRebalanceContributionBuysNoSell(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, o := range p.Orders {
-		if o.Side == Sell {
+		if o.Side == SideSell {
 			t.Fatalf("vente inattendue: %+v", o)
 		}
 	}
@@ -77,9 +77,9 @@ func TestRebalanceSellsRegisteredFirst(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	var sells, buys []Order
+	var sells, buys []RebalOrder
 	for _, o := range p.Orders {
-		if o.Side == Sell {
+		if o.Side == SideSell {
 			sells = append(sells, o)
 		} else {
 			buys = append(buys, o)
@@ -115,7 +115,7 @@ func TestRebalanceSellsTaxableWhenRegisteredShort(t *testing.T) {
 	}
 	got := map[string]int64{}
 	for _, o := range p.Orders {
-		if o.Side == Sell {
+		if o.Side == SideSell {
 			got[o.AccountID] += o.Shares
 		}
 	}

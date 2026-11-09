@@ -59,7 +59,7 @@ func FuzzRebalance(f *testing.F) {
 			}
 			n := decimal.NewFromInt(o.Shares)
 			k := [2]string{o.AccountID, o.FundID}
-			if o.Side == Sell {
+			if o.Side == SideSell {
 				held[k] = held[k].Sub(n)
 				cash[o.AccountID] = cash[o.AccountID].Add(o.Amount)
 			} else {
