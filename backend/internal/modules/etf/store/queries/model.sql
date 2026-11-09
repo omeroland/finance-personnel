@@ -4,6 +4,9 @@ INSERT INTO etf.model (owner_id, name) VALUES (@owner_id, @name) RETURNING *;
 -- name: GetModel :one
 SELECT * FROM etf.model WHERE owner_id = @owner_id AND id = @id;
 
+-- name: GetModelByName :one
+SELECT * FROM etf.model WHERE owner_id = @owner_id AND name = @name;
+
 -- name: ListModels :many
 SELECT * FROM etf.model WHERE owner_id = @owner_id ORDER BY name;
 

@@ -14,6 +14,9 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	corestore "github.com/omeroland/finance-privee/backend/internal/core/store"
+	etfhttp "github.com/omeroland/finance-privee/backend/internal/modules/etf/http"
+	etfstore "github.com/omeroland/finance-privee/backend/internal/modules/etf/store"
 	"github.com/omeroland/finance-privee/backend/internal/modules/stockeval/engine"
 	httpapi "github.com/omeroland/finance-privee/backend/internal/modules/stockeval/http"
 	"github.com/omeroland/finance-privee/backend/internal/modules/stockeval/ingest"
@@ -100,13 +103,19 @@ func run(logger *slog.Logger, cfg config) error {
 		return fmt.Errorf("assembler les handlers: %w", err)
 	}
 
+	core := corestore.New(pool)
+	etfAPI, err := etfhttp.New(etfhttp.Config{Ledger: core, Catalog: etfstore.New(core), Logger: logger})
+	if err != nil {
+		return fmt.Errorf("assembler les handlers du module 2: %w", err)
+	}
+
 	addr := cfg.addr
 	if addr == "" {
 		addr = defaultAddr
 	}
 	srv := &http.Server{
 		Addr:              addr,
-		Handler:           handler(logger, verifier, api, metrics, pool),
+		Handler:           handler(logger, verifier, routes(api, etfAPI), metrics, pool),
 		ReadHeaderTimeout: 5 * time.Second,
 		ReadTimeout:       15 * time.Second,
 		WriteTimeout:      30 * time.Second,
@@ -158,11 +167,11 @@ type pinger interface {
 // handler assemble la pile HTTP : identifiant de requête, métriques, journal
 // d'accès, récupération de panique, JWT (sauf /healthz et /readyz), limite de
 // corps, délai. /readyz exige la base et la découverte OIDC (JWKS en cache).
-func handler(logger *slog.Logger, verifier *auth.Verifier, api *httpapi.Handler, metrics *observability.Metrics, db pinger) http.Handler {
+func handler(logger *slog.Logger, verifier *auth.Verifier, routes http.Handler, metrics *observability.Metrics, db pinger) http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /healthz", observability.Healthz)
 	mux.HandleFunc("GET /readyz", observability.Readyz(logger, db.Ping, verifier.Ready))
-	mux.Handle("/api/", api.Routes())
+	mux.Handle("/api/", routes)
 
 	return httpx.Chain(mux,
 		httpx.RequestID,
@@ -173,4 +182,22 @@ func handler(logger *slog.Logger, verifier *auth.Verifier, api *httpapi.Handler,
 		httpapi.BodyLimit(),
 		httpx.Timeout(requestTimeout),
 	)
+}
+
+// composed assemble le contrat complet : le module 1 (et les routes encore
+// provisoires) vient de stockeval, le registre et le catalogue de etf/http.
+// Aucune méthode n'existe des deux côtés (D401).
+type (
+	module1 = httpapi.Handler
+	module2 = etfhttp.Handler
+)
+
+type composed struct {
+	*module1
+	*module2
+}
+
+// routes monte l'API complète derrière le JWT.
+func routes(api *httpapi.Handler, etf *etfhttp.Handler) http.Handler {
+	return api.RoutesFor(composed{module1: api, module2: etf})
 }

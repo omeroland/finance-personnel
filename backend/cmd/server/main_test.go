@@ -59,7 +59,7 @@ func newTestHandlerIssuer(t *testing.T, db pinger, issuer string) http.Handler {
 	if err != nil {
 		t.Fatal(err)
 	}
-	return handler(logger, v, api, observability.NewMetrics(), db)
+	return handler(logger, v, api.Routes(), observability.NewMetrics(), db)
 }
 
 func TestHandlerPublicRoutesAndJWT(t *testing.T) {

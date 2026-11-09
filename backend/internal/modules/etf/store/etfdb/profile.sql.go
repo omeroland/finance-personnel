@@ -13,6 +13,51 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+const getEtfProfileAt = `-- name: GetEtfProfileAt :one
+SELECT owner_id, instrument_id, as_of, type, region, equity_ca, equity_us, equity_intl, bond_ca, bond_other, other_assets, mer, size, esg, return_1y, return_2y, return_3y, return_4y, return_5y, return_6y, return_7y, return_8y, return_9y, return_10y, source, created_at FROM etf.etf_profile
+WHERE owner_id = $1 AND instrument_id = $2 AND as_of = $3
+`
+
+type GetEtfProfileAtParams struct {
+	OwnerID      uuid.UUID
+	InstrumentID uuid.UUID
+	AsOf         time.Time
+}
+
+func (q *Queries) GetEtfProfileAt(ctx context.Context, arg GetEtfProfileAtParams) (EtfEtfProfile, error) {
+	row := q.db.QueryRow(ctx, getEtfProfileAt, arg.OwnerID, arg.InstrumentID, arg.AsOf)
+	var i EtfEtfProfile
+	err := row.Scan(
+		&i.OwnerID,
+		&i.InstrumentID,
+		&i.AsOf,
+		&i.Type,
+		&i.Region,
+		&i.EquityCa,
+		&i.EquityUs,
+		&i.EquityIntl,
+		&i.BondCa,
+		&i.BondOther,
+		&i.OtherAssets,
+		&i.Mer,
+		&i.Size,
+		&i.Esg,
+		&i.Return1y,
+		&i.Return2y,
+		&i.Return3y,
+		&i.Return4y,
+		&i.Return5y,
+		&i.Return6y,
+		&i.Return7y,
+		&i.Return8y,
+		&i.Return9y,
+		&i.Return10y,
+		&i.Source,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const listEtfProfileHistory = `-- name: ListEtfProfileHistory :many
 SELECT owner_id, instrument_id, as_of, type, region, equity_ca, equity_us, equity_intl, bond_ca, bond_other, other_assets, mer, size, esg, return_1y, return_2y, return_3y, return_4y, return_5y, return_6y, return_7y, return_8y, return_9y, return_10y, source, created_at FROM etf.etf_profile
 WHERE owner_id = $1 AND instrument_id = $2

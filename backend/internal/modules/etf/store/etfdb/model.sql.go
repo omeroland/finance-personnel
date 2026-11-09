@@ -85,6 +85,27 @@ func (q *Queries) GetModel(ctx context.Context, arg GetModelParams) (EtfModel, e
 	return i, err
 }
 
+const getModelByName = `-- name: GetModelByName :one
+SELECT id, owner_id, name, created_at FROM etf.model WHERE owner_id = $1 AND name = $2
+`
+
+type GetModelByNameParams struct {
+	OwnerID uuid.UUID
+	Name    string
+}
+
+func (q *Queries) GetModelByName(ctx context.Context, arg GetModelByNameParams) (EtfModel, error) {
+	row := q.db.QueryRow(ctx, getModelByName, arg.OwnerID, arg.Name)
+	var i EtfModel
+	err := row.Scan(
+		&i.ID,
+		&i.OwnerID,
+		&i.Name,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const insertModelHolding = `-- name: InsertModelHolding :exec
 INSERT INTO etf.model_holding (owner_id, model_id, version, position, instrument_id, weight)
 VALUES ($1, $2, $3, $4, $5, $6)
