@@ -11,6 +11,16 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+type CoreAccount struct {
+	ID        uuid.UUID
+	OwnerID   uuid.UUID
+	Name      string
+	Type      string
+	Broker    string
+	Currency  string
+	CreatedAt time.Time
+}
+
 type CoreAuditLog struct {
 	ID      int64
 	OwnerID uuid.UUID
@@ -32,6 +42,116 @@ type CoreInstrument struct {
 	QuoteCurrency  string
 	ReportCurrency string
 	IsFinancial    bool
+	CreatedAt      time.Time
+}
+
+type CorePosition struct {
+	OwnerID      uuid.UUID
+	AccountID    uuid.UUID
+	InstrumentID uuid.UUID
+	Quantity     interface{}
+}
+
+type CorePositionLedger struct {
+	OwnerID      uuid.UUID
+	AccountID    uuid.UUID
+	InstrumentID uuid.UUID
+	TradeDate    time.Time
+	CreatedAt    time.Time
+	ID           uuid.UUID
+	Kind         string
+	Delta        interface{}
+	SplitRatio   decimal.NullDecimal
+}
+
+type CoreStatement struct {
+	ID           uuid.UUID
+	OwnerID      uuid.UUID
+	AccountID    uuid.UUID
+	Month        string
+	EndValue     decimal.Decimal
+	Contribution decimal.NullDecimal
+	CreatedAt    time.Time
+}
+
+type CoreTransaction struct {
+	ID                   uuid.UUID
+	OwnerID              uuid.UUID
+	AccountID            uuid.UUID
+	Type                 string
+	TradeDate            time.Time
+	InstrumentID         uuid.UUID
+	Quantity             decimal.NullDecimal
+	Price                decimal.NullDecimal
+	Amount               decimal.NullDecimal
+	Fee                  decimal.NullDecimal
+	SplitRatio           decimal.NullDecimal
+	CounterpartAccountID uuid.UUID
+	Currency             string
+	ReversesID           uuid.UUID
+	Note                 *string
+	Source               string
+	CreatedAt            time.Time
+}
+
+type EtfEtfProfile struct {
+	OwnerID      uuid.UUID
+	InstrumentID uuid.UUID
+	AsOf         time.Time
+	Type         string
+	Region       *string
+	EquityCa     float64
+	EquityUs     float64
+	EquityIntl   float64
+	BondCa       float64
+	BondOther    float64
+	OtherAssets  float64
+	Mer          *float64
+	Size         decimal.NullDecimal
+	Esg          *bool
+	Return1y     *float64
+	Return2y     *float64
+	Return3y     *float64
+	Return4y     *float64
+	Return5y     *float64
+	Return6y     *float64
+	Return7y     *float64
+	Return8y     *float64
+	Return9y     *float64
+	Return10y    *float64
+	Source       string
+	CreatedAt    time.Time
+}
+
+type EtfModel struct {
+	ID        uuid.UUID
+	OwnerID   uuid.UUID
+	Name      string
+	CreatedAt time.Time
+}
+
+type EtfModelHolding struct {
+	OwnerID      uuid.UUID
+	ModelID      uuid.UUID
+	Version      int32
+	Position     int16
+	InstrumentID uuid.UUID
+	Weight       float64
+}
+
+type EtfModelVersion struct {
+	OwnerID        uuid.UUID
+	ModelID        uuid.UUID
+	Version        int32
+	EquityCa       float64
+	EquityUs       float64
+	EquityIntl     float64
+	BondCa         float64
+	BondOther      float64
+	OtherAssets    float64
+	CashTarget     float64
+	BandRelative   float64
+	BandCashPoints float64
 	CreatedAt      time.Time
 }
 
