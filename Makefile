@@ -2,7 +2,7 @@ SHELL := /bin/bash
 .DEFAULT_GOAL := help
 
 BACKEND := backend
-ENGINE  := ./internal/modules/stockeval/engine/
+ENGINE  := ./internal/modules/stockeval/engine/ ./internal/modules/etf/engine/
 API     := api
 WEB_API := web/src/app/api
 # Chemins générés : gen-check échoue si l'un d'eux dérive.
