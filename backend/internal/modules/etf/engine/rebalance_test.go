@@ -43,8 +43,10 @@ func TestRebalanceContributionBuysNoSell(t *testing.T) {
 	// Déficits 220 (XEQT) / -20 : tout va à XEQT, rien n'est vendu.
 	p, err := Rebalance(RebalanceInput{
 		Funds: twoFunds(),
-		Accounts: []RebalAccount{{ID: "a", Type: AccountCELI, Contribution: d("200"),
-			Positions: []RebalPosition{pos("XEQT", "50"), pos("XBB", "25")}}},
+		Accounts: []RebalAccount{{
+			ID: "a", Type: AccountCELI, Contribution: d("200"),
+			Positions: []RebalPosition{pos("XEQT", "50"), pos("XBB", "25")},
+		}},
 	})
 	if err != nil {
 		t.Fatal(err)

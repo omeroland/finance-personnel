@@ -29,10 +29,14 @@ func FuzzRebalance(f *testing.F) {
 				{ID: "B", Price: price2, Target: 1 - target, Allocation: allBd},
 			},
 			Accounts: []RebalAccount{
-				{ID: "r", Type: AccountCELI, Cash: decimal.New(abs(cash1, 1e7), -2), Contribution: decimal.New(abs(contrib, 1e7), -2),
-					Positions: []RebalPosition{{FundID: "A", Shares: decimal.NewFromInt(abs(sh1, 1000))}, {FundID: "B", Shares: decimal.NewFromInt(abs(sh3, 1000))}}},
-				{ID: "t", Type: AccountTaxable, Cash: decimal.New(abs(cash2, 1e7), -2),
-					Positions: []RebalPosition{{FundID: "A", Shares: decimal.NewFromInt(abs(sh2, 1000))}}},
+				{
+					ID: "r", Type: AccountCELI, Cash: decimal.New(abs(cash1, 1e7), -2), Contribution: decimal.New(abs(contrib, 1e7), -2),
+					Positions: []RebalPosition{{FundID: "A", Shares: decimal.NewFromInt(abs(sh1, 1000))}, {FundID: "B", Shares: decimal.NewFromInt(abs(sh3, 1000))}},
+				},
+				{
+					ID: "t", Type: AccountTaxable, Cash: decimal.New(abs(cash2, 1e7), -2),
+					Positions: []RebalPosition{{FundID: "A", Shares: decimal.NewFromInt(abs(sh2, 1000))}},
+				},
 			},
 			MinOrder: decimal.New(abs(minOrd, 100000), -2),
 		}
