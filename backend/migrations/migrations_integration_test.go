@@ -89,7 +89,7 @@ func TestMigrations(t *testing.T) {
 	}
 	var n int
 	if err := admin.QueryRowContext(ctx,
-		`SELECT count(*) FROM information_schema.schemata WHERE schema_name IN ('core','stockeval')`).Scan(&n); err != nil {
+		`SELECT count(*) FROM information_schema.schemata WHERE schema_name IN ('core','stockeval','etf')`).Scan(&n); err != nil {
 		t.Fatal(err)
 	}
 	if n != 0 {
@@ -106,7 +106,7 @@ func TestMigrations(t *testing.T) {
 			FROM information_schema.tables t
 			LEFT JOIN information_schema.columns c
 			  ON c.table_schema = t.table_schema AND c.table_name = t.table_name AND c.column_name = 'owner_id'
-			WHERE t.table_schema IN ('core', 'stockeval') AND t.table_type = 'BASE TABLE'`)
+			WHERE t.table_schema IN ('core', 'stockeval', 'etf') AND t.table_type = 'BASE TABLE'`)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -125,8 +125,8 @@ func TestMigrations(t *testing.T) {
 		if err := rows.Err(); err != nil {
 			t.Fatal(err)
 		}
-		if count != 9 {
-			t.Errorf("%d tables trouvées, 9 attendues", count)
+		if count != 16 {
+			t.Errorf("%d tables trouvées, 16 attendues", count)
 		}
 	})
 
