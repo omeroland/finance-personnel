@@ -274,8 +274,26 @@ describe('PlanReequilibrage', () => {
       currency: 'CAD',
       totalValue: '50000.00',
       classes: [
-        { assetClass: 'equity_ca', actual: 0.4, target: 0.3, outOfBand: true },
-        { assetClass: 'bond_ca', actual: 0.2, target: 0.2, outOfBand: false },
+        { assetClass: 'equity_ca', actual: 0.4, target: 0.3, outOfBand: true, after: 0.31, outOfBandAfter: false },
+        { assetClass: 'bond_ca', actual: 0.2, target: 0.2, outOfBand: false, after: 0.19, outOfBandAfter: true },
+      ],
+      funds: [
+        {
+          symbol: 'TSX:XIC',
+          before: 0.4,
+          target: 0.3,
+          after: 0.31,
+          outOfBandBefore: true,
+          outOfBandAfter: false,
+        },
+        {
+          symbol: 'TSX:ZAG',
+          before: 0.2,
+          target: 0.2,
+          after: 0.19,
+          outOfBandBefore: false,
+          outOfBandAfter: true,
+        },
       ],
       orders: [
         {
@@ -304,6 +322,7 @@ describe('PlanReequilibrage', () => {
         },
       ],
       cashAfter: '100.00',
+      accountCash: [{ accountId: 'a1', cash: '100.00' }],
     });
     await stable(f);
     const classes = el(f).querySelector('[data-testid="reeq-classes"]')?.textContent ?? '';
@@ -313,6 +332,20 @@ describe('PlanReequilibrage', () => {
     expect(el(f).querySelector('[data-testid="ordre-1"]')?.textContent).toContain('CELI');
     expect(el(f).querySelector('[data-testid="ecartes"]')?.textContent).toContain('sous le montant minimum');
     expect(el(f).querySelector('[data-testid="reeq-encaisse"]')?.textContent).toContain('100,00');
+    const xic = el(f).querySelector('[data-testid="reeq-fonds-TSX:XIC"]')?.textContent ?? '';
+    expect(xic).toContain('40');
+    expect(xic).toContain('31');
+    expect(xic.indexOf('Hors bande')).toBeLessThan(xic.indexOf('Dans la bande'));
+    expect(xic).toContain('⚠');
+    expect(xic).toContain('✔');
+    const zag = el(f).querySelector('[data-testid="reeq-fonds-TSX:ZAG"]')?.textContent ?? '';
+    expect(zag.indexOf('Dans la bande')).toBeLessThan(zag.indexOf('Hors bande'));
+    const bond = el(f).querySelector('[data-testid="reeq-classe-bond_ca"]')?.textContent ?? '';
+    expect(bond).toContain('19');
+    expect(bond.match(/Hors bande/g)?.length).toBe(1);
+    expect(el(f).querySelector('[data-testid="reeq-encaisse-a1"]')?.textContent).toContain('CELI');
+    expect(el(f).querySelector('[data-testid="reeq-encaisse-a1"]')?.textContent).toContain('100,00');
+    expect(el(f).textContent).not.toContain('ne sont pas fournis');
   });
 
   it('dit que tout est dans les bandes quand il n’y a aucun ordre', async () => {
@@ -331,6 +364,8 @@ describe('PlanReequilibrage', () => {
       orders: [],
       skipped: [],
       cashAfter: '0',
+      funds: [],
+      accountCash: [],
     });
     await stable(f);
     expect(el(f).querySelector('[data-testid="ordres-vide"]')).not.toBeNull();

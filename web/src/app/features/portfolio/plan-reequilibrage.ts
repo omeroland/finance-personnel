@@ -200,10 +200,33 @@ type Etat = 'chargement' | 'pret' | 'erreur';
                 <dt>{{ 'pf.reeq.encaisseApres' | t }}</dt>
                 <dd data-testid="reeq-encaisse">{{ nombre(p.cashAfter) }} {{ p.currency }}</dd>
               </dl>
+              @if (p.accountCash.length > 0) {
+                <h4>{{ 'pf.reeq.encaisseComptes' | t }}</h4>
+                <div class="defile">
+                  <table class="simple" data-testid="reeq-encaisse-comptes">
+                    <caption class="sr-only">
+                      {{
+                        'pf.reeq.encaisseComptes' | t
+                      }}
+                    </caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">{{ 'pf.col.compte' | t }}</th>
+                        <th scope="col" class="num">{{ 'pf.col.encaisseFinale' | t }}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (e of p.accountCash; track e.accountId) {
+                        <tr [attr.data-testid]="'reeq-encaisse-' + e.accountId">
+                          <th scope="row">{{ nomCompte(e.accountId) }}</th>
+                          <td class="num">{{ nombre(e.cash) }} {{ p.currency }}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
               <h4>{{ 'pf.reeq.classes' | t }}</h4>
-              <p>
-                <small>{{ 'pf.reeq.aideClasses' | t }}</small>
-              </p>
               <div class="defile">
                 <table class="simple" data-testid="reeq-classes">
                   <caption class="sr-only">
@@ -216,7 +239,9 @@ type Etat = 'chargement' | 'pret' | 'erreur';
                       <th scope="col">{{ 'pf.col.classe' | t }}</th>
                       <th scope="col" class="num">{{ 'pf.col.avant' | t }}</th>
                       <th scope="col" class="num">{{ 'pf.col.cible' | t }}</th>
-                      <th scope="col">{{ 'pf.col.bande' | t }}</th>
+                      <th scope="col">{{ 'pf.col.bandeAvant' | t }}</th>
+                      <th scope="col" class="num">{{ 'pf.col.apres' | t }}</th>
+                      <th scope="col">{{ 'pf.col.bandeApres' | t }}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -227,6 +252,64 @@ type Etat = 'chargement' | 'pret' | 'erreur';
                         <td class="num">{{ pct(c.target) }}</td>
                         <td>
                           @if (c.outOfBand) {
+                            <span class="statut requis"
+                              ><span aria-hidden="true">⚠</span>{{ 'pf.bande.hors' | t }}</span
+                            >
+                          } @else {
+                            <span class="statut"><span aria-hidden="true">✔</span>{{ 'pf.bande.dans' | t }}</span>
+                          }
+                        </td>
+                        <td class="num">{{ pct(c.after) }}</td>
+                        <td>
+                          @if (c.outOfBandAfter) {
+                            <span class="statut requis"
+                              ><span aria-hidden="true">⚠</span>{{ 'pf.bande.hors' | t }}</span
+                            >
+                          } @else {
+                            <span class="statut"><span aria-hidden="true">✔</span>{{ 'pf.bande.dans' | t }}</span>
+                          }
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+              <h4>{{ 'pf.reeq.fonds' | t }}</h4>
+              <div class="defile">
+                <table class="simple" data-testid="reeq-fonds">
+                  <caption class="sr-only">
+                    {{
+                      'pf.reeq.fonds' | t
+                    }}
+                  </caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">{{ 'pf.col.symbole' | t }}</th>
+                      <th scope="col" class="num">{{ 'pf.col.avant' | t }}</th>
+                      <th scope="col" class="num">{{ 'pf.col.cible' | t }}</th>
+                      <th scope="col" class="num">{{ 'pf.col.apres' | t }}</th>
+                      <th scope="col">{{ 'pf.col.bandeAvant' | t }}</th>
+                      <th scope="col">{{ 'pf.col.bandeApres' | t }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (f of p.funds; track f.symbol) {
+                      <tr [attr.data-testid]="'reeq-fonds-' + f.symbol">
+                        <th scope="row">{{ f.symbol }}</th>
+                        <td class="num">{{ pct(f.before) }}</td>
+                        <td class="num">{{ pct(f.target) }}</td>
+                        <td class="num">{{ pct(f.after) }}</td>
+                        <td>
+                          @if (f.outOfBandBefore) {
+                            <span class="statut requis"
+                              ><span aria-hidden="true">⚠</span>{{ 'pf.bande.hors' | t }}</span
+                            >
+                          } @else {
+                            <span class="statut"><span aria-hidden="true">✔</span>{{ 'pf.bande.dans' | t }}</span>
+                          }
+                        </td>
+                        <td>
+                          @if (f.outOfBandAfter) {
                             <span class="statut requis"
                               ><span aria-hidden="true">⚠</span>{{ 'pf.bande.hors' | t }}</span
                             >
@@ -260,6 +343,10 @@ export class PlanReequilibrage {
   protected readonly nombre = afficherDecimal;
   protected readonly pct = afficherPourcentage;
   protected readonly classe = libelleClasse;
+
+  protected nomCompte(id: string): string {
+    return this.comptes().find((c) => c.id === id)?.name ?? id;
+  }
 
   protected readonly etat = signal<Etat>('chargement');
   protected readonly message = signal('');
