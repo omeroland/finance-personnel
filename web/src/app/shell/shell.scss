@@ -28,14 +28,3 @@ mat-sidenav {
 .actif {
   font-weight: 600;
 }
-
-.desactive {
-  pointer-events: none;
-  cursor: default;
-  opacity: 0.7;
-  font-style: italic;
-}
-
-.phase {
-  margin-inline-start: 0.25rem;
-}

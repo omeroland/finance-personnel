@@ -21,6 +21,10 @@ export const routes: Routes = [
         path: 'fnb',
         loadChildren: () => import('./features/etf-catalog/etf-catalog.routes').then((m) => m.routes),
       },
+      {
+        path: 'portefeuille',
+        loadChildren: () => import('./features/portfolio/portfolio.routes').then((m) => m.routes),
+      },
     ],
   },
   { path: '**', redirectTo: '' },

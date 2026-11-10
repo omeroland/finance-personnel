@@ -24,16 +24,8 @@
       <a mat-list-item routerLink="/fnb" routerLinkActive="actif" ariaCurrentWhenActive="page" data-testid="menu-fnb">
         {{ 'menu.catalogue' | t }}
       </a>
-      <!-- Portefeuille modèle, plans et tableau de bord (P2-13) : désactivé jusqu'à la phase 2. L'état est dit en texte, pas par la couleur seule. -->
-      <a
-        mat-list-item
-        class="desactive"
-        [disabled]="true"
-        data-testid="menu-etf"
-        [attr.aria-label]="'menu.etfDesactive' | t"
-      >
+      <a mat-list-item routerLink="/portefeuille" routerLinkActive="actif" ariaCurrentWhenActive="page" data-testid="menu-etf">
         {{ 'menu.etf' | t }}
-        <span class="phase">({{ 'menu.etfPhase' | t }})</span>
       </a>
     </mat-nav-list>
   </mat-sidenav>

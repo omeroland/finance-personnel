@@ -19,15 +19,16 @@ describe('Shell', () => {
     return fixture.nativeElement as HTMLElement;
   }
 
-  it('affiche le module 1 actif et le module 2 désactivé avec la mention « phase 2 »', () => {
+  it('affiche les deux modules actifs : le portefeuille de FNB mène à /portefeuille (D450)', () => {
     const el = creer();
     const m1 = el.querySelector('[data-testid="menu-stockeval"]');
     const m2 = el.querySelector('[data-testid="menu-etf"]');
     expect(m1?.textContent).toContain("Évaluation d'actions");
     expect(m1?.getAttribute('aria-disabled')).not.toBe('true');
     expect(m2?.textContent).toContain('Portefeuille de FNB');
-    expect(m2?.textContent).toContain('phase 2');
-    expect(m2?.getAttribute('aria-disabled')).toBe('true');
+    expect(m2?.textContent).not.toContain('phase 2');
+    expect(m2?.getAttribute('aria-disabled')).not.toBe('true');
+    expect(m2?.getAttribute('href')).toBe('/portefeuille');
   });
 
   it("affiche l'utilisateur et déconnecte au clic", () => {
