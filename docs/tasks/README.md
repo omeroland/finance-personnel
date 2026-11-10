@@ -67,5 +67,5 @@ Fiches rédigées d'avance (D302). Phase ouverte sans la signature de la porte d
 | [P2-11](P2-11.md) | Handlers : modèles, plans, exposition, performance | Backend Go | P2-03, P2-04, P2-05, P2-06, P2-10 | terminée |
 | P2-11b | Ajustements du contrat de phase 2 : prix saisis, base du TRI, cotisation par compte | Backend Go | P2-11 | terminée |
 | [P2-12](P2-12.md) | Web : comptes, registre, relevés, catalogue | Frontend Angular | P2-10 | terminée |
-| [P2-13](P2-13.md) | Web : portefeuille modèle, plans et tableau de bord | Frontend Angular | P2-11, P2-12 | à faire |
+| [P2-13](P2-13.md) | Web : portefeuille modèle, plans et tableau de bord | Frontend Angular | P2-11, P2-12 | terminée |
 | [P2-14](P2-14.md) | Porte de phase 2 et parcours complet | Vérificateur | P2-13 | à faire |

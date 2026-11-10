@@ -22,8 +22,10 @@ test('connexion, coquille, aucun jeton dans localStorage, déconnexion', async (
   await expect(page).toHaveURL(/\/stocks$/);
   await expect(page.getByTestId('menu-stockeval')).toContainText("Évaluation d'actions");
   await expect(page.getByTestId('menu-etf')).toContainText('Portefeuille de FNB');
-  await expect(page.getByTestId('menu-etf')).toContainText('phase 2');
-  await expect(page.getByTestId('menu-etf')).toHaveAttribute('aria-disabled', 'true');
+  // Module 2 actif depuis P2-13 (D450) : l'entrée mène à /portefeuille, sans mention « phase 2 ».
+  await expect(page.getByTestId('menu-etf')).not.toContainText('phase 2');
+  await expect(page.getByTestId('menu-etf')).not.toHaveAttribute('aria-disabled', 'true');
+  await expect(page.getByTestId('menu-etf')).toHaveAttribute('href', '/portefeuille');
   await expect(page.getByTestId('utilisateur')).toContainText('Connecté en tant que');
   await expect(page.locator('html')).toHaveAttribute('lang', 'fr-CA');
 

@@ -13,7 +13,7 @@ async function relaisPrism(page: Page): Promise<void> {
 }
 
 /** Connexion Keycloak (compte de test factice), puis ouverture de l'entrée de menu demandée. */
-export async function connecter(page: Page, menu: 'menu-comptes' | 'menu-fnb'): Promise<void> {
+export async function connecter(page: Page, menu: 'menu-comptes' | 'menu-fnb' | 'menu-etf'): Promise<void> {
   await relaisPrism(page);
   await page.goto('/');
   await page.waitForURL(/\/auth\/realms\/finance\/protocol\/openid-connect\/auth/);
