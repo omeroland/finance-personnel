@@ -8,7 +8,9 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 
+	"github.com/omeroland/finance-privee/backend/internal/api/gen"
 	corestore "github.com/omeroland/finance-privee/backend/internal/core/store"
 	"github.com/omeroland/finance-privee/backend/internal/modules/etf/engine"
 	etfstore "github.com/omeroland/finance-privee/backend/internal/modules/etf/store"
@@ -100,3 +102,28 @@ func planError(err error) error {
 
 // missingList énumère des symboles pour un message.
 func missingList(symbols []string) string { return strings.Join(symbols, ", ") }
+
+// manualPrices valide les prix saisis dans une demande de plan (D440) : symbole canonique, décimal strictement positif.
+func manualPrices(fe *fieldErrors, in *gen.ManualPrices) map[string]decimal.Decimal {
+	out := map[string]decimal.Decimal{}
+	if in == nil {
+		return out
+	}
+	if len(*in) > maxManualPrices {
+		fe.add("prices", "50 prix au plus.")
+		return out
+	}
+	for sym, v := range *in {
+		if !symbolRe.MatchString(sym) {
+			fe.add("prices", "Symbole invalide : "+sym+".")
+			continue
+		}
+		v := v
+		if d := fe.amount("prices."+sym, &v, true); d != nil {
+			out[sym] = *d
+		}
+	}
+	return out
+}
+
+const maxManualPrices = 50

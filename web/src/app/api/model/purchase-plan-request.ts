@@ -11,7 +11,7 @@ import { Currency } from './currency';
 
 
 /**
- * Montant à investir.
+ * Montant à investir, avec des prix saisis facultatifs.
  */
 export interface PurchasePlanRequest { 
     /**
@@ -19,6 +19,10 @@ export interface PurchasePlanRequest {
      */
     amount: string;
     currency: Currency;
+    /**
+     * Prix saisis par le propriétaire, par symbole canonique, dans la devise de la demande. Un prix fourni remplace le dernier prix d\'écriture du registre pour ce fonds. Sans prix saisi ni prix au registre, la réponse est 422 et le message liste les fonds sans prix. Les symboles inconnus du plan sont ignorés. 
+     */
+    prices?: { [key: string]: string; };
 }
 
 

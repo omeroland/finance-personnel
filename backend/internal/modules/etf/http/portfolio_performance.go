@@ -203,6 +203,11 @@ func seriesDTO(id *uuid.UUID, method gen.PerformanceMethod, p engine.Performance
 	if p.HasIRR {
 		v := p.IRR
 		s.Irr = &v
+		basis := gen.Annualized // transactions : XIRR annualisé (D413)
+		if method == gen.Statements {
+			basis = gen.Cumulative // relevés : AACJ cumulé sur la période (D337)
+		}
+		s.IrrBasis = &basis
 	}
 	for _, r := range p.Monthly {
 		pt := gen.PerformancePoint{Period: r.Month}

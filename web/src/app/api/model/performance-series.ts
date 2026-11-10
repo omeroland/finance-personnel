@@ -8,6 +8,7 @@
  * Do not edit the class manually.
  */
 import { PerformanceMethod } from './performance-method';
+import { IrrBasis } from './irr-basis';
 import { PerformancePoint } from './performance-point';
 
 
@@ -25,9 +26,10 @@ export interface PerformanceSeries {
      */
     twr?: number;
     /**
-     * TRI annualisé sur toute la période, en fraction.
+     * TRI sur toute la période, en fraction. `irrBasis` dit s\'il est annualisé ou cumulé. Absent si le TRI n\'est pas calculable. 
      */
     irr?: number;
+    irrBasis?: IrrBasis;
     /**
      * Rendements mensuels.
      */

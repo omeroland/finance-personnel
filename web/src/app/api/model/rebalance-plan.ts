@@ -35,7 +35,7 @@ export interface RebalancePlan {
      */
     classes: Array<ClassStatus>;
     /**
-     * Ordres, achats avant ventes.
+     * Ordres dans l\'ordre exécutable : les ventes d\'abord, puis les achats (le produit des ventes finance les achats). 
      */
     orders: Array<PlanOrder>;
     /**

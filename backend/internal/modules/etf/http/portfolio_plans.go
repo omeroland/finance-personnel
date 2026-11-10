@@ -6,6 +6,7 @@ import (
 	"sort"
 
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 
 	"github.com/omeroland/finance-privee/backend/internal/api/gen"
 	"github.com/omeroland/finance-privee/backend/internal/modules/etf/engine"
@@ -13,7 +14,8 @@ import (
 )
 
 // CreatePurchasePlan : plan d'achat initial d'un modèle (calculé, non enregistré, D314).
-// Les prix viennent du dernier prix d'écriture du registre (D410) ; un prix manquant donne 422.
+// Les prix viennent de la demande (D440) ou, à défaut, du dernier prix d'écriture du registre (D410) ;
+// un prix manquant donne 422 avec la liste des fonds.
 func (h *Handler) CreatePurchasePlan(ctx context.Context, req gen.CreatePurchasePlanRequestObject) (gen.CreatePurchasePlanResponseObject, error) {
 	ctx, owner, err := h.begin(ctx)
 	if err != nil {
@@ -26,6 +28,7 @@ func (h *Handler) CreatePurchasePlan(ctx context.Context, req gen.CreatePurchase
 	var fe fieldErrors
 	fe.currency("currency", b.Currency)
 	amount := fe.amount("amount", &b.Amount, true)
+	manual := manualPrices(&fe, b.Prices)
 	if err := fe.err(); err != nil {
 		return nil, err
 	}
@@ -40,6 +43,21 @@ func (h *Handler) CreatePurchasePlan(ctx context.Context, req gen.CreatePurchase
 	prices, err := h.pf.LastPrices(ctx, owner, symbols, string(b.Currency), h.today())
 	if err != nil {
 		return nil, translate(fmt.Errorf("lire les prix: %w", err))
+	}
+	if prices == nil {
+		prices = map[string]decimal.Decimal{}
+	}
+	var noPrice []string
+	for _, hd := range m.Holdings {
+		if p, ok := manual[hd.Symbol]; ok {
+			prices[hd.Symbol] = p
+		}
+		if p, ok := prices[hd.Symbol]; !ok || !p.IsPositive() {
+			noPrice = append(noPrice, hd.Symbol)
+		}
+	}
+	if len(noPrice) > 0 {
+		return nil, httpx.Unprocessable("Prix manquant pour : " + missingList(noPrice) + ". Saisissez un prix par fonds dans la demande.")
 	}
 	in := engine.PurchaseInput{Amount: *amount, CashWeight: m.CashTarget}
 	for _, hd := range m.Holdings {
@@ -62,7 +80,8 @@ func (h *Handler) CreatePurchasePlan(ctx context.Context, req gen.CreatePurchase
 }
 
 // CreateRebalancePlan : plan de rééquilibrage d'un ou plusieurs comptes (calculé, non enregistré, D314).
-// La cotisation va au premier compte de la demande (D414).
+// La cotisation se donne par compte (`contributions`, D443) ; l'ancien champ `contribution` va au premier
+// compte retenu pour le plan (D414). Les prix saisis remplacent ceux du registre (D440).
 func (h *Handler) CreateRebalancePlan(ctx context.Context, req gen.CreateRebalancePlanRequestObject) (gen.CreateRebalancePlanResponseObject, error) {
 	ctx, owner, err := h.begin(ctx)
 	if err != nil {
@@ -76,6 +95,24 @@ func (h *Handler) CreateRebalancePlan(ctx context.Context, req gen.CreateRebalan
 	fe.currency("currency", b.Currency)
 	contribution := fe.amount("contribution", b.Contribution, false)
 	minOrder := fe.amount("minOrderAmount", b.MinOrderAmount, false)
+	manual := manualPrices(&fe, b.Prices)
+	contribs := map[uuid.UUID]decimal.Decimal{}
+	if b.Contributions != nil {
+		if b.Contribution != nil {
+			fe.add("contribution", "Champ obsolète : utiliser seulement `contributions`.")
+		}
+		for i, c := range *b.Contributions {
+			field := fmt.Sprintf("contributions[%d]", i)
+			if _, dup := contribs[c.AccountId]; dup {
+				fe.add(field, "Un compte ne figure qu'une fois.")
+				continue
+			}
+			amt := c.Amount
+			if v := fe.amount(field+".amount", &amt, false); v != nil {
+				contribs[c.AccountId] = *v
+			}
+		}
+	}
 	if b.Bands != nil {
 		for _, v := range []*float64{b.Bands.Relative, b.Bands.CashPoints} {
 			if v != nil && !(*v >= 0 && *v <= 1) {
@@ -104,6 +141,7 @@ func (h *Handler) CreateRebalancePlan(ctx context.Context, req gen.CreateRebalan
 	explicit := len(ids) > 0
 	today := h.today()
 	var rebAccounts []engine.RebalAccount
+	used := map[uuid.UUID]bool{}
 	symbols := map[string]bool{}
 	for _, hd := range m.Holdings {
 		symbols[hd.Symbol] = true
@@ -124,10 +162,18 @@ func (h *Handler) CreateRebalancePlan(ctx context.Context, req gen.CreateRebalan
 			symbols[p.Symbol] = true
 			ra.Positions = append(ra.Positions, engine.RebalPosition{FundID: p.Symbol, Shares: p.Quantity})
 		}
-		if len(rebAccounts) == 0 && contribution != nil {
+		if c, ok := contribs[a.ID]; ok {
+			ra.Contribution = c
+			used[a.ID] = true
+		} else if len(rebAccounts) == 0 && contribution != nil {
 			ra.Contribution = *contribution
 		}
 		rebAccounts = append(rebAccounts, ra)
+	}
+	for id := range contribs {
+		if !used[id] {
+			return nil, httpx.BadRequest("Une cotisation vise un compte absent du plan (autre devise, autre propriétaire ou hors accountIds).")
+		}
 	}
 	list := make([]string, 0, len(symbols))
 	for s := range symbols {
@@ -145,6 +191,14 @@ func (h *Handler) CreateRebalancePlan(ctx context.Context, req gen.CreateRebalan
 	targets := map[string]float64{}
 	for _, hd := range m.Holdings {
 		targets[hd.Symbol] = hd.Weight
+	}
+	if prices == nil {
+		prices = map[string]decimal.Decimal{}
+	}
+	for s, p := range manual {
+		if symbols[s] {
+			prices[s] = p
+		}
 	}
 	var noPrice, noProfile []string
 	funds := make([]engine.RebalFund, 0, len(list))
@@ -165,7 +219,7 @@ func (h *Handler) CreateRebalancePlan(ctx context.Context, req gen.CreateRebalan
 		funds = append(funds, engine.RebalFund{ID: s, Price: price, Target: targets[s], Allocation: alloc})
 	}
 	if len(noPrice) > 0 {
-		return nil, httpx.Unprocessable("Prix manquant pour : " + missingList(noPrice) + ".")
+		return nil, httpx.Unprocessable("Prix manquant pour : " + missingList(noPrice) + ". Saisissez un prix par fonds dans la demande.")
 	}
 	if len(noProfile) > 0 {
 		return nil, httpx.Unprocessable("Profil absent du catalogue pour : " + missingList(noProfile) + ".")
