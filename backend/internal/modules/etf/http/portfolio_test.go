@@ -205,6 +205,22 @@ func TestRebalancePlan(t *testing.T) {
 			t.Fatalf("ordre : %+v", o)
 		}
 	}
+	// Poids avant/après et statut par fonds (D460) : tous du moteur, en fraction.
+	if len(plan.Funds) < 2 || len(plan.AccountCash) != 1 || plan.AccountCash[0].AccountId != acc.Id || plan.AccountCash[0].Cash != plan.CashAfter {
+		t.Fatalf("fonds ou encaisse par compte : %+v", plan)
+	}
+	oobBefore := 0
+	for _, f := range plan.Funds {
+		if f.Symbol == "" || f.Before < 0 || f.Before > 1 || f.After < 0 || f.After > 1 {
+			t.Fatalf("fonds : %+v", f)
+		}
+		if f.OutOfBandBefore {
+			oobBefore++
+		}
+	}
+	if oobBefore == 0 {
+		t.Fatalf("un fonds doit être hors bande avant : %+v", plan.Funds)
+	}
 	// Cotisation et minimum d'ordre ; tous les comptes (sans accountIds).
 	req2 := gen.RebalancePlanRequest{ModelId: m.Id, Currency: gen.CAD, Contribution: sp("1000"), MinOrderAmount: sp("100000"), Bands: &gen.Bands{Relative: f64(0.1)}}
 	alice.want("POST", "/portfolio/rebalance-plans", req2, 200, &plan)

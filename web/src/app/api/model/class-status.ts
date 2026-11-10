@@ -11,7 +11,7 @@ import { AssetClass } from './asset-class';
 
 
 /**
- * Situation d\'une classe d\'actifs avant le plan.
+ * Situation d\'une classe d\'actifs avant et après le plan.
  */
 export interface ClassStatus { 
     assetClass: AssetClass;
@@ -24,9 +24,17 @@ export interface ClassStatus {
      */
     target: number;
     /**
-     * Vrai si la classe est hors de sa bande (« à équilibrer »).
+     * Vrai si la classe est hors de sa bande (« à équilibrer ») avant le plan.
      */
     outOfBand: boolean;
+    /**
+     * Poids après exécution des ordres, en fraction de la valeur de marché totale.
+     */
+    after: number;
+    /**
+     * Vrai si la classe est encore hors de sa bande après exécution des ordres.
+     */
+    outOfBandAfter: boolean;
 }
 
 

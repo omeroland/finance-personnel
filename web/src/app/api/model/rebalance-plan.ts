@@ -8,13 +8,15 @@
  * Do not edit the class manually.
  */
 import { ClassStatus } from './class-status';
+import { AccountCashAfter } from './account-cash-after';
 import { PlanOrder } from './plan-order';
 import { SkippedOrder } from './skipped-order';
 import { Currency } from './currency';
+import { FundStatus } from './fund-status';
 
 
 /**
- * Plan de rééquilibrage. Aucun ordre si tout est dans les bandes.
+ * Plan de rééquilibrage. Aucun ordre si tout est dans les bandes. Les poids « après » sont ceux du moteur, calculés sur l\'état final (ordres exécutés), en fraction de la valeur de marché totale (cotisations incluses) ; le client n\'en calcule aucun. `funds` liste chaque fonds du modèle et chaque fonds détenu hors modèle (cible 0), trié par symbole ; il est vide, comme `classes` après un plan vide, quand la valeur totale est nulle. 
  */
 export interface RebalancePlan { 
     /**
@@ -31,9 +33,13 @@ export interface RebalancePlan {
      */
     totalValue?: string;
     /**
-     * Situation de chaque classe avant le plan.
+     * Situation de chaque classe avant et après le plan.
      */
     classes: Array<ClassStatus>;
+    /**
+     * Situation de chaque fonds avant et après le plan, triée par symbole.
+     */
+    funds: Array<FundStatus>;
     /**
      * Ordres dans l\'ordre exécutable : les ventes d\'abord, puis les achats (le produit des ventes finance les achats). 
      */
@@ -43,9 +49,13 @@ export interface RebalancePlan {
      */
     skipped: Array<SkippedOrder>;
     /**
-     * Encaisse restante après exécution des ordres.
+     * Encaisse totale restante après exécution des ordres (somme de `accountCash`).
      */
     cashAfter: string;
+    /**
+     * Encaisse restante de chaque compte du plan après exécution des ordres.
+     */
+    accountCash: Array<AccountCashAfter>;
 }
 
 

@@ -166,6 +166,8 @@ type RebalancePlan struct {
 	Before      Weights
 	After       Weights
 	OutOfBand   []BandStatus // constat de départ
+	// OutOfBandAfter est le constat sur l'état final (après les ordres) ; vide si tout est dans les bandes.
+	OutOfBandAfter []BandStatus
 	// Total est la valeur de marché totale avant le plan (positions, encaisses et cotisations).
 	Total decimal.Decimal
 }
@@ -238,6 +240,7 @@ func Rebalance(in RebalanceInput) (RebalancePlan, error) {
 	plan.Orders = r.orderList()
 	plan.Skipped = r.skipped
 	plan.After = r.weights()
+	plan.OutOfBandAfter = r.detect()
 	plan.EndCash, plan.AccountCash = r.cashSummary()
 	return plan, nil
 }

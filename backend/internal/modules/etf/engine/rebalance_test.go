@@ -325,3 +325,32 @@ func TestAccountTypeAndDefaults(t *testing.T) {
 		t.Fatal("défauts")
 	}
 }
+
+func TestRebalanceOutOfBandAfter(t *testing.T) {
+	t.Parallel()
+	// Même cas que la cotisation sans vente : hors bande avant, dans les bandes après.
+	p, err := Rebalance(RebalanceInput{
+		Funds: twoFunds(),
+		Accounts: []RebalAccount{{
+			ID: "a", Type: AccountCELI, Contribution: d("200"),
+			Positions: []RebalPosition{pos("XEQT", "50"), pos("XBB", "25")},
+		}},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(p.OutOfBand) == 0 || len(p.OutOfBandAfter) != 0 {
+		t.Fatalf("avant %+v, après %+v", p.OutOfBand, p.OutOfBandAfter)
+	}
+	if len(p.After.Funds) != 2 || p.After.Funds[1].Weight <= p.Before.Funds[1].Weight {
+		t.Fatalf("poids après: %+v / avant: %+v", p.After.Funds, p.Before.Funds)
+	}
+	// Dans les bandes dès le départ : rien avant, rien après.
+	q, err := Rebalance(RebalanceInput{
+		Funds:    twoFunds(),
+		Accounts: []RebalAccount{{ID: "a", Type: AccountCELI, Positions: []RebalPosition{pos("XEQT", "60"), pos("XBB", "20")}}},
+	})
+	if err != nil || len(q.OutOfBand) != 0 || len(q.OutOfBandAfter) != 0 {
+		t.Fatalf("plan vide: %+v %v", q, err)
+	}
+}

@@ -572,6 +572,14 @@ type Account struct {
 	Type AccountType `json:"type"`
 }
 
+// AccountCashAfter Encaisse d'un compte après exécution des ordres.
+type AccountCashAfter struct {
+	AccountId openapi_types.UUID `json:"accountId"`
+
+	// Cash Nombre décimal exact en chaîne (jamais de virgule flottante).
+	Cash Decimal `json:"cash"`
+}
+
 // AccountCreate Création d'un compte.
 type AccountCreate struct {
 	// Broker Nom du courtier.
@@ -660,17 +668,23 @@ type ClassExposure struct {
 	Target *float64 `json:"target,omitempty"`
 }
 
-// ClassStatus Situation d'une classe d'actifs avant le plan.
+// ClassStatus Situation d'une classe d'actifs avant et après le plan.
 type ClassStatus struct {
 	// Actual Poids réel, en fraction de la valeur de marché totale.
 	Actual float64 `json:"actual"`
+
+	// After Poids après exécution des ordres, en fraction de la valeur de marché totale.
+	After float64 `json:"after"`
 
 	// AssetClass Les six classes d'actifs. `equity_ca` actions canadiennes, `equity_us` actions américaines, `equity_intl` actions internationales,
 	// `bond_ca` obligations canadiennes, `bond_other` autres obligations, `other_assets` autres actifs (immobilier, or, crypto).
 	AssetClass AssetClass `json:"assetClass"`
 
-	// OutOfBand Vrai si la classe est hors de sa bande (« à équilibrer »).
+	// OutOfBand Vrai si la classe est hors de sa bande (« à équilibrer ») avant le plan.
 	OutOfBand bool `json:"outOfBand"`
+
+	// OutOfBandAfter Vrai si la classe est encore hors de sa bande après exécution des ordres.
+	OutOfBandAfter bool `json:"outOfBandAfter"`
 
 	// Target Cible du modèle, en fraction.
 	Target float64 `json:"target"`
@@ -941,6 +955,27 @@ type FieldError struct {
 
 	// Message Description de l'erreur.
 	Message string `json:"message"`
+}
+
+// FundStatus Situation d'un fonds avant et après le plan, en fraction de la valeur de marché totale.
+type FundStatus struct {
+	// After Poids après exécution des ordres.
+	After float64 `json:"after"`
+
+	// Before Poids avant le plan.
+	Before float64 `json:"before"`
+
+	// OutOfBandAfter Vrai si le fonds est encore hors de sa bande après exécution des ordres.
+	OutOfBandAfter bool `json:"outOfBandAfter"`
+
+	// OutOfBandBefore Vrai si le fonds est hors de sa bande avant le plan.
+	OutOfBandBefore bool `json:"outOfBandBefore"`
+
+	// Symbol Symbole canonique `BOURSE:SYMBOLE`, en majuscules.
+	Symbol Symbol `json:"symbol"`
+
+	// Target Cible du fonds, normalisée (la cible d'encaisse est exclue), en fraction.
+	Target float64 `json:"target"`
 }
 
 // Horizon Horizon en années. L'horizon de 5 ans est indicatif et sans verdict.
@@ -1355,16 +1390,25 @@ type Qualitative struct {
 	Rule4 RuleAnswer `json:"rule4"`
 }
 
-// RebalancePlan Plan de rééquilibrage. Aucun ordre si tout est dans les bandes.
+// RebalancePlan Plan de rééquilibrage. Aucun ordre si tout est dans les bandes. Les poids « après » sont ceux du moteur,
+// calculés sur l'état final (ordres exécutés), en fraction de la valeur de marché totale (cotisations incluses) ;
+// le client n'en calcule aucun. `funds` liste chaque fonds du modèle et chaque fonds détenu hors modèle (cible 0),
+// trié par symbole ; il est vide, comme `classes` après un plan vide, quand la valeur totale est nulle.
 type RebalancePlan struct {
-	// CashAfter Encaisse restante après exécution des ordres.
+	// AccountCash Encaisse restante de chaque compte du plan après exécution des ordres.
+	AccountCash []AccountCashAfter `json:"accountCash"`
+
+	// CashAfter Encaisse totale restante après exécution des ordres (somme de `accountCash`).
 	CashAfter Decimal `json:"cashAfter"`
 
-	// Classes Situation de chaque classe avant le plan.
+	// Classes Situation de chaque classe avant et après le plan.
 	Classes []ClassStatus `json:"classes"`
 
 	// Currency Code de devise ISO 4217.
 	Currency Currency `json:"currency"`
+
+	// Funds Situation de chaque fonds avant et après le plan, triée par symbole.
+	Funds []FundStatus `json:"funds"`
 
 	// ModelId Modèle utilisé.
 	ModelId openapi_types.UUID `json:"modelId"`

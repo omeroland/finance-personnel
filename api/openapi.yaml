@@ -2592,8 +2592,8 @@ components:
           $ref: '#/components/schemas/Bands'
     ClassStatus:
       type: object
-      description: Situation d'une classe d'actifs avant le plan.
-      required: [assetClass, actual, target, outOfBand]
+      description: Situation d'une classe d'actifs avant et après le plan.
+      required: [assetClass, actual, target, outOfBand, after, outOfBandAfter]
       properties:
         assetClass:
           $ref: '#/components/schemas/AssetClass'
@@ -2609,8 +2609,17 @@ components:
           example: 0.275
         outOfBand:
           type: boolean
-          description: Vrai si la classe est hors de sa bande (« à équilibrer »).
+          description: Vrai si la classe est hors de sa bande (« à équilibrer ») avant le plan.
           example: true
+        after:
+          type: number
+          format: double
+          description: Poids après exécution des ordres, en fraction de la valeur de marché totale.
+          example: 0.22
+        outOfBandAfter:
+          type: boolean
+          description: Vrai si la classe est encore hors de sa bande après exécution des ordres.
+          example: false
     SkippedOrder:
       type: object
       description: Ordre écarté.
@@ -2631,8 +2640,12 @@ components:
           example: below_minimum
     RebalancePlan:
       type: object
-      description: Plan de rééquilibrage. Aucun ordre si tout est dans les bandes.
-      required: [modelId, modelVersion, currency, classes, orders, skipped, cashAfter]
+      description: |
+        Plan de rééquilibrage. Aucun ordre si tout est dans les bandes. Les poids « après » sont ceux du moteur,
+        calculés sur l'état final (ordres exécutés), en fraction de la valeur de marché totale (cotisations incluses) ;
+        le client n'en calcule aucun. `funds` liste chaque fonds du modèle et chaque fonds détenu hors modèle (cible 0),
+        trié par symbole ; il est vide, comme `classes` après un plan vide, quand la valeur totale est nulle.
+      required: [modelId, modelVersion, currency, classes, funds, orders, skipped, cashAfter, accountCash]
       properties:
         modelId:
           type: string
@@ -2651,9 +2664,14 @@ components:
           description: Valeur de marché totale avant le plan. Absente si un prix manque.
         classes:
           type: array
-          description: Situation de chaque classe avant le plan.
+          description: Situation de chaque classe avant et après le plan.
           items:
             $ref: '#/components/schemas/ClassStatus'
+        funds:
+          type: array
+          description: Situation de chaque fonds avant et après le plan, triée par symbole.
+          items:
+            $ref: '#/components/schemas/FundStatus'
         orders:
           type: array
           description: |
@@ -2668,7 +2686,53 @@ components:
         cashAfter:
           allOf:
             - $ref: '#/components/schemas/Decimal'
-          description: Encaisse restante après exécution des ordres.
+          description: Encaisse totale restante après exécution des ordres (somme de `accountCash`).
+        accountCash:
+          type: array
+          description: Encaisse restante de chaque compte du plan après exécution des ordres.
+          items:
+            $ref: '#/components/schemas/AccountCashAfter'
+    FundStatus:
+      type: object
+      description: Situation d'un fonds avant et après le plan, en fraction de la valeur de marché totale.
+      required: [symbol, before, target, after, outOfBandBefore, outOfBandAfter]
+      properties:
+        symbol:
+          $ref: '#/components/schemas/Symbol'
+        before:
+          type: number
+          format: double
+          description: Poids avant le plan.
+          example: 0.31
+        target:
+          type: number
+          format: double
+          description: Cible du fonds, normalisée (la cible d'encaisse est exclue), en fraction.
+          example: 0.22
+        after:
+          type: number
+          format: double
+          description: Poids après exécution des ordres.
+          example: 0.22
+        outOfBandBefore:
+          type: boolean
+          description: Vrai si le fonds est hors de sa bande avant le plan.
+          example: true
+        outOfBandAfter:
+          type: boolean
+          description: Vrai si le fonds est encore hors de sa bande après exécution des ordres.
+          example: false
+    AccountCashAfter:
+      type: object
+      description: Encaisse d'un compte après exécution des ordres.
+      required: [accountId, cash]
+      properties:
+        accountId:
+          type: string
+          format: uuid
+          example: 3f2a9c1e-7b4d-4e68-a1c5-2d9e8f7b6a40
+        cash:
+          $ref: '#/components/schemas/Decimal'
     ClassExposure:
       type: object
       description: Exposition à une classe d'actifs. Cible et écart sont absents sans modèle.
@@ -3527,10 +3591,27 @@ components:
             actual: 0.31
             target: 0.22
             outOfBand: true
+            after: 0.31
+            outOfBandAfter: true
           - assetClass: bond_ca
             actual: 0.12
             target: 0.2
             outOfBand: true
+            after: 0.16
+            outOfBandAfter: false
+        funds:
+          - symbol: 'TSX:XEQT'
+            before: 0.88
+            target: 0.8
+            after: 0.84
+            outOfBandBefore: true
+            outOfBandAfter: false
+          - symbol: 'TSX:ZAG'
+            before: 0.12
+            target: 0.2
+            after: 0.16
+            outOfBandBefore: true
+            outOfBandAfter: false
         orders:
           - side: buy
             symbol: 'TSX:ZAG'
@@ -3544,6 +3625,9 @@ components:
             amount: '9.50'
             reason: below_minimum
         cashAfter: '9.50'
+        accountCash:
+          - accountId: 3f2a9c1e-7b4d-4e68-a1c5-2d9e8f7b6a40
+            cash: '9.50'
     ExposureExample:
       summary: Exposition et cibles
       value:
