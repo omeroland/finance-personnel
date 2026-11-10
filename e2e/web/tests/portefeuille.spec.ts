@@ -95,6 +95,10 @@ test('plan de rééquilibrage : cotisation par compte, classes hors bande et ord
   await expect(page.getByTestId('plan-reeq')).toBeVisible();
   await expect(page.getByTestId('reeq-classes')).toBeVisible();
   await expect(page.getByTestId('reeq-encaisse')).toBeVisible();
+  await expect(page.getByTestId('reeq-fonds')).toBeVisible();
+  await expect(page.getByTestId('reeq-fonds').locator('tbody tr').first()).toContainText('%');
+  await expect(page.getByTestId('reeq-encaisse-comptes')).toBeVisible();
+  await expect(page.getByTestId('plan-reeq')).not.toContainText('ne sont pas fournis');
   await expect(page.getByTestId('ordres').or(page.getByTestId('ordres-vide'))).toBeVisible();
 });
 

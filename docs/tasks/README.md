@@ -69,4 +69,5 @@ Fiches rédigées d'avance (D302). Phase ouverte sans la signature de la porte d
 | P2-11c | Plan de rééquilibrage : poids après et statut par fonds | Backend Go | P2-11b | terminée |
 | [P2-12](P2-12.md) | Web : comptes, registre, relevés, catalogue | Frontend Angular | P2-10 | terminée |
 | [P2-13](P2-13.md) | Web : portefeuille modèle, plans et tableau de bord | Frontend Angular | P2-11, P2-12 | terminée |
+| P2-13b | Web : poids après et statut par fonds du rééquilibrage | Frontend Angular | P2-11c, P2-13 | terminée |
 | [P2-14](P2-14.md) | Porte de phase 2 et parcours complet | Vérificateur | P2-13 | à faire |
