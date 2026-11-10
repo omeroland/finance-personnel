@@ -13,6 +13,14 @@ export const routes: Routes = [
         path: 'stocks',
         loadChildren: () => import('./features/stockeval/stockeval.routes').then((m) => m.routes),
       },
+      {
+        path: 'comptes',
+        loadChildren: () => import('./features/accounts/accounts.routes').then((m) => m.routes),
+      },
+      {
+        path: 'fnb',
+        loadChildren: () => import('./features/etf-catalog/etf-catalog.routes').then((m) => m.routes),
+      },
     ],
   },
   { path: '**', redirectTo: '' },

@@ -18,7 +18,13 @@
       <a mat-list-item routerLink="/stocks/import" routerLinkActive="actif" ariaCurrentWhenActive="page" data-testid="menu-import">
         {{ 'menu.import' | t }}
       </a>
-      <!-- Module 2 : désactivé jusqu'à la phase 2. L'état est dit en texte, pas par la couleur seule. -->
+      <a mat-list-item routerLink="/comptes" routerLinkActive="actif" ariaCurrentWhenActive="page" data-testid="menu-comptes">
+        {{ 'menu.comptes' | t }}
+      </a>
+      <a mat-list-item routerLink="/fnb" routerLinkActive="actif" ariaCurrentWhenActive="page" data-testid="menu-fnb">
+        {{ 'menu.catalogue' | t }}
+      </a>
+      <!-- Portefeuille modèle, plans et tableau de bord (P2-13) : désactivé jusqu'à la phase 2. L'état est dit en texte, pas par la couleur seule. -->
       <a
         mat-list-item
         class="desactive"
