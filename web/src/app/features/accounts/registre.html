@@ -1,0 +1,127 @@
+<h2>{{ 'reg.titre' | t }}</h2>
+<p>{{ 'reg.intro' | t }}</p>
+
+<form class="formulaire" (ngSubmit)="ajouter()" [attr.aria-label]="'reg.ajouter' | t" data-testid="form-transaction">
+  <mat-form-field>
+    <mat-label>{{ 'reg.champ.type' | t }}</mat-label>
+    <mat-select data-testid="tx-type" [value]="type()" (valueChange)="changerType($event)">
+      @for (t of types; track t) {
+      <mat-option [value]="t">{{ libelleType(t) }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>{{ 'reg.champ.tradeDate' | t }}</mat-label>
+    <input
+      matInput
+      type="date"
+      name="tradeDate"
+      data-testid="tx-date"
+      [ngModel]="valeur('tradeDate')"
+      (ngModelChange)="modifier('tradeDate', $event)"
+    />
+    @if (erreurChamp('tradeDate'); as cle) {
+    <mat-hint class="erreur" role="alert"><span class="icone" aria-hidden="true">✖</span>{{ cle | t }}</mat-hint>
+    }
+  </mat-form-field>
+  @for (c of champs(); track c) {
+  <mat-form-field>
+    <mat-label>{{ etiquette(c) | t }}</mat-label>
+    @if (c === 'counterpartAccountId') {
+    <mat-select [attr.data-testid]="'tx-' + c" [value]="valeur(c)" (valueChange)="modifier(c, $event)">
+      <mat-option value="">{{ 'reg.aucune' | t }}</mat-option>
+      @for (a of autres(); track a.id) {
+      <mat-option [value]="a.id">{{ a.name }}</mat-option>
+      }
+    </mat-select>
+    } @else {
+    <input
+      matInput
+      autocomplete="off"
+      [name]="c"
+      [attr.data-testid]="'tx-' + c"
+      [attr.inputmode]="c === 'symbol' ? 'text' : 'decimal'"
+      [ngModel]="valeur(c)"
+      (ngModelChange)="modifier(c, $event)"
+    />
+    } @if (erreurChamp(c); as cle) {
+    <mat-hint class="erreur" role="alert"><span class="icone" aria-hidden="true">✖</span>{{ cle | t }}</mat-hint>
+    }
+  </mat-form-field>
+  }
+  <mat-form-field>
+    <mat-label>{{ 'reg.champ.note' | t }}</mat-label>
+    <input
+      matInput
+      maxlength="500"
+      name="note"
+      data-testid="tx-note"
+      [ngModel]="valeur('note')"
+      (ngModelChange)="modifier('note', $event)"
+    />
+  </mat-form-field>
+  <p class="champ">{{ 'reg.devise' | t: { devise: compte().currency } }}</p>
+  <div class="champ">
+    <button mat-flat-button type="submit" data-testid="tx-ajouter" [disabled]="envoi()">{{ 'reg.ajouter' | t }}</button>
+  </div>
+</form>
+@if (erreurEnvoi()) {
+<p class="erreur" role="alert" data-testid="tx-erreur">
+  <span class="icone" aria-hidden="true">✖</span>{{ erreurEnvoi() }}
+</p>
+} @switch (etat()) { @case ('chargement') {
+<p role="status" data-testid="reg-chargement">{{ 'reg.chargement' | t }}</p>
+} @case ('erreur') {
+<p class="erreur" role="alert" data-testid="reg-erreur">
+  <span class="icone" aria-hidden="true">✖</span>{{ message() }}
+</p>
+<button mat-stroked-button type="button" (click)="charger()">{{ 'liste.reessayer' | t }}</button>
+} @default { @if (registre().length === 0) {
+<p role="status" data-testid="reg-vide">{{ 'reg.vide' | t }}</p>
+} @else {
+<div class="defile">
+  <table class="simple" data-testid="registre">
+    <caption class="sr-only">
+      {{ 'reg.titre' | t }}
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">{{ 'reg.champ.tradeDate' | t }}</th>
+        <th scope="col">{{ 'reg.champ.type' | t }}</th>
+        <th scope="col">{{ 'reg.champ.symbol' | t }}</th>
+        <th scope="col" class="num">{{ 'reg.champ.quantity' | t }}</th>
+        <th scope="col" class="num">{{ 'reg.champ.price' | t }}</th>
+        <th scope="col" class="num">{{ 'reg.champ.amount' | t }}</th>
+        <th scope="col" class="num">{{ 'reg.champ.fee' | t }}</th>
+        <th scope="col">{{ 'reg.col.statut' | t }}</th>
+        <th scope="col">{{ 'reg.col.actions' | t }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (t of registre(); track t.id) {
+      <tr [attr.data-statut]="statut(t)" [class.annulee]="statut(t) === 'annulee'" [attr.data-testid]="'tx-' + t.id">
+        <td>{{ t.tradeDate }}</td>
+        <td>{{ libelleType(t.type) }}</td>
+        <td>{{ t.symbol ?? '' }} @if (t.counterpartAccountId; as autre) { {{ nomAutre(autre) }} }</td>
+        <td class="num">{{ montant(t.quantity) }}</td>
+        <td class="num">{{ montant(t.price) }}</td>
+        <td class="num">{{ montant(t.amount) }} {{ t.amount ? t.currency : '' }}</td>
+        <td class="num">{{ montant(t.fee) }}</td>
+        <td>
+          <span class="icone" aria-hidden="true">{{ icone(t) }}</span>{{ libelleStatut(t) | t }} @if (t.reversesId) {
+          <span class="sr-only">{{ t.reversesId }}</span>
+          }
+        </td>
+        <td>
+          @if (statut(t) === 'originale') {
+          <button mat-stroked-button type="button" [attr.data-testid]="'inverse-' + t.id" (click)="annuler(t)">
+            {{ 'reg.annuler' | t }}
+          </button>
+          }
+        </td>
+      </tr>
+      }
+    </tbody>
+  </table>
+</div>
+} } }

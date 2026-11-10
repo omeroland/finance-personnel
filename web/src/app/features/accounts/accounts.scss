@@ -1,0 +1,78 @@
+:host {
+  display: block;
+  padding: 16px;
+  max-width: 1100px;
+}
+.entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.formulaire {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 16px;
+  align-items: flex-start;
+}
+.formulaire mat-form-field {
+  width: 14rem;
+}
+.champ {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-block-end: 16px;
+}
+.erreur {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--mat-sys-error);
+  font-weight: 500;
+}
+.icone {
+  display: inline-block;
+  width: 1.25em;
+  text-align: center;
+}
+.defile {
+  overflow-x: auto;
+}
+.num {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+.compteurs {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.absent {
+  color: var(--mat-sys-on-surface-variant);
+  font-style: italic;
+}
+.annulee td {
+  text-decoration: line-through;
+}
+table.simple {
+  border-collapse: collapse;
+  width: 100%;
+}
+table.simple th,
+table.simple td {
+  text-align: start;
+  padding: 8px;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+  vertical-align: top;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}

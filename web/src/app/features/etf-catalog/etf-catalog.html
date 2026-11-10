@@ -1,0 +1,187 @@
+<h1>{{ 'fnb.titre' | t }}</h1>
+
+<form class="filtres" (ngSubmit)="appliquer()" [attr.aria-label]="'fnb.filtres' | t">
+  <mat-form-field>
+    <mat-label>{{ 'fnb.col.type' | t }}</mat-label>
+    <mat-select data-testid="filtre-type" [value]="type()" (valueChange)="type.set($event)">
+      <mat-option value="">{{ 'filtre.tous' | t }}</mat-option>
+      @for (v of types; track v) {
+      <mat-option [value]="v">{{ libelleType(v) }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>{{ 'fnb.col.region' | t }}</mat-label>
+    <mat-select data-testid="filtre-region" [value]="region()" (valueChange)="region.set($event)">
+      <mat-option value="">{{ 'filtre.toutes' | t }}</mat-option>
+      @for (v of regions; track v) {
+      <mat-option [value]="v">{{ libelleRegion(v) }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>{{ 'fnb.rfgMax' | t }}</mat-label>
+    <input
+      matInput
+      inputmode="decimal"
+      autocomplete="off"
+      name="rfgMax"
+      data-testid="filtre-rfg"
+      [ngModel]="rfgMax()"
+      (ngModelChange)="rfgMax.set($event)"
+    />
+    <mat-hint align="end">{{ 'fnb.rfgAide' | t }}</mat-hint>
+    @if (erreurRfg(); as cle) {
+    <mat-hint class="erreur" role="alert"><span class="icone" aria-hidden="true">✖</span>{{ cle | t }}</mat-hint>
+    }
+  </mat-form-field>
+  <button mat-flat-button type="submit" data-testid="filtrer">{{ 'fnb.appliquer' | t }}</button>
+  <button mat-button type="button" data-testid="reinitialiser" (click)="reinitialiser()">
+    {{ 'fnb.reinitialiser' | t }}
+  </button>
+</form>
+@if (erreurRfg(); as cle) {
+<p class="erreur" role="alert" data-testid="erreur-rfg"><span class="icone" aria-hidden="true">✖</span>{{ cle | t }}</p>
+} @switch (etat()) { @case ('chargement') {
+<p role="status" data-testid="chargement">{{ 'fnb.chargement' | t }}</p>
+} @case ('erreur') {
+<p class="erreur" role="alert" data-testid="erreur"><span class="icone" aria-hidden="true">✖</span>{{ message() }}</p>
+<button mat-stroked-button type="button" (click)="appliquer()">{{ 'liste.reessayer' | t }}</button>
+} @default { @if (fnb().length === 0) {
+<p role="status" data-testid="vide">{{ 'fnb.vide' | t }}</p>
+} @else {
+<div class="barre">
+  <p role="status" data-testid="compteur-selection">{{ 'fnb.selection' | t: { n: '' + choisis().length } }}</p>
+  <button mat-flat-button type="button" data-testid="comparer" [disabled]="!peutComparer()" (click)="comparer()">
+    {{ 'fnb.comparer' | t }}
+  </button>
+  <small>{{ 'fnb.comparerAide' | t }}</small>
+</div>
+<div class="defile">
+  <table class="simple" data-testid="catalogue">
+    <caption class="sr-only">
+      {{ 'fnb.titre' | t }}
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">{{ 'fnb.col.choisir' | t }}</th>
+        <th scope="col">{{ 'fnb.col.symbole' | t }}</th>
+        <th scope="col">{{ 'fnb.col.nom' | t }}</th>
+        <th scope="col">{{ 'fnb.col.type' | t }}</th>
+        <th scope="col">{{ 'fnb.col.region' | t }}</th>
+        <th scope="col" class="num">{{ 'fnb.col.rfg' | t }}</th>
+        <th scope="col">{{ 'fnb.col.date' | t }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (f of fnb(); track f.symbol) {
+      <tr>
+        <td>
+          <input
+            type="checkbox"
+            [attr.data-testid]="'choix-' + f.symbol"
+            [attr.aria-label]="'fnb.choisirFnb' | t: { symbole: f.symbol }"
+            [checked]="estChoisi(f.symbol)"
+            [disabled]="desactive(f.symbol)"
+            (change)="basculer(f.symbol, $any($event.target).checked)"
+          />
+        </td>
+        <td>{{ f.symbol }}</td>
+        <td>{{ f.name }}</td>
+        <td>{{ libelleType(f.type) }}</td>
+        <td>{{ libelleRegion(f.region) }}</td>
+        <td class="num">
+          @if (rfg(f); as r) { {{ r }} } @else {
+          <span class="absent">{{ 'fnb.nonDisponible' | t }}</span>
+          }
+        </td>
+        <td>{{ f.asOf }}</td>
+      </tr>
+      }
+    </tbody>
+  </table>
+</div>
+} } } @if (comparaison()) {
+<section class="comparaison" data-testid="comparaison" aria-labelledby="titre-comparaison">
+  <div class="barre">
+    <h2 id="titre-comparaison">{{ 'fnb.comparaison' | t }}</h2>
+    <button mat-button type="button" data-testid="fermer-comparaison" (click)="fermerComparaison()">
+      {{ 'fnb.fermer' | t }}
+    </button>
+  </div>
+  <div class="defile">
+    <table class="simple">
+      <caption class="sr-only">
+        {{ 'fnb.comparaison' | t }}
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col">{{ 'fnb.critere' | t }}</th>
+          @for (f of selection(); track f.symbol) {
+          <th scope="col" [attr.data-testid]="'comp-' + f.symbol">{{ f.symbol }}<br /><small>{{ f.name }}</small></th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">{{ 'fnb.col.type' | t }}</th>
+          @for (f of selection(); track f.symbol) {
+          <td>{{ libelleType(f.type) }}</td>
+          }
+        </tr>
+        <tr>
+          <th scope="row">{{ 'fnb.col.region' | t }}</th>
+          @for (f of selection(); track f.symbol) {
+          <td>{{ libelleRegion(f.region) }}</td>
+          }
+        </tr>
+        <tr>
+          <th scope="row">{{ 'fnb.col.devise' | t }}</th>
+          @for (f of selection(); track f.symbol) {
+          <td>{{ f.currency }}</td>
+          }
+        </tr>
+        <tr>
+          <th scope="row">{{ 'fnb.col.rfg' | t }}</th>
+          @for (f of selection(); track f.symbol) {
+          <td data-row="rfg">{{ rfg(f) ?? ('fnb.nonDisponible' | t) }}</td>
+          }
+        </tr>
+        <tr>
+          <th scope="row">{{ 'fnb.col.taille' | t }}</th>
+          @for (f of selection(); track f.symbol) {
+          <td>{{ taille(f) || ('fnb.nonDisponible' | t) }}</td>
+          }
+        </tr>
+        <tr>
+          <th scope="row">{{ 'fnb.col.esg' | t }}</th>
+          @for (f of selection(); track f.symbol) {
+          <td>{{ esg(f) ? (esg(f)! | t) : ('fnb.nonDisponible' | t) }}</td>
+          }
+        </tr>
+        @for (c of classes; track c) {
+        <tr>
+          <th scope="row">{{ libelleClasse(c) }}</th>
+          @for (f of selection(); track f.symbol) {
+          <td>{{ part(f, c) ?? '–' }}</td>
+          }
+        </tr>
+        } @for (a of annees; track a) {
+        <tr>
+          <th scope="row">{{ 'fnb.rendementAnnees' | t: { n: '' + a } }}</th>
+          @for (f of selection(); track f.symbol) {
+          <td>{{ rendement(f, a) ?? ('fnb.nonDisponible' | t) }}</td>
+          }
+        </tr>
+        }
+        <tr>
+          <th scope="row">{{ 'fnb.col.date' | t }}</th>
+          @for (f of selection(); track f.symbol) {
+          <td>{{ f.asOf }}</td>
+          }
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+}

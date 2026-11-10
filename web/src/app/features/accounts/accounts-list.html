@@ -1,0 +1,41 @@
+<header class="entete">
+  <h1>{{ 'cpt.titre' | t }}</h1>
+  <button mat-flat-button type="button" data-testid="creer-compte" (click)="creer()">{{ 'cpt.creer' | t }}</button>
+</header>
+
+@switch (etat()) { @case ('chargement') {
+<p role="status" data-testid="chargement">{{ 'cpt.chargement' | t }}</p>
+} @case ('erreur') {
+<p class="erreur" role="alert" data-testid="erreur"><span class="icone" aria-hidden="true">✖</span>{{ message() }}</p>
+<button mat-stroked-button type="button" (click)="charger()">{{ 'liste.reessayer' | t }}</button>
+} @default { @if (comptes().length === 0) {
+<p role="status" data-testid="vide">{{ 'cpt.vide' | t }}</p>
+} @else {
+<div class="defile">
+  <table class="simple" data-testid="comptes">
+    <caption class="sr-only">
+      {{ 'cpt.titre' | t }}
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">{{ 'cpt.col.nom' | t }}</th>
+        <th scope="col">{{ 'cpt.col.type' | t }}</th>
+        <th scope="col">{{ 'cpt.col.courtier' | t }}</th>
+        <th scope="col">{{ 'cpt.col.devise' | t }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (c of comptes(); track c.id) {
+      <tr>
+        <td>
+          <a [routerLink]="['/comptes', c.id]" [attr.data-testid]="'compte-' + c.id">{{ c.name }}</a>
+        </td>
+        <td>{{ libelleType(c) }}</td>
+        <td>{{ c.broker }}</td>
+        <td>{{ c.currency }}</td>
+      </tr>
+      }
+    </tbody>
+  </table>
+</div>
+} } }
