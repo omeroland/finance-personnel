@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 
 	"github.com/omeroland/finance-privee/backend/internal/api/gen"
 	corestore "github.com/omeroland/finance-privee/backend/internal/core/store"
@@ -28,6 +29,17 @@ type Ledger interface {
 	ListTransactions(ctx context.Context, owner, account uuid.UUID, from, to *time.Time) ([]corestore.Tx, error)
 	CreateStatement(ctx context.Context, owner uuid.UUID, in corestore.StatementInput) (corestore.Statement, error)
 	Holdings(ctx context.Context, owner, account uuid.UUID, asOf time.Time) (corestore.Holdings, error)
+	ListStatements(ctx context.Context, owner, account uuid.UUID) ([]corestore.Statement, error)
+	Entries(ctx context.Context, owner, account uuid.UUID, asOf time.Time) ([]corestore.Tx, error)
+}
+
+// Portfolio regroupe les dépôts de modèles et de prix (satisfait par *etfstore.Store).
+type Portfolio interface {
+	ListModels(ctx context.Context, owner uuid.UUID) ([]etfstore.Model, error)
+	GetModel(ctx context.Context, owner, id uuid.UUID) (etfstore.Model, error)
+	CreateModel(ctx context.Context, owner uuid.UUID, in ingest.Model) (etfstore.Model, error)
+	PublishModelVersion(ctx context.Context, owner, id uuid.UUID, in ingest.Model) (etfstore.Model, error)
+	LastPrices(ctx context.Context, owner uuid.UUID, symbols []string, currency string, asOf time.Time) (map[string]decimal.Decimal, error)
 }
 
 // Catalog lit le catalogue de FNB (satisfait par *etfstore.Store).
@@ -39,6 +51,8 @@ type Catalog interface {
 type Config struct {
 	Ledger  Ledger
 	Catalog Catalog
+	// Portfolio : modèles et derniers prix (P2-11).
+	Portfolio Portfolio
 	// Imports écrit les lignes de l'import CSV (satisfait par *etfstore.Store) ;
 	// absent, la route d'import répond 501.
 	Imports ingest.TransactionRepository
@@ -52,6 +66,7 @@ type Config struct {
 type Handler struct {
 	ledger  Ledger
 	catalog Catalog
+	pf      Portfolio
 	imports ingest.TransactionRepository
 	log     *slog.Logger
 	now     func() time.Time
@@ -59,10 +74,10 @@ type Handler struct {
 
 // New construit le Handler.
 func New(cfg Config) (*Handler, error) {
-	if cfg.Ledger == nil || cfg.Catalog == nil {
+	if cfg.Ledger == nil || cfg.Catalog == nil || cfg.Portfolio == nil {
 		return nil, errors.New("handlers: dépôts obligatoires")
 	}
-	h := &Handler{ledger: cfg.Ledger, catalog: cfg.Catalog, imports: cfg.Imports, log: cfg.Logger, now: cfg.Now}
+	h := &Handler{ledger: cfg.Ledger, catalog: cfg.Catalog, pf: cfg.Portfolio, imports: cfg.Imports, log: cfg.Logger, now: cfg.Now}
 	if h.log == nil {
 		h.log = slog.Default()
 	}

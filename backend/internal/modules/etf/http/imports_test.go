@@ -73,7 +73,7 @@ const csvOK = `date,compte,type,symbole,quantité,prix,devise,montant
 func TestImportCSV(t *testing.T) {
 	t.Parallel()
 	repo := &fakeTxRepo{}
-	h, err := httpapi.New(httpapi.Config{Ledger: newFakeLedger(), Catalog: fakeCatalog{}, Imports: repo, Now: fixedNow})
+	h, err := httpapi.New(httpapi.Config{Ledger: newFakeLedger(), Catalog: fakeCatalog{}, Portfolio: newFakePortfolio(), Imports: repo, Now: fixedNow})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -111,7 +111,7 @@ func TestImportCSV(t *testing.T) {
 
 func TestImportCSVBadInput(t *testing.T) {
 	t.Parallel()
-	h, err := httpapi.New(httpapi.Config{Ledger: newFakeLedger(), Catalog: fakeCatalog{}, Imports: &fakeTxRepo{}, Now: fixedNow})
+	h, err := httpapi.New(httpapi.Config{Ledger: newFakeLedger(), Catalog: fakeCatalog{}, Portfolio: newFakePortfolio(), Imports: &fakeTxRepo{}, Now: fixedNow})
 	if err != nil {
 		t.Fatal(err)
 	}

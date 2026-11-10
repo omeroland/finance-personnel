@@ -104,7 +104,8 @@ func run(logger *slog.Logger, cfg config) error {
 	}
 
 	core := corestore.New(pool)
-	etfAPI, err := etfhttp.New(etfhttp.Config{Ledger: core, Catalog: etfstore.New(core), Imports: etfstore.New(core), Logger: logger})
+	etfStore := etfstore.New(core)
+	etfAPI, err := etfhttp.New(etfhttp.Config{Ledger: core, Catalog: etfStore, Portfolio: etfStore, Imports: etfStore, Logger: logger})
 	if err != nil {
 		return fmt.Errorf("assembler les handlers du module 2: %w", err)
 	}

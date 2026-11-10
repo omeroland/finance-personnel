@@ -21,6 +21,7 @@ type fakeLedger struct {
 	accounts []corestore.Account
 	txs      []corestore.Tx
 	stmts    map[string]bool
+	stmtRows []corestore.Statement
 	asOf     time.Time
 	calls    []uuid.UUID // propriétaires reçus
 }
@@ -122,6 +123,7 @@ func (f *fakeLedger) CreateStatement(_ context.Context, owner uuid.UUID, in core
 	if in.Contribution != nil {
 		s.Contribution = decimal.NullDecimal{Decimal: *in.Contribution, Valid: true}
 	}
+	f.stmtRows = append(f.stmtRows, s)
 	return s, nil
 }
 
