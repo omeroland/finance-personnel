@@ -104,7 +104,7 @@ func realPair(t *testing.T) (alice, bob *api, core *corestore.Store, etf *etfsto
 	t.Helper()
 	core = corestore.New(pool(t))
 	etf = etfstore.New(core)
-	h, err := httpapi.New(httpapi.Config{Ledger: core, Catalog: etf, Now: fixedNow})
+	h, err := httpapi.New(httpapi.Config{Ledger: core, Catalog: etf, Portfolio: etf, Now: fixedNow})
 	if err != nil {
 		t.Fatal(err)
 	}

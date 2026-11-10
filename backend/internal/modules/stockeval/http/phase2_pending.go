@@ -15,8 +15,8 @@ type pendingRoutes struct{ *Handler }
 var _ gen.StrictServerInterface = pendingRoutes{}
 
 // Routes au contrat sans handler ici : l'import CSV attend l'accord sur
-// Job.type (D400), les modèles, plans, exposition et rendement arrivent avec
-// P2-11. D'ici là, elles répondent 501 au format RFC 9457.
+// Job.type (D400), les modèles, plans, exposition et rendement sont servis par
+// etf/http (P2-11). Sans composition, elles répondent 501 au format RFC 9457.
 
 const phase2Pending = "Cette route du module 2 n'est pas encore disponible."
 
@@ -60,37 +60,37 @@ func (pendingRoutes) ListEtfs(_ context.Context, _ gen.ListEtfsRequestObject) (g
 	return nil, httpx.NotImplemented(phase2Pending)
 }
 
-// ListModels : contrat P2-01, implémentation en P2-10 ou P2-11.
-func (h *Handler) ListModels(_ context.Context, _ gen.ListModelsRequestObject) (gen.ListModelsResponseObject, error) {
+// ListModels : servie par etf/http (P2-11) une fois composée dans cmd/server ; 501 sinon.
+func (pendingRoutes) ListModels(_ context.Context, _ gen.ListModelsRequestObject) (gen.ListModelsResponseObject, error) {
 	return nil, httpx.NotImplemented(phase2Pending)
 }
 
-// CreateModel : contrat P2-01, implémentation en P2-10 ou P2-11.
-func (h *Handler) CreateModel(_ context.Context, _ gen.CreateModelRequestObject) (gen.CreateModelResponseObject, error) {
+// CreateModel : servie par etf/http (P2-11) une fois composée dans cmd/server ; 501 sinon.
+func (pendingRoutes) CreateModel(_ context.Context, _ gen.CreateModelRequestObject) (gen.CreateModelResponseObject, error) {
 	return nil, httpx.NotImplemented(phase2Pending)
 }
 
-// UpdateModel : contrat P2-01, implémentation en P2-10 ou P2-11.
-func (h *Handler) UpdateModel(_ context.Context, _ gen.UpdateModelRequestObject) (gen.UpdateModelResponseObject, error) {
+// UpdateModel : servie par etf/http (P2-11) une fois composée dans cmd/server ; 501 sinon.
+func (pendingRoutes) UpdateModel(_ context.Context, _ gen.UpdateModelRequestObject) (gen.UpdateModelResponseObject, error) {
 	return nil, httpx.NotImplemented(phase2Pending)
 }
 
-// CreatePurchasePlan : contrat P2-01, implémentation en P2-10 ou P2-11.
-func (h *Handler) CreatePurchasePlan(_ context.Context, _ gen.CreatePurchasePlanRequestObject) (gen.CreatePurchasePlanResponseObject, error) {
+// CreatePurchasePlan : servie par etf/http (P2-11) une fois composée dans cmd/server ; 501 sinon.
+func (pendingRoutes) CreatePurchasePlan(_ context.Context, _ gen.CreatePurchasePlanRequestObject) (gen.CreatePurchasePlanResponseObject, error) {
 	return nil, httpx.NotImplemented(phase2Pending)
 }
 
-// CreateRebalancePlan : contrat P2-01, implémentation en P2-10 ou P2-11.
-func (h *Handler) CreateRebalancePlan(_ context.Context, _ gen.CreateRebalancePlanRequestObject) (gen.CreateRebalancePlanResponseObject, error) {
+// CreateRebalancePlan : servie par etf/http (P2-11) une fois composée dans cmd/server ; 501 sinon.
+func (pendingRoutes) CreateRebalancePlan(_ context.Context, _ gen.CreateRebalancePlanRequestObject) (gen.CreateRebalancePlanResponseObject, error) {
 	return nil, httpx.NotImplemented(phase2Pending)
 }
 
-// GetExposure : contrat P2-01, implémentation en P2-10 ou P2-11.
-func (h *Handler) GetExposure(_ context.Context, _ gen.GetExposureRequestObject) (gen.GetExposureResponseObject, error) {
+// GetExposure : servie par etf/http (P2-11) une fois composée dans cmd/server ; 501 sinon.
+func (pendingRoutes) GetExposure(_ context.Context, _ gen.GetExposureRequestObject) (gen.GetExposureResponseObject, error) {
 	return nil, httpx.NotImplemented(phase2Pending)
 }
 
-// GetPerformance : contrat P2-01, implémentation en P2-10 ou P2-11.
-func (h *Handler) GetPerformance(_ context.Context, _ gen.GetPerformanceRequestObject) (gen.GetPerformanceResponseObject, error) {
+// GetPerformance : servie par etf/http (P2-11) une fois composée dans cmd/server ; 501 sinon.
+func (pendingRoutes) GetPerformance(_ context.Context, _ gen.GetPerformanceRequestObject) (gen.GetPerformanceResponseObject, error) {
 	return nil, httpx.NotImplemented(phase2Pending)
 }
