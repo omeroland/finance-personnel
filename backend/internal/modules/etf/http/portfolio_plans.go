@@ -251,24 +251,45 @@ func (h *Handler) CreateRebalancePlan(ctx context.Context, req gen.CreateRebalan
 func rebalanceDTO(id uuid.UUID, version int, cur gen.Currency, classT engine.Allocation, plan engine.RebalancePlan) gen.RebalancePlan {
 	out := gen.RebalancePlan{
 		ModelId: id, ModelVersion: version, Currency: cur, CashAfter: dec(plan.EndCash),
-		Classes: make([]gen.ClassStatus, 0, len(allClasses)),
-		Orders:  make([]gen.PlanOrder, 0, len(plan.Orders)),
-		Skipped: make([]gen.SkippedOrder, 0, len(plan.Skipped)),
+		Classes:     make([]gen.ClassStatus, 0, len(allClasses)),
+		Funds:       make([]gen.FundStatus, 0, len(plan.Before.Funds)),
+		AccountCash: make([]gen.AccountCashAfter, 0, len(plan.AccountCash)),
+		Orders:      make([]gen.PlanOrder, 0, len(plan.Orders)),
+		Skipped:     make([]gen.SkippedOrder, 0, len(plan.Skipped)),
 	}
 	if plan.Total.IsPositive() {
 		t := dec(plan.Total)
 		out.TotalValue = &t
 	}
-	outOfBand := map[string]bool{}
-	for _, s := range plan.OutOfBand {
-		if s.Kind == "class" {
-			outOfBand[s.ID] = true
+	// Constats du moteur : « kind:id » -> hors bande (avant : OutOfBand ; après : OutOfBandAfter).
+	band := func(list []engine.BandStatus) map[string]bool {
+		m := map[string]bool{}
+		for _, s := range list {
+			m[s.Kind+":"+s.ID] = true
 		}
+		return m
 	}
+	before, after := band(plan.OutOfBand), band(plan.OutOfBandAfter)
 	for _, c := range allClasses {
 		out.Classes = append(out.Classes, gen.ClassStatus{
-			AssetClass: gen.AssetClass(c), Actual: plan.Before.Classes.Get(c), Target: classT.Get(c), OutOfBand: outOfBand[string(c)],
+			AssetClass: gen.AssetClass(c), Actual: plan.Before.Classes.Get(c), Target: classT.Get(c),
+			OutOfBand: before["class:"+string(c)], After: plan.After.Classes.Get(c), OutOfBandAfter: after["class:"+string(c)],
 		})
+	}
+	for i, f := range plan.Before.Funds {
+		fs := gen.FundStatus{
+			Symbol: f.FundID, Before: f.Weight, Target: f.Target,
+			OutOfBandBefore: before["fund:"+f.FundID], OutOfBandAfter: after["fund:"+f.FundID],
+		}
+		if i < len(plan.After.Funds) {
+			fs.After = plan.After.Funds[i].Weight
+		}
+		out.Funds = append(out.Funds, fs)
+	}
+	for _, a := range plan.AccountCash {
+		if aid, err := uuid.Parse(a.AccountID); err == nil {
+			out.AccountCash = append(out.AccountCash, gen.AccountCashAfter{AccountId: aid, Cash: dec(a.Cash)})
+		}
 	}
 	for _, o := range plan.Orders {
 		po := gen.PlanOrder{Side: gen.OrderSide(o.Side), Symbol: o.FundID, Shares: int(o.Shares), Price: dec(o.Price), Amount: dec(o.Amount)}

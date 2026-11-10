@@ -15,6 +15,7 @@ configuration.ts
 encoder.ts
 git_push.sh
 index.ts
+model/account-cash-after.ts
 model/account-create.ts
 model/account-list.ts
 model/account-type.ts
@@ -48,6 +49,7 @@ model/exposure.ts
 model/fact-list.ts
 model/facts-replace.ts
 model/field-error.ts
+model/fund-status.ts
 model/horizon-result.ts
 model/horizon-threshold.ts
 model/horizon.ts
