@@ -9,6 +9,7 @@
  */
 import { Bands } from './bands';
 import { Currency } from './currency';
+import { ContributionByAccount } from './contribution-by-account';
 
 
 /**
@@ -24,10 +25,19 @@ export interface RebalancePlanRequest {
      */
     accountIds?: Array<string>;
     /**
-     * Nouvelle cotisation à investir, utilisée avant toute vente. Si absente, aucune.
+     * Obsolète : utiliser `contributions`. Cotisation unique, placée sur le premier compte retenu pour le plan (le premier de `accountIds`, sinon le premier compte de la devise). Refusée (400) avec `contributions`. 
+     * @deprecated
      */
     contribution?: string;
+    /**
+     * Cotisation à investir par compte, utilisée avant toute vente. Chaque compte doit figurer dans le plan (`accountIds`, sinon tous les comptes de la devise), une seule fois. Si absente, aucune cotisation. 
+     */
+    contributions?: Array<ContributionByAccount>;
     currency: Currency;
+    /**
+     * Prix saisis par le propriétaire, par symbole canonique, dans la devise de la demande. Un prix fourni remplace le dernier prix d\'écriture du registre pour ce fonds. Sans prix saisi ni prix au registre, la réponse est 422 et le message liste les fonds sans prix. Les symboles inconnus du plan sont ignorés. 
+     */
+    prices?: { [key: string]: string; };
     /**
      * Montant sous lequel un ordre est ignoré.
      */

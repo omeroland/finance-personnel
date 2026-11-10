@@ -2444,9 +2444,34 @@ components:
           description: Dernière version de chaque modèle.
           items:
             $ref: '#/components/schemas/Model'
+    ManualPrices:
+      type: object
+      description: |
+        Prix saisis par le propriétaire, par symbole canonique, dans la devise de la demande. Un prix fourni remplace le
+        dernier prix d'écriture du registre pour ce fonds. Sans prix saisi ni prix au registre, la réponse est 422 et le
+        message liste les fonds sans prix. Les symboles inconnus du plan sont ignorés.
+      maxProperties: 50
+      additionalProperties:
+        $ref: '#/components/schemas/Decimal'
+      example:
+        'TSX:XEQT': '37.50'
+    ContributionByAccount:
+      type: object
+      description: Cotisation à investir dans un compte.
+      required: [accountId, amount]
+      properties:
+        accountId:
+          type: string
+          format: uuid
+          description: Compte qui reçoit la cotisation.
+          example: 3f2a9c1e-7b4d-4e68-a1c5-2d9e8f7b6a40
+        amount:
+          allOf:
+            - $ref: '#/components/schemas/Decimal'
+          description: Cotisation, positive ou nulle.
     PurchasePlanRequest:
       type: object
-      description: Montant à investir.
+      description: Montant à investir, avec des prix saisis facultatifs.
       required: [amount, currency]
       properties:
         amount:
@@ -2455,6 +2480,8 @@ components:
           description: Montant à investir, positif.
         currency:
           $ref: '#/components/schemas/Currency'
+        prices:
+          $ref: '#/components/schemas/ManualPrices'
     OrderSide:
       type: string
       description: Sens de l'ordre.
@@ -2541,9 +2568,22 @@ components:
         contribution:
           allOf:
             - $ref: '#/components/schemas/Decimal'
-          description: Nouvelle cotisation à investir, utilisée avant toute vente. Si absente, aucune.
+          deprecated: true
+          description: |
+            Obsolète : utiliser `contributions`. Cotisation unique, placée sur le premier compte retenu pour le plan
+            (le premier de `accountIds`, sinon le premier compte de la devise). Refusée (400) avec `contributions`.
+        contributions:
+          type: array
+          description: |
+            Cotisation à investir par compte, utilisée avant toute vente. Chaque compte doit figurer dans le plan
+            (`accountIds`, sinon tous les comptes de la devise), une seule fois. Si absente, aucune cotisation.
+          maxItems: 50
+          items:
+            $ref: '#/components/schemas/ContributionByAccount'
         currency:
           $ref: '#/components/schemas/Currency'
+        prices:
+          $ref: '#/components/schemas/ManualPrices'
         minOrderAmount:
           allOf:
             - $ref: '#/components/schemas/Decimal'
@@ -2616,7 +2656,8 @@ components:
             $ref: '#/components/schemas/ClassStatus'
         orders:
           type: array
-          description: Ordres, achats avant ventes.
+          description: |
+            Ordres dans l'ordre exécutable : les ventes d'abord, puis les achats (le produit des ventes finance les achats).
           items:
             $ref: '#/components/schemas/PlanOrder'
         skipped:
@@ -2708,6 +2749,14 @@ components:
         ((valeur de fin − cotisation) / valeur de début − 1).
       enum: [transactions, statements]
       example: transactions
+    IrrBasis:
+      type: string
+      description: |
+        Base du TRI (`irr`) d'une série. `annualized` : taux annuel (XIRR sur les flux datés), pour la méthode
+        `transactions`. `cumulative` : taux cumulé sur la période (AACJ de l'outil, annualisé seulement si la période
+        compte 12 mois), pour la méthode `statements`. Absent quand `irr` est absent.
+      enum: [annualized, cumulative]
+      example: annualized
     PerformanceSeries:
       type: object
       description: Rendement d'un compte ou du consolidé.
@@ -2728,8 +2777,12 @@ components:
         irr:
           type: number
           format: double
-          description: TRI annualisé sur toute la période, en fraction.
+          description: |
+            TRI sur toute la période, en fraction. `irrBasis` dit s'il est annualisé ou cumulé. Absent si le TRI n'est
+            pas calculable.
           example: 0.079
+        irrBasis:
+          $ref: '#/components/schemas/IrrBasis'
         monthly:
           type: array
           description: Rendements mensuels.
@@ -3427,6 +3480,9 @@ components:
       value:
         amount: '10000.00'
         currency: CAD
+        prices:
+          'TSX:XEQT': '37.50'
+          'TSX:ZAG': '14.15'
     PurchasePlanExample:
       summary: Parts entières, reste en encaisse
       value:
@@ -3452,8 +3508,12 @@ components:
       value:
         modelId: 5d7a2c64-9b1e-4f3a-8c2d-7e6f1a0b3c45
         accountIds: [3f2a9c1e-7b4d-4e68-a1c5-2d9e8f7b6a40]
-        contribution: '1000.00'
+        contributions:
+          - accountId: 3f2a9c1e-7b4d-4e68-a1c5-2d9e8f7b6a40
+            amount: '1000.00'
         currency: CAD
+        prices:
+          'TSX:XEQT': '37.50'
         minOrderAmount: '100.00'
     RebalancePlanExample:
       summary: Achat avec la cotisation, sans vente
@@ -3514,6 +3574,7 @@ components:
           method: transactions
           twr: 0.082
           irr: 0.079
+          irrBasis: annualized
           monthly:
             - period: 2025-01
               twr: 0.012
@@ -3527,6 +3588,7 @@ components:
             method: transactions
             twr: 0.082
             irr: 0.079
+            irrBasis: annualized
             monthly:
               - period: 2025-01
                 twr: 0.012

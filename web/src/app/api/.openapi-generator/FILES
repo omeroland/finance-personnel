@@ -27,6 +27,7 @@ model/bands.ts
 model/class-exposure.ts
 model/class-status.ts
 model/class-target.ts
+model/contribution-by-account.ts
 model/criterion-id.ts
 model/criterion-status.ts
 model/criterion.ts
@@ -50,6 +51,7 @@ model/field-error.ts
 model/horizon-result.ts
 model/horizon-threshold.ts
 model/horizon.ts
+model/irr-basis.ts
 model/job-entry.ts
 model/job-status.ts
 model/job.ts

@@ -284,6 +284,24 @@ func (e Horizon) Valid() bool {
 	}
 }
 
+// Defines values for IrrBasis.
+const (
+	Annualized IrrBasis = "annualized"
+	Cumulative IrrBasis = "cumulative"
+)
+
+// Valid indicates whether the value is a known member of the IrrBasis enum.
+func (e IrrBasis) Valid() bool {
+	switch e {
+	case Annualized:
+		return true
+	case Cumulative:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for JobType.
 const (
 	Provider JobType = "provider"
@@ -668,6 +686,15 @@ type ClassTarget struct {
 	Target float64 `json:"target"`
 }
 
+// ContributionByAccount Cotisation à investir dans un compte.
+type ContributionByAccount struct {
+	// AccountId Compte qui reçoit la cotisation.
+	AccountId openapi_types.UUID `json:"accountId"`
+
+	// Amount Cotisation, positive ou nulle.
+	Amount Decimal `json:"amount"`
+}
+
 // Criterion Résultat d'un critère, avec ses deux seuils côte à côte. Le seuil assoupli ne remplace jamais le strict.
 type Criterion struct {
 	// Id Identifiant du critère, 5a à 11c.
@@ -984,6 +1011,11 @@ type ImportXlsxRequest struct {
 	Year1 int `json:"year1"`
 }
 
+// IrrBasis Base du TRI (`irr`) d'une série. `annualized` : taux annuel (XIRR sur les flux datés), pour la méthode
+// `transactions`. `cumulative` : taux cumulé sur la période (AACJ de l'outil, annualisé seulement si la période
+// compte 12 mois), pour la méthode `statements`. Absent quand `irr` est absent.
+type IrrBasis string
+
 // Job Traitement long (import ou rafraîchissement).
 type Job struct {
 	// CreatedAt Création du job.
@@ -1037,6 +1069,11 @@ type JobEntryLevel string
 
 // JobStatus État d'un job.
 type JobStatus string
+
+// ManualPrices Prix saisis par le propriétaire, par symbole canonique, dans la devise de la demande. Un prix fourni remplace le
+// dernier prix d'écriture du registre pour ce fonds. Sans prix saisi ni prix au registre, la réponse est 422 et le
+// message liste les fonds sans prix. Les symboles inconnus du plan sont ignorés.
+type ManualPrices map[string]Decimal
 
 // Metric Mesure annuelle. `diluted_eps` : BPA dilué (montant). `dividend_per_share` : dividende par action ordinaire (montant).
 // `annual_return` : rendement annuel, fraction en chaîne décimale (0.70 = 70 %). `diluted_shares` : actions en circulation diluées (nombre d'actions).
@@ -1149,8 +1186,14 @@ type PerformanceSeries struct {
 	// Annual Rendements annuels, calculés depuis la même série que les mois.
 	Annual []PerformancePoint `json:"annual"`
 
-	// Irr TRI annualisé sur toute la période, en fraction.
+	// Irr TRI sur toute la période, en fraction. `irrBasis` dit s'il est annualisé ou cumulé. Absent si le TRI n'est
+	// pas calculable.
 	Irr *float64 `json:"irr,omitempty"`
+
+	// IrrBasis Base du TRI (`irr`) d'une série. `annualized` : taux annuel (XIRR sur les flux datés), pour la méthode
+	// `transactions`. `cumulative` : taux cumulé sur la période (AACJ de l'outil, annualisé seulement si la période
+	// compte 12 mois), pour la méthode `statements`. Absent quand `irr` est absent.
+	IrrBasis *IrrBasis `json:"irrBasis,omitempty"`
 
 	// Method `transactions` : calcul sur le registre et les prix. `statements` : calcul sur les relevés de valeur mensuels
 	// ((valeur de fin − cotisation) / valeur de début − 1).
@@ -1277,13 +1320,18 @@ type PurchasePlan struct {
 	Orders []PlanOrder `json:"orders"`
 }
 
-// PurchasePlanRequest Montant à investir.
+// PurchasePlanRequest Montant à investir, avec des prix saisis facultatifs.
 type PurchasePlanRequest struct {
 	// Amount Montant à investir, positif.
 	Amount Decimal `json:"amount"`
 
 	// Currency Code de devise ISO 4217.
 	Currency Currency `json:"currency"`
+
+	// Prices Prix saisis par le propriétaire, par symbole canonique, dans la devise de la demande. Un prix fourni remplace le
+	// dernier prix d'écriture du registre pour ce fonds. Sans prix saisi ni prix au registre, la réponse est 422 et le
+	// message liste les fonds sans prix. Les symboles inconnus du plan sont ignorés.
+	Prices *ManualPrices `json:"prices,omitempty"`
 }
 
 // Qualitative Jugement du propriétaire. Les quatre règles doivent être à `yes` pour éviter l'exclusion.
@@ -1324,7 +1372,7 @@ type RebalancePlan struct {
 	// ModelVersion Version du modèle utilisée.
 	ModelVersion int `json:"modelVersion"`
 
-	// Orders Ordres, achats avant ventes.
+	// Orders Ordres dans l'ordre exécutable : les ventes d'abord, puis les achats (le produit des ventes finance les achats).
 	Orders []PlanOrder `json:"orders"`
 
 	// Skipped Ordres écartés.
@@ -1342,8 +1390,14 @@ type RebalancePlanRequest struct {
 	// Bands Bandes de rééquilibrage.
 	Bands *Bands `json:"bands,omitempty"`
 
-	// Contribution Nouvelle cotisation à investir, utilisée avant toute vente. Si absente, aucune.
+	// Contribution Obsolète : utiliser `contributions`. Cotisation unique, placée sur le premier compte retenu pour le plan
+	// (le premier de `accountIds`, sinon le premier compte de la devise). Refusée (400) avec `contributions`.
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	Contribution *Decimal `json:"contribution,omitempty"`
+
+	// Contributions Cotisation à investir par compte, utilisée avant toute vente. Chaque compte doit figurer dans le plan
+	// (`accountIds`, sinon tous les comptes de la devise), une seule fois. Si absente, aucune cotisation.
+	Contributions *[]ContributionByAccount `json:"contributions,omitempty"`
 
 	// Currency Code de devise ISO 4217.
 	Currency Currency `json:"currency"`
@@ -1353,6 +1407,11 @@ type RebalancePlanRequest struct {
 
 	// ModelId Modèle cible, dans sa dernière version.
 	ModelId openapi_types.UUID `json:"modelId"`
+
+	// Prices Prix saisis par le propriétaire, par symbole canonique, dans la devise de la demande. Un prix fourni remplace le
+	// dernier prix d'écriture du registre pour ce fonds. Sans prix saisi ni prix au registre, la réponse est 422 et le
+	// message liste les fonds sans prix. Les symboles inconnus du plan sont ignorés.
+	Prices *ManualPrices `json:"prices,omitempty"`
 }
 
 // RuleAnswer Réponse et note pour une règle qualitative.

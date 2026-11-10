@@ -310,6 +310,9 @@ func TestPerformanceStatementsAndTransactions(t *testing.T) {
 	if math.Abs(*s.Irr-0.21) > 1e-6 || perf.Consolidated.Method == nil || *perf.Consolidated.Method != gen.Statements {
 		t.Fatalf("TRI cumulé : irr=%v consolidé=%+v", *s.Irr, perf.Consolidated)
 	}
+	if s.IrrBasis == nil || *s.IrrBasis != gen.Cumulative {
+		t.Fatalf("base du TRI des relevés : %v", s.IrrBasis)
+	}
 	if perf.From.String() != "2026-01-01" && perf.From.String() != "2025-12-01" {
 		t.Fatalf("début : %v", perf.From)
 	}
@@ -325,6 +328,9 @@ func TestPerformanceStatementsAndTransactions(t *testing.T) {
 	if *a.Method != gen.Transactions || a.Twr == nil || a.Irr == nil || len(a.Annual) != 1 || a.Annual[0].Period != "2026" ||
 		math.Abs(*a.Annual[0].Twr-*a.Twr) > 1e-12 || perf.Consolidated.Method == nil || *perf.Consolidated.Method != gen.Transactions {
 		t.Fatalf("registre : %+v", a)
+	}
+	if a.IrrBasis == nil || *a.IrrBasis != gen.Annualized {
+		t.Fatalf("base du TRI du registre : %v", a.IrrBasis)
 	}
 	// Mars : la vente à 120 $ marque le titre à 120 $ (D411) : 1000 $ -> 1200 $, soit +20 %.
 	var march *gen.PerformancePoint
@@ -371,6 +377,106 @@ func TestPortfolioNeedsOwner(t *testing.T) {
 	} {
 		if err := call(); err == nil || !strings.Contains(err.Error(), "Authentification") {
 			t.Errorf("%s : %v", name, err)
+		}
+	}
+}
+
+// Prix saisis (D440) : ils remplacent le registre et couvrent l'absence de prix.
+func TestPurchasePlanManualPrices(t *testing.T) {
+	t.Parallel()
+	alice, _, _, pf := newPortfolioPair(t)
+	var m gen.Model
+	alice.want("POST", "/portfolio/models", modelBody("Croissance"), 201, &m)
+	path := "/portfolio/models/" + m.Id.String() + "/purchase-plan"
+	prices := gen.ManualPrices{"TSX:XEQT": "30"}
+	req := gen.PurchasePlanRequest{Amount: "10000", Currency: gen.CAD, Prices: &prices}
+
+	// Un seul prix saisi : 422 qui nomme le fonds sans prix.
+	r := alice.doJSON("POST", base+path, req)
+	if r.Status != 422 || !strings.Contains(string(r.Body), "TSX:ZAG") || strings.Contains(string(r.Body), "TSX:XEQT,") {
+		t.Fatalf("422 attendu : %d %s", r.Status, r.Body)
+	}
+	prices["TSX:ZAG"] = "20"
+	var plan gen.PurchasePlan
+	alice.want("POST", path, req, 200, &plan)
+	if len(plan.Orders) != 2 || plan.Orders[0].Shares != 266 || plan.Orders[1].Shares != 100 {
+		t.Fatalf("plan : %+v", plan)
+	}
+	// Le prix saisi l'emporte sur celui du registre.
+	pf.setPrice(alice.owner, "TSX:XEQT", "60")
+	alice.want("POST", path, req, 200, &plan)
+	if plan.Orders[0].Shares != 266 {
+		t.Fatalf("le prix saisi doit gagner : %+v", plan)
+	}
+	// Sans prix saisi pour XEQT, le registre sert (60 $ : 8000 / 60 = 133 parts).
+	alice.want("POST", path, gen.PurchasePlanRequest{Amount: "10000", Currency: gen.CAD, Prices: &gen.ManualPrices{"TSX:ZAG": "20"}}, 200, &plan)
+	if plan.Orders[0].Shares != 133 {
+		t.Fatalf("prix du registre : %+v", plan)
+	}
+	for name, bad := range map[string]gen.ManualPrices{"zéro": {"TSX:XEQT": "0"}, "texte": {"TSX:XEQT": "abc"}, "symbole": {"xeqt": "30"}} {
+		b := bad
+		if r := alice.doJSON("POST", base+path, gen.PurchasePlanRequest{Amount: "10000", Currency: gen.CAD, Prices: &b}); r.Status != 400 {
+			t.Errorf("%s : %d %s", name, r.Status, r.Body)
+		}
+	}
+}
+
+// Rééquilibrage : prix saisis (D440) et cotisation par compte (D443).
+func TestRebalancePlanManualPricesAndContributions(t *testing.T) {
+	t.Parallel()
+	alice, bob, _, _ := newPortfolioPair(t)
+	a1, a2 := alice.account("CELI"), alice.account("REER")
+	var m gen.Model
+	alice.want("POST", "/portfolio/models", modelBody("Croissance"), 201, &m)
+	prices := gen.ManualPrices{"TSX:XEQT": "30"}
+	req := gen.RebalancePlanRequest{ModelId: m.Id, Currency: gen.CAD, Prices: &prices}
+
+	r := alice.doJSON("POST", base+"/portfolio/rebalance-plans", req)
+	if r.Status != 422 || !strings.Contains(string(r.Body), "TSX:ZAG") {
+		t.Fatalf("422 attendu : %d %s", r.Status, r.Body)
+	}
+	prices["TSX:ZAG"] = "20"
+	var plan gen.RebalancePlan
+	alice.want("POST", "/portfolio/rebalance-plans", req, 200, &plan)
+
+	// Une cotisation par compte ; un minimum d'ordre très haut garde l'effet visible dans l'encaisse.
+	var base1, both gen.RebalancePlan
+	req.MinOrderAmount = sp("100000")
+	alice.want("POST", "/portfolio/rebalance-plans", req, 200, &base1)
+	req.Contributions = &[]gen.ContributionByAccount{{AccountId: a1.Id, Amount: "1000"}, {AccountId: a2.Id, Amount: "500"}}
+	alice.want("POST", "/portfolio/rebalance-plans", req, 200, &both)
+	if base1.CashAfter == both.CashAfter {
+		t.Fatalf("les cotisations doivent changer l'encaisse : %s / %s", base1.CashAfter, both.CashAfter)
+	}
+	// Ancien champ : un seul compte reçoit 1000 ; combiner les deux champs est refusé.
+	req.Contributions = nil
+	req.Contribution = sp("1000")
+	var legacy gen.RebalancePlan
+	alice.want("POST", "/portfolio/rebalance-plans", req, 200, &legacy)
+	req.Contributions = &[]gen.ContributionByAccount{{AccountId: a1.Id, Amount: "1000"}}
+	alice.want("POST", "/portfolio/rebalance-plans", req, 400, nil)
+	var single gen.RebalancePlan
+	req.Contribution = nil
+	alice.want("POST", "/portfolio/rebalance-plans", req, 200, &single)
+	if single.CashAfter != legacy.CashAfter {
+		t.Fatalf("contributions à un compte = ancien champ : %s / %s", single.CashAfter, legacy.CashAfter)
+	}
+	// Doublon, montant négatif, compte inconnu, compte d'un autre propriétaire, compte hors plan.
+	bobAcc := bob.account("CELI Bob")
+	for name, c := range map[string][]gen.ContributionByAccount{
+		"doublon":   {{AccountId: a1.Id, Amount: "1"}, {AccountId: a1.Id, Amount: "2"}},
+		"négatif":   {{AccountId: a1.Id, Amount: "-1"}},
+		"inconnu":   {{AccountId: uuid.New(), Amount: "1"}},
+		"étranger":  {{AccountId: bobAcc.Id, Amount: "1"}},
+		"hors plan": {{AccountId: a2.Id, Amount: "1"}},
+	} {
+		cc := c
+		bad := gen.RebalancePlanRequest{ModelId: m.Id, Currency: gen.CAD, Prices: &prices, Contributions: &cc}
+		if name == "hors plan" {
+			bad.AccountIds = &[]uuid.UUID{a1.Id}
+		}
+		if r := alice.doJSON("POST", base+"/portfolio/rebalance-plans", bad); r.Status != 400 {
+			t.Errorf("%s : %d %s", name, r.Status, r.Body)
 		}
 	}
 }
