@@ -64,7 +64,7 @@ Fiches rédigées d'avance (D302). Phase ouverte sans la signature de la porte d
 | [P2-08](P2-08.md) | Import de l'outil SÉLECTION ET GESTION | Données | P2-02 | terminée |
 | [P2-09](P2-09.md) | Import CSV générique de transactions | Données | P2-02 | terminée |
 | [P2-10](P2-10.md) | Handlers : comptes, transactions, relevés, positions, catalogue | Backend Go | P2-02, P2-08, P2-09 | terminée (import CSV synchrone, P2-10b) |
-| [P2-11](P2-11.md) | Handlers : modèles, plans, exposition, performance | Backend Go | P2-03, P2-04, P2-05, P2-06, P2-10 | à faire |
+| [P2-11](P2-11.md) | Handlers : modèles, plans, exposition, performance | Backend Go | P2-03, P2-04, P2-05, P2-06, P2-10 | terminée |
 | [P2-12](P2-12.md) | Web : comptes, registre, relevés, catalogue | Frontend Angular | P2-10 | à faire |
 | [P2-13](P2-13.md) | Web : portefeuille modèle, plans et tableau de bord | Frontend Angular | P2-11, P2-12 | à faire |
 | [P2-14](P2-14.md) | Porte de phase 2 et parcours complet | Vérificateur | P2-13 | à faire |

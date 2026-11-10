@@ -40,7 +40,7 @@ func catalogRows() []etfstore.Catalog {
 
 func newPair(t *testing.T, led httpapi.Ledger) (*api, *api) {
 	t.Helper()
-	h, err := httpapi.New(httpapi.Config{Ledger: led, Catalog: fakeCatalog{rows: catalogRows()}, Now: fixedNow})
+	h, err := httpapi.New(httpapi.Config{Ledger: led, Catalog: fakeCatalog{rows: catalogRows()}, Portfolio: newFakePortfolio(), Now: fixedNow})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -295,7 +295,7 @@ func TestInternalErrorsLeakNothing(t *testing.T) {
 
 func TestMissingOwnerIs401(t *testing.T) {
 	t.Parallel()
-	h, err := httpapi.New(httpapi.Config{Ledger: newFakeLedger(), Catalog: fakeCatalog{}})
+	h, err := httpapi.New(httpapi.Config{Ledger: newFakeLedger(), Catalog: fakeCatalog{}, Portfolio: newFakePortfolio()})
 	if err != nil {
 		t.Fatal(err)
 	}

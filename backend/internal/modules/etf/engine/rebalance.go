@@ -166,6 +166,8 @@ type RebalancePlan struct {
 	Before      Weights
 	After       Weights
 	OutOfBand   []BandStatus // constat de départ
+	// Total est la valeur de marché totale avant le plan (positions, encaisses et cotisations).
+	Total decimal.Decimal
 }
 
 type rbAccount struct {
@@ -219,7 +221,7 @@ func Rebalance(in RebalanceInput) (RebalancePlan, error) {
 	if r == nil || !r.total.IsPositive() {
 		return RebalancePlan{}, nil
 	}
-	plan := RebalancePlan{Before: r.weights()}
+	plan := RebalancePlan{Before: r.weights(), Total: r.total}
 	plan.OutOfBand = r.detect()
 	if len(plan.OutOfBand) == 0 {
 		plan.After = plan.Before

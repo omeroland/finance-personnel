@@ -90,6 +90,11 @@ func Conflict(detail string) *Error {
 	return newError(http.StatusConflict, "conflict", "Ressource existante", detail)
 }
 
+// Unprocessable : requête bien formée mais impossible à traiter (prix ou profil manquant).
+func Unprocessable(detail string) *Error {
+	return newError(http.StatusUnprocessableEntity, "unprocessable", "Entité non traitable", detail)
+}
+
 // PayloadTooLarge : corps de requête trop volumineux.
 func PayloadTooLarge(detail string) *Error {
 	return newError(http.StatusRequestEntityTooLarge, "payload-too-large", "Corps trop volumineux", detail)
