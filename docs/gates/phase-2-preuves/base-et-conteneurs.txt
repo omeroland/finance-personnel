@@ -1,0 +1,17 @@
+finance_app> UPDATE core.audit_log SET actor='x'  =>  ERROR:  permission denied for table audit_log
+finance_app> DELETE FROM core.audit_log  =>  ERROR:  permission denied for table audit_log
+finance_app> UPDATE stockeval.evaluation SET mode='x'  =>  ERROR:  permission denied for table evaluation
+finance_app> DELETE FROM stockeval.evaluation  =>  ERROR:  permission denied for table evaluation
+finance_app> INSERT autorisé (attendu) : t
+--- lignes d'audit (type, acteur = propriétaire ?, avant/après présents ?)
+account.create|10|t|f|t
+instrument.create|2|t|f|t
+model.create|8|t|f|t
+model.version|9|t|f|t
+statement.create|8|t|f|t
+transaction.create|37|t|f|t
+--- exemple facts (avant/après)
+--- ports publiés par la base : '' (vide attendu)
+/financegate2p2-api-1 user=65532:65532 readonly=true capdrop=[ALL] secopt=[no-new-privileges:true]
+/financegate2p2-web-1 user=65532:65532 readonly=true capdrop=[ALL] secopt=[no-new-privileges:true]
+code=0

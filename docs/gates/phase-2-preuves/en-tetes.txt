@@ -1,0 +1,11 @@
+ok   / Strict-Transport-Security
+ok   / X-Content-Type-Options
+ok   / Referrer-Policy
+ok   / Content-Security-Policy
+ok   /api/v1/health Strict-Transport-Security
+ok   /api/v1/health X-Content-Type-Options
+ok   /api/v1/health Referrer-Policy
+ok   /api/v1/health Content-Security-Policy
+ok   /metrics n'expose pas de métriques
+ok   HTTP clair redirigé (301)
+code=0
