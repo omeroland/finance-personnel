@@ -70,4 +70,5 @@ Fiches rédigées d'avance (D302). Phase ouverte sans la signature de la porte d
 | [P2-12](P2-12.md) | Web : comptes, registre, relevés, catalogue | Frontend Angular | P2-10 | terminée |
 | [P2-13](P2-13.md) | Web : portefeuille modèle, plans et tableau de bord | Frontend Angular | P2-11, P2-12 | terminée |
 | P2-13b | Web : poids après et statut par fonds du rééquilibrage | Frontend Angular | P2-11c, P2-13 | terminée |
-| [P2-14](P2-14.md) | Porte de phase 2 et parcours complet | Vérificateur | P2-13 | à faire |
+| [P2-13-fix](P2-13-fix.md) | Web : tableau de bord, un appel de positions par compte (429 au-delà de ~35 comptes) | Frontend Angular | P2-13 | à faire (non bloquante) |
+| [P2-14](P2-14.md) | Porte de phase 2 et parcours complet | Vérificateur | P2-13 | terminée sauf critère de sortie réel (en attente du propriétaire) |

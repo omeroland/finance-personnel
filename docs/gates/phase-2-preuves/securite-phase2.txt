@@ -1,0 +1,82 @@
+RESULT ok comptes : deux sub distincts dans le realm finance
+RESULT ok couverture.routes_phase2 : 15 routes de phase 2 dans api/openapi.yaml : createAccount, createModel, createPurchasePlan, createRebalancePlan, createStatement, createTransaction, getExposure, getPerformance, importCsv, listAccounts, listEtfs, listModels, listPositions, listTransactions, updateModel
+RESULT ok jwt.15_routes_sans_jeton : 15 routes de phase 2 sans jeton -> 401 problem+json
+RESULT ok jwt.hs256_forge/accounts : HTTP 401
+RESULT ok jwt.hs256_forge/portfolio/models : HTTP 401
+RESULT ok jwt.alg_none/accounts : HTTP 401
+RESULT ok jwt.alg_none/portfolio/models : HTTP 401
+RESULT ok jwt.signature_alteree/accounts : HTTP 401
+RESULT ok jwt.signature_alteree/portfolio/models : HTTP 401
+RESULT ok jwt.jeton_poubelle/accounts : HTTP 401
+RESULT ok jwt.jeton_poubelle/portfolio/models : HTTP 401
+RESULT ok jwt.jeton_valide : GET /accounts avec un jeton valide : HTTP 200
+RESULT ok audit.createAccount POST /accounts : HTTP 201 ; 1 ligne(s) d'audit : account.create ; montant ou quantité dans le journal : non
+RESULT ok audit.createAccount (compte des relevés) : HTTP 201 ; 1 ligne(s) d'audit : account.create ; montant ou quantité dans le journal : non
+RESULT ok audit.createTransaction contribution : HTTP 201 ; 1 ligne(s) d'audit : transaction.create ; montant ou quantité dans le journal : non
+RESULT ok audit.createTransaction buy : HTTP 201 ; 2 ligne(s) d'audit : instrument.create; transaction.create ; montant ou quantité dans le journal : non
+RESULT ok audit.createTransaction reversesId (écriture inverse) : HTTP 201 ; 1 ligne(s) d'audit : transaction.create ; montant ou quantité dans le journal : non
+RESULT ok audit.createTransaction buy (position conservée) : HTTP 201 ; 1 ligne(s) d'audit : transaction.create ; montant ou quantité dans le journal : non
+RESULT ok audit.createStatement POST /statements : HTTP 201 ; 1 ligne(s) d'audit : statement.create ; montant ou quantité dans le journal : non
+RESULT ok audit.importCsv POST /imports/csv : HTTP 200 ; 1 ligne(s) d'audit : transaction.create ; montant ou quantité dans le journal : non
+RESULT ok audit.createModel POST /portfolio/models : HTTP 201 ; 2 ligne(s) d'audit : model.create; model.version ; montant ou quantité dans le journal : non
+RESULT ok audit.updateModel PUT /portfolio/models/{id} : HTTP 200 ; 1 ligne(s) d'audit : model.version ; montant ou quantité dans le journal : non
+RESULT ok owner.A_lit_ses_donnees : lectures et plans de A : listAccounts=200, listTransactions=200, listPositions=200, listEtfs=200, listModels=200, createPurchasePlan=200, createRebalancePlan=200, getExposure=200, getPerformance=200
+RESULT ok audit.lectures_sans_ecriture : 9 lectures ou plans calculés : 0 ligne(s) ajoutée(s) (attendu 0)
+RESULT ok isolement.createAccount POST /api/v1/accounts : HTTP 201 (attendu 201) pour B sur un objet de A
+RESULT ok isolement.createModel POST /api/v1/portfolio/models : HTTP 400 (attendu 400) pour B sur un objet de A
+RESULT ok isolement.createPurchasePlan POST /api/v1/portfolio/models/{id}/purchase-plan : HTTP 404 (attendu 404) pour B sur un objet de A
+RESULT ok isolement.createRebalancePlan POST /api/v1/portfolio/rebalance-plans : HTTP 404 (attendu 404) pour B sur un objet de A
+RESULT ok isolement.createStatement POST /api/v1/accounts/{id}/statements : HTTP 404 (attendu 404) pour B sur un objet de A
+RESULT ok isolement.createTransaction POST /api/v1/accounts/{id}/transactions : HTTP 404 (attendu 404) pour B sur un objet de A
+RESULT ok isolement.getExposure GET /api/v1/portfolio/exposure : HTTP 404 (attendu 404) pour B sur un objet de A
+RESULT ok isolement.getPerformance GET /api/v1/portfolio/performance : HTTP 404 (attendu 404) pour B sur un objet de A
+RESULT ok isolement.importCsv POST /api/v1/accounts/{id}/imports/csv : HTTP 404 (attendu 404) pour B sur un objet de A
+RESULT ok isolement.listAccounts GET /api/v1/accounts : HTTP 200 ; 2 compte(s) vus par B, aucun de A
+RESULT ok isolement.listEtfs GET /api/v1/portfolio/etfs : HTTP 200 ; le profil de A est absent du catalogue de B (1 FNB)
+RESULT ok isolement.listModels GET /api/v1/portfolio/models : HTTP 200 ; le modèle de A est absent de la liste de B
+RESULT ok isolement.listPositions GET /api/v1/accounts/{id}/positions : HTTP 404 (attendu 404) pour B sur un objet de A
+RESULT ok isolement.listTransactions GET /api/v1/accounts/{id}/transactions : HTTP 404 (attendu 404) pour B sur un objet de A
+RESULT ok isolement.updateModel PUT /api/v1/portfolio/models/{id} : HTTP 404 (attendu 404) pour B sur un objet de A
+RESULT ok isolement.updateModel_modele_de_A_indiscernable_d_un_modele_inexistant : HTTP 404 et 404, titre et détail identiques (aucun oracle d'existence)
+RESULT ok isolement.compte_de_A_indiscernable_d_un_compte_inexistant : HTTP 404 et 404, détail identique
+RESULT ok isolement.reversesId_d_un_autre_proprietaire : écriture inverse visant une transaction de A depuis un compte de B : HTTP 404
+RESULT ok isolement.performance_consolidee_de_B : HTTP 200 ; comptes vus par B : 2, aucun de A
+RESULT ok isolement.aucune_fuite_dans_l_erreur : corps de la réponse 404 sans symbole ni quantité de A
+RESULT ok isolement.A_intact : positions, 5 transaction(s) et modèles de A identiques après les tentatives de B
+RESULT ok isolement.audit_A_inchange : aucune ligne d'audit créée pour A par les écritures de B
+RESULT ok isolement.aucune_ligne_croisee : lignes de la base dont le propriétaire diffère de celui de leur parent : 0
+RESULT ok registre.finance_app.UPDATE_note='x' : finance_app> UPDATE core.transaction SET note='x' => ERROR:  permission denied for table transaction
+RESULT ok registre.finance_app.DELETE_transaction : finance_app> DELETE FROM core.transaction => ERROR:  permission denied for table transaction
+RESULT ok registre.finance_app.TRUNCATE_transaction : finance_app> TRUNCATE core.transaction => ERROR:  permission denied for table transaction
+RESULT ok registre.finance_app.UPDATE_cash_target=0 : finance_app> UPDATE etf.model_version SET cash_target=0 => ERROR:  permission denied for table model_version
+RESULT ok registre.finance_app.DELETE_model_version : finance_app> DELETE FROM etf.model_version => ERROR:  permission denied for table model_version
+RESULT ok registre.finance_app.UPDATE_actor='x' : finance_app> UPDATE core.audit_log SET actor='x' => ERROR:  permission denied for table audit_log
+RESULT ok registre.finance_app.DELETE_audit_log : finance_app> DELETE FROM core.audit_log => ERROR:  permission denied for table audit_log
+RESULT ok registre.proprietaire_des_tables.UPDATE : propriétaire des tables> UPDATE core.transaction SET note='x' => ERROR:  core.transaction est en insertion seule (UPDATE refusé) : corriger par une écriture inverse
+RESULT ok registre.proprietaire_des_tables.DELETE : propriétaire des tables> DELETE FROM core.transaction => ERROR:  core.transaction est en insertion seule (DELETE refusé) : corriger par une écriture inverse
+RESULT ok registre.proprietaire_des_tables.TRUNCATE : propriétaire des tables> TRUNCATE core.transaction => ERROR:  core.transaction est en insertion seule (TRUNCATE refusé) : corriger par une écriture inverse
+RESULT ok registre.lignes_intactes : le registre du compte de test compte toujours 5 écritures (attendu 5) après les tentatives
+RESULT ok registre.api_PUT_transaction : PUT /accounts/{id}/transactions/{id} => HTTP 404 (aucune route de modification ni de suppression)
+RESULT ok registre.api_PATCH_transaction : PATCH /accounts/{id}/transactions/{id} => HTTP 404 (aucune route de modification ni de suppression)
+RESULT ok registre.api_DELETE_transaction : DELETE /accounts/{id}/transactions/{id} => HTTP 404 (aucune route de modification ni de suppression)
+RESULT ok registre.inverse_doit_recopier_l_original : inverse qui ne recopie pas l'original ou déjà inversée => HTTP 400
+RESULT ok frontiere.json_invalide : HTTP 400 application/problem+json ; sans trace interne
+RESULT ok frontiere.nom_de_compte_trop_long : HTTP 400 application/problem+json ; sans trace interne
+RESULT ok frontiere.type_de_compte_inconnu : HTTP 400 application/problem+json ; sans trace interne
+RESULT ok frontiere.montant_negatif : HTTP 400 application/problem+json ; sans trace interne
+RESULT ok frontiere.montant_hors_bornes : HTTP 400 application/problem+json ; sans trace interne
+RESULT ok frontiere.symbole_piege : HTTP 400 application/problem+json ; sans trace interne
+RESULT ok frontiere.devise_differente_du_compte : HTTP 400 application/problem+json ; sans trace interne
+RESULT ok frontiere.cibles_hors_100_pour_cent : HTTP 400 application/problem+json ; sans trace interne
+RESULT ok frontiere.identifiant_non_uuid : HTTP 400 application/problem+json ; sans trace interne
+RESULT ok frontiere.courtier_inconnu : HTTP 400 application/problem+json ; sans trace interne
+RESULT ok frontiere.csv_de_plus_de_10_Mo : HTTP 413 application/problem+json ; sans trace interne
+RESULT ok frontiere.csv_vide : HTTP 400 application/problem+json ; sans trace interne
+RESULT ok frontiere.corps_json_de_2_Mo : HTTP 413 application/problem+json ; sans trace interne
+RESULT ok entetes./ : HTTP 200 ; HSTS, nosniff, Referrer-Policy et CSP (frame-ancestors 'none') présents
+RESULT ok entetes./api/v1/accounts : HTTP 200 ; HSTS, nosniff, Referrer-Policy et CSP (frame-ancestors 'none') présents
+RESULT ok entetes./api/v1/portfolio/models : HTTP 200 ; HSTS, nosniff, Referrer-Policy et CSP (frame-ancestors 'none') présents
+OBSERVATION entetes.cache_control_api : Cache-Control de GET /accounts = absent (aucune exigence écrite ; à envisager pour des données financières)
+RESULT ok debit.rafale_phase2 : 400 requêtes GET /api/v1/accounts en rafale : 45 x 200, 355 x 429, autres []
+RESULT ok debit.reprise : après la rafale et une pause : HTTP 200
+TOTAL 80 vérifications, 0 échec(s)

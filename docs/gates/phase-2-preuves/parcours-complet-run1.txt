@@ -1,0 +1,50 @@
+npm notice run finance-privee-e2e-web@0.0.0 npx
+npm notice run 'playwright' test -c playwright.full-p2.config.ts
+
+Running 16 tests using 1 worker
+
+PREUVE catalogue : 9 FNB lus par GET /portfolio/etfs, dont les 4 profils synthétiques
+  ✓   1 [chromium] › full-flow-p2.spec.ts:108:1 › 0. catalogue synthétique : 4 FNB (instruments et profils) dans le catalogue du propriétaire de test (491ms)
+PREUVE comptes : celi=38a6d8f5-dfa0-4333-986a-f8ce7c3d751a taxable=723c507b-8d96-4aa5-810d-8b31cbb5efed (créés à l'écran), reer=420f6e98-9969-4e97-9597-0cf04ae26248 oracle=055c9e0c-e798-451a-9fa3-6b71cd4f858d (API)
+  ✓   2 [chromium] › full-flow-p2.spec.ts:132:1 › 1. deux comptes créés à l’écran (CELI et non enregistré), plus deux comptes par l’API (4.3s)
+PREUVE import.celi : lues=15 créées=11 invalides=3 refusées=1 doublons=0
+PREUVE import.celi.reimport : créées=0 doublons=11
+  ✓   3 [chromium] › full-flow-p2.spec.ts:182:1 › 2. import CSV du CELI (achats, vente, dividende, DRIP, fractionnement, cotisations) : rapport, puis ré-import sans doublon (2.7s)
+PREUVE import.taxable : créées=7; registre du CELI = 11 écritures, de la plus ancienne à la plus récente
+  ✓   4 [chromium] › full-flow-p2.spec.ts:200:1 › 3. import CSV du compte non enregistré, puis registre en lecture seule dans l’API (2.4s)
+PREUVE positions.celi : encaisse 7873.035 ; TSX:VFV 10.5 @ 100.25 ; TSX:XEQT 151.5 @ 15.414145 ; TSX:ZAG 60 @ 14.25 (API exacte et écran identiques au calcul indépendant)
+  ✓   5 [chromium] › full-flow-p2.spec.ts:243:1 › 4. positions du CELI reconstituées à l’unité près (API exacte et écran) (2.3s)
+PREUVE positions.non : encaisse 1768.3 ; TSX:XEQT 100 @ 16.0695 ; TSX:ZAG 100 @ 14.5 (API exacte et écran identiques au calcul indépendant)
+  ✓   6 [chromium] › full-flow-p2.spec.ts:253:1 › 5. positions du compte non enregistré (API exacte et écran) (2.3s)
+PREUVE rendement.releves.oracle : cas rendement-fidele-03 : TWR 0.05784586122910462 (oracle 0.057845861229) ; TRI cumulé 0.05650044695778211 (oracle AACJ mois 6 0.056500446958) ; 6 rendements mensuels et 6 AACJ égaux à 5e-9
+PREUVE rendement.releves.ecran : TWR « 5,78 % », TRI « 5,65 % », base « Base du TRI : taux cumulé sur la période (AACJ de l'outil), annualisé seulement si la période compte 12 mois, pour un compte calculé depuis les relevés mensuels. »
+  ✓   7 [chromium] › full-flow-p2.spec.ts:261:1 › 6. relevés mensuels saisis à l’écran (cas rendement-fidele-03 de l’oracle) et rendement égal à l’oracle (3.2s)
+PREUVE modele : modèle b54f1962-5ce7-4adf-97eb-388c4ae5bcc5 v1 créé à l'écran ; cibles = fractions exactes ; un modèle à 50 % refusé (400)
+  ✓   8 [chromium] › full-flow-p2.spec.ts:311:1 › 7. portefeuille modèle créé à l’écran (cibles en %, versions) (2.6s)
+PREUVE achat.ecran : parts {"TSX:XEQT":160,"TSX:VFV":17,"TSX:ZAG":203}, investi 9938.35, encaisse 61.65 : égaux au calcul indépendant (D331, D361) et à l'écran
+  ✓   9 [chromium] › full-flow-p2.spec.ts:340:1 › 8. plan d’achat avec prix saisis : parts entières égales au calcul indépendant (écran et API) (2.2s)
+PREUVE achat.oracle : achats-fidele-02 : égal à attendu_app [200,200,100] (encaisse 0) ; outil LibreOffice [200,200,100]
+PREUVE achat.oracle : achats-fidele-04 : écart expliqué (D415, redistribution du reliquat D361) : app [158,134,187,0] encaisse 22.36 contre oracle [157,134,187,0] ; outil LibreOffice [157.293,134.721,187.097,0]
+PREUVE achat.oracle : achats-ecart-parts-01 : égal à attendu_app [179,147] (encaisse 11.94) ; outil LibreOffice [179.265,147.113]
+PREUVE achat.oracle : achats-ecart-parts-02 : écart expliqué (D415, redistribution du reliquat D361) : app [155,141,170,202] encaisse 23.96 contre oracle [154,141,170,201] ; outil LibreOffice [154.971,141.426,170.01,201.939]
+PREUVE achat.oracle : achats-ecart-parts-03 : écart expliqué (D415, redistribution du reliquat D361) : app [1,1] encaisse 50 contre oracle [1,0] ; outil LibreOffice [1.667,0.833]
+  ✓  10 [chromium] › full-flow-p2.spec.ts:370:1 › 9. plans d’achat de l’oracle (cas ACHATS) : égal à l’oracle ou écart expliqué (1.1s)
+PREUVE reeq.oracle : cas reequilibrage-fidele-02 : poids avant TSX:VFV=0.5 TSX:XIC=0.1 TSX:ZAG=0.4 = oracle ; statuts des fonds égaux ; ordres sell TSX:VFV 20, buy TSX:XIC 20 ; classes : écart expliqué D416 (±20 % relatifs contre ±5 points de l'outil)
+  ✓  11 [chromium] › full-flow-p2.spec.ts:417:1 › 10. rééquilibrage de l’oracle (reequilibrage-fidele-02) sur le registre : statuts égaux, ventes puis achats (362ms)
+PREUVE reeq.ecran : valeur de marché 19590.835, 5 ordre(s) : buy TSX:VFV 26 @ 105 (compte ...751a) ; buy TSX:XEQT 292 @ 18 (compte ...751a) ; buy TSX:ZAG 95 @ 14.5 (compte ...751a) ; buy TSX:XEQT 1 @ 18 (compte ...efed) ; buy TSX:ZAG 151 @ 14.5 (compte ...efed) ; encaisse après 70.335 ; poids avant, poids après, statuts et encaisses par compte égaux au calcul indépendant
+  ✓  12 [chromium] › full-flow-p2.spec.ts:455:1 › 11. rééquilibrage à l’écran avec cotisation par compte et prix saisis : cohérence indépendante (2.4s)
+PREUVE exposition : valeur 7664.125, RFG pondéré 0.1500 % ; equity_ca 13.946 % (cible 12.5 %) ; equity_us 38.838 % (cible 42.5 %) ; equity_intl 16.736 % (cible 15.0 %) ; bond_ca 30.480 % (cible 30.0 %) ; bond_other 0.000 % (cible 0.0 %) ; other_assets 0.000 % (cible 0.0 %) ; API et écran égaux au calcul indépendant
+  ✓  13 [chromium] › full-flow-p2.spec.ts:534:1 › 12. exposition par transparence et écarts au modèle, RFG pondéré (API et écran) (2.3s)
+PREUVE diversification.oracle : diversification-fidele-01 : actions 60.00 % (CA/US/intl 12.5000 / 70.8333 / 16.6667 %), obligations 40.00 % (CAD/autres 87.50 / 12.50 %) : égaux à l'oracle (1e-9)
+PREUVE diversification.oracle : diversification-fidele-02 : actions 60.00 % (CA/US/intl 0.0000 / 0.0000 / 100.0000 %), obligations 40.00 % (CAD/autres 30.00 / 70.00 %) : égaux à l'oracle (1e-9)
+  ✓  14 [chromium] › full-flow-p2.spec.ts:577:1 › 12b. diversification de l’oracle (diversification-fidele-01 et -02) par la route d’exposition (1.2s)
+PREUVE rendement.CELI : TWR 0.03726253 (référence 0.03726253), TRI annualisé 0.03519766 (référence 0.03519766, flux [{"date":"2025-01-10","montant":"-10000.00"},{"date":"2025-07-01","montant":"-2000.00"},{"date":"2025-12-31","montant":"12377.16"}]), valeur finale 12377.16
+PREUVE rendement.non enregistré : TWR -0.00234000 (référence -0.00234000), TRI annualisé -0.00259291 (référence -0.00259291, flux [{"date":"2025-02-03","montant":"-5000.00"},{"date":"2025-11-20","montant":"200.00"},{"date":"2025-12-31","montant":"4788.30"}]), valeur finale 4788.3
+PREUVE rendement.consolidé : TWR 0.02384396 (référence 0.02384396), TRI annualisé 0.02400133 (référence 0.02400133, flux [{"date":"2025-01-10","montant":"-10000.00"},{"date":"2025-02-03","montant":"-5000.00"},{"date":"2025-07-01","montant":"-2000.00"},{"date":"2025-11-20","montant":"200.00"},{"date":"2025-12-31","montant":"17165.46"}]), valeur finale 17165.46
+PREUVE rendement.ecran : consolidé : TWR « 2,38 % », TRI « 2,40 % », base « Base du TRI : taux annualisé (XIRR sur les flux datés), pour un compte calculé depuis le registre. »
+  ✓  15 [chromium] › full-flow-p2.spec.ts:602:1 › 13. rendement des comptes à transactions : TWR et TRI (annualisé) égaux au calcul indépendant, consolidé et par compte (2.4s)
+PREUVE registre : frais de 12 $ puis écriture inverse : encaisse 1768.3 -> 1756.3 -> 1768.3 ; seconde inverse 409 ; PUT, PATCH et DELETE d'une transaction absents de l'API
+  ✓  16 [chromium] › full-flow-p2.spec.ts:645:1 › 14. registre en insertion seule : écriture inverse, aucune modification ni suppression par l’API, positions inchangées (620ms)
+
+  16 passed (33.5s)
+code=0

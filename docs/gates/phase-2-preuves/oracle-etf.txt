@@ -1,0 +1,17 @@
+$ docker run ... etf_oracle.py --out <répertoire temporaire>  (même commande que make oracle-etf, sortie hors du dépôt)
+41 cas écrits (20 fidèles, 21 écarts)
+sha256 recalculé : 3b3ba853a24fd85b58d645b76f71e611cbb550924cf189272ce48770aa73448e
+sha256 testdata/oracle/etf_cases.json : 3b3ba853a24fd85b58d645b76f71e611cbb550924cf189272ce48770aa73448e
+cmp : identique
+
+$ python3 -I -m unittest discover -s tools/oracle
+----------------------------------------------------------------------
+Ran 38 tests in 0.037s
+
+OK
+
+$ go test -count=1 -v -run TestOracle ./internal/modules/etf/engine/ (backend/)
+--- PASS: TestOracleRendement (0.00s)
+--- PASS: TestOracleAchats (0.00s)
+--- PASS: TestOracleReequilibrage (0.00s)
+ok  	github.com/omeroland/finance-privee/backend/internal/modules/etf/engine	0.006s
