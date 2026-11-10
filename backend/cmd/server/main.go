@@ -105,7 +105,7 @@ func run(logger *slog.Logger, cfg config) error {
 
 	core := corestore.New(pool)
 	etfStore := etfstore.New(core)
-	etfAPI, err := etfhttp.New(etfhttp.Config{Ledger: core, Catalog: etfStore, Portfolio: etfStore, Logger: logger})
+	etfAPI, err := etfhttp.New(etfhttp.Config{Ledger: core, Catalog: etfStore, Portfolio: etfStore, Imports: etfStore, Logger: logger})
 	if err != nil {
 		return fmt.Errorf("assembler les handlers du module 2: %w", err)
 	}
@@ -180,7 +180,7 @@ func handler(logger *slog.Logger, verifier *auth.Verifier, routes http.Handler, 
 		httpx.AccessLog(logger),
 		httpx.Recover(logger),
 		verifier.Middleware("/healthz", "/readyz"),
-		httpapi.BodyLimit(),
+		bodyLimit(),
 		httpx.Timeout(requestTimeout),
 	)
 }
@@ -201,4 +201,21 @@ type composed struct {
 // routes monte l'API complète derrière le JWT.
 func routes(api *httpapi.Handler, etf *etfhttp.Handler) http.Handler {
 	return api.RoutesFor(composed{module1: api, module2: etf})
+}
+
+// bodyLimit borne le corps des requêtes : l'import CSV (chemin à identifiant
+// variable) reçoit la limite de 10 Mo, le reste celle de l'API.
+func bodyLimit() httpx.Middleware {
+	def := httpapi.BodyLimit()
+	csv := httpx.BodyLimit(etfhttp.CSVBodyLimit, nil)
+	return func(next http.Handler) http.Handler {
+		d, c := def(next), csv(next)
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.Method == http.MethodPost && etfhttp.CSVPath.MatchString(r.URL.Path) {
+				c.ServeHTTP(w, r)
+				return
+			}
+			d.ServeHTTP(w, r)
+		})
+	}
 }

@@ -14,8 +14,7 @@ type pendingRoutes struct{ *Handler }
 
 var _ gen.StrictServerInterface = pendingRoutes{}
 
-// Routes au contrat sans handler ici : l'import CSV attend l'accord sur
-// Job.type (D400), les modèles, plans, exposition et rendement sont servis par
+// Routes au contrat sans handler ici : les modèles, plans, exposition et rendement sont servis par
 // etf/http (P2-11). Sans composition, elles répondent 501 au format RFC 9457.
 
 const phase2Pending = "Cette route du module 2 n'est pas encore disponible."
@@ -45,8 +44,8 @@ func (pendingRoutes) CreateStatement(_ context.Context, _ gen.CreateStatementReq
 	return nil, httpx.NotImplemented(phase2Pending)
 }
 
-// ImportCsv : contrat P2-01, implémentation en P2-10 ou P2-11.
-func (h *Handler) ImportCsv(_ context.Context, _ gen.ImportCsvRequestObject) (gen.ImportCsvResponseObject, error) {
+// ImportCsv : servie par etf/http (P2-10b, D420) une fois composée dans cmd/server ; 501 sinon.
+func (pendingRoutes) ImportCsv(_ context.Context, _ gen.ImportCsvRequestObject) (gen.ImportCsvResponseObject, error) {
 	return nil, httpx.NotImplemented(phase2Pending)
 }
 

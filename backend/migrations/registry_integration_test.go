@@ -15,8 +15,10 @@ import (
 	"github.com/omeroland/finance-privee/backend/internal/core/store/coredb"
 )
 
-const ownerA = "00000000-0000-0000-0000-00000000000a"
-const ownerB = "00000000-0000-0000-0000-00000000000b"
+const (
+	ownerA = "00000000-0000-0000-0000-00000000000a"
+	ownerB = "00000000-0000-0000-0000-00000000000b"
+)
 
 func dec(s string) decimal.NullDecimal {
 	return decimal.NullDecimal{Decimal: decimal.RequireFromString(s), Valid: true}
@@ -68,8 +70,10 @@ func TestRegistry(t *testing.T) {
 
 	insert := func(typ, date string, inst uuid.UUID, qty, ratio string) coredb.CoreTransaction {
 		t.Helper()
-		p := coredb.InsertTransactionParams{OwnerID: owner, AccountID: acc.ID, Type: typ, TradeDate: day(date),
-			InstrumentID: &inst, Currency: "CAD", Source: "manual"}
+		p := coredb.InsertTransactionParams{
+			OwnerID: owner, AccountID: acc.ID, Type: typ, TradeDate: day(date),
+			InstrumentID: &inst, Currency: "CAD", Source: "manual",
+		}
 		if qty != "" {
 			p.Quantity = dec(qty)
 			p.Price = dec("10")
@@ -92,8 +96,10 @@ func TestRegistry(t *testing.T) {
 	bad := insert("buy", "2024-05-02", vab, "100", "")
 	insert("buy", "2024-06-01", vab, "7", "")
 	// Correction : la vente de 2,25 est annulée par une écriture inverse.
-	rev := coredb.InsertTransactionParams{OwnerID: owner, AccountID: acc.ID, Type: "sell", TradeDate: day("2024-06-05"),
-		InstrumentID: sell.InstrumentID, Quantity: sell.Quantity, Price: sell.Price, Currency: "CAD", Source: "manual", ReversesID: &sell.ID}
+	rev := coredb.InsertTransactionParams{
+		OwnerID: owner, AccountID: acc.ID, Type: "sell", TradeDate: day("2024-06-05"),
+		InstrumentID: sell.InstrumentID, Quantity: sell.Quantity, Price: sell.Price, Currency: "CAD", Source: "manual", ReversesID: &sell.ID,
+	}
 	if _, err := q.InsertTransaction(ctx, rev); err != nil {
 		t.Fatalf("écriture inverse: %v", err)
 	}
@@ -105,9 +111,11 @@ func TestRegistry(t *testing.T) {
 		t.Error("une inverse qui ne recopie pas l'originale doit être refusée")
 	}
 	// Transfert de titres vers le second compte.
-	if _, err := q.InsertTransaction(ctx, coredb.InsertTransactionParams{OwnerID: owner, AccountID: acc.ID, Type: "transfer",
+	if _, err := q.InsertTransaction(ctx, coredb.InsertTransactionParams{
+		OwnerID: owner, AccountID: acc.ID, Type: "transfer",
 		TradeDate: day("2024-07-01"), InstrumentID: &vab, Quantity: dec("7"), CounterpartAccountID: &acc2.ID,
-		Currency: "CAD", Source: "manual"}); err != nil {
+		Currency: "CAD", Source: "manual",
+	}); err != nil {
 		t.Fatal(err)
 	}
 
@@ -175,8 +183,10 @@ func TestRegistry(t *testing.T) {
 
 	t.Run("propriétaires isolés par clé composite", func(t *testing.T) {
 		other := uuid.MustParse(ownerB)
-		_, err := q.InsertTransaction(ctx, coredb.InsertTransactionParams{OwnerID: other, AccountID: acc.ID, Type: "contribution",
-			TradeDate: day("2024-01-01"), Amount: dec("100"), Currency: "CAD", Source: "manual"})
+		_, err := q.InsertTransaction(ctx, coredb.InsertTransactionParams{
+			OwnerID: other, AccountID: acc.ID, Type: "contribution",
+			TradeDate: day("2024-01-01"), Amount: dec("100"), Currency: "CAD", Source: "manual",
+		})
 		if err == nil {
 			t.Error("un propriétaire ne peut pas écrire dans le compte d'un autre")
 		}

@@ -703,6 +703,51 @@ type CriterionId string
 // `exempt` : exempté (règle 8 pour une financière).
 type CriterionStatus string
 
+// CsvImportEntry Un problème ou un fait notable relevé à une ligne du fichier.
+type CsvImportEntry struct {
+	// Column Colonne en cause, si elle est connue.
+	Column *string `json:"column,omitempty"`
+
+	// Kind Catégorie (`invalid`, `duplicate`, `rejected`…).
+	Kind *string `json:"kind,omitempty"`
+
+	// Level Gravité (`info`, `warning` ou `error`).
+	Level string `json:"level"`
+
+	// Line Numéro de ligne dans le fichier (les en-têtes sont la ligne 1).
+	Line int `json:"line"`
+
+	// Message Explication destinée à l'utilisateur.
+	Message string `json:"message"`
+}
+
+// CsvImportReport Rapport d'un import CSV synchrone.
+type CsvImportReport struct {
+	// Created Écritures ajoutées au registre.
+	Created int `json:"created"`
+
+	// Duplicates Lignes déjà au registre, ignorées.
+	Duplicates int `json:"duplicates"`
+
+	// Entries Une entrée par problème, avec numéro de ligne, niveau, colonne et message.
+	Entries []CsvImportEntry `json:"entries"`
+
+	// Invalid Lignes invalides, sautées.
+	Invalid int `json:"invalid"`
+
+	// Rejected Lignes refusées (compte inconnu ou autre que celui de la route, devise du compte).
+	Rejected int `json:"rejected"`
+
+	// RowsRead Lignes de données lues.
+	RowsRead int `json:"rowsRead"`
+
+	// Valid Lignes valides.
+	Valid int `json:"valid"`
+
+	// Warnings Avertissements.
+	Warnings int `json:"warnings"`
+}
+
 // Currency Code de devise ISO 4217.
 type Currency string
 
@@ -1779,6 +1824,9 @@ type NotFound = Problem
 
 // NotImplemented Erreur au format RFC 9457 (`application/problem+json`).
 type NotImplemented = Problem
+
+// PayloadTooLarge Erreur au format RFC 9457 (`application/problem+json`).
+type PayloadTooLarge = Problem
 
 // Unauthorized Erreur au format RFC 9457 (`application/problem+json`).
 type Unauthorized = Problem
@@ -3176,6 +3224,8 @@ type NotFoundApplicationProblemPlusJSONResponse Problem
 
 type NotImplementedApplicationProblemPlusJSONResponse Problem
 
+type PayloadTooLargeApplicationProblemPlusJSONResponse Problem
+
 type UnauthorizedApplicationProblemPlusJSONResponse Problem
 
 type UnprocessableApplicationProblemPlusJSONResponse Problem
@@ -3297,16 +3347,16 @@ type ImportCsvResponseObject interface {
 	VisitImportCsvResponse(w http.ResponseWriter) error
 }
 
-type ImportCsv202JSONResponse Job
+type ImportCsv200JSONResponse CsvImportReport
 
-func (response ImportCsv202JSONResponse) VisitImportCsvResponse(w http.ResponseWriter) error {
+func (response ImportCsv200JSONResponse) VisitImportCsvResponse(w http.ResponseWriter) error {
 
 	var buf bytes.Buffer
 	if err := json.NewEncoder(&buf).Encode(response); err != nil {
 		return err
 	}
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(202)
+	w.WriteHeader(200)
 	_, err := buf.WriteTo(w)
 	return err
 }
@@ -3355,6 +3405,22 @@ func (response ImportCsv404ApplicationProblemPlusJSONResponse) VisitImportCsvRes
 	}
 	w.Header().Set("Content-Type", "application/problem+json")
 	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ImportCsv413ApplicationProblemPlusJSONResponse struct {
+	PayloadTooLargeApplicationProblemPlusJSONResponse
+}
+
+func (response ImportCsv413ApplicationProblemPlusJSONResponse) VisitImportCsvResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(413)
 	_, err := buf.WriteTo(w)
 	return err
 }

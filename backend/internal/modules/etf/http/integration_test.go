@@ -104,7 +104,7 @@ func realPair(t *testing.T) (alice, bob *api, core *corestore.Store, etf *etfsto
 	t.Helper()
 	core = corestore.New(pool(t))
 	etf = etfstore.New(core)
-	h, err := httpapi.New(httpapi.Config{Ledger: core, Catalog: etf, Portfolio: etf, Now: fixedNow})
+	h, err := httpapi.New(httpapi.Config{Ledger: core, Catalog: etf, Portfolio: etf, Imports: etf, Now: fixedNow})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -252,6 +252,61 @@ func TestLedgerFullStackWithPostgres(t *testing.T) {
 	}
 	if n := count(t, `SELECT count(*) FROM core.transaction WHERE owner_id = $1`, alice.owner); n != 7 {
 		t.Fatalf("registre d'Alice: %d lignes", n)
+	}
+}
+
+func TestImportCSVRouteWithPostgres(t *testing.T) {
+	alice, bob, _, _ := realPair(t)
+	var celi gen.Account
+	alice.post("/accounts", gen.AccountCreate{Name: "CELI", Type: "celi", Broker: "x", Currency: gen.CAD}, 201).json(t, &celi)
+	alice.post("/accounts", gen.AccountCreate{Name: "REER", Type: "reer", Broker: "x", Currency: gen.CAD}, 201)
+	csvData, err := os.ReadFile("../../../../../testdata/fixtures/transactions_generic.csv")
+	if err != nil {
+		t.Fatal(err)
+	}
+	where := `owner_id = $1 AND source = 'csv'`
+
+	var rep gen.CsvImportReport
+	r := alice.importCSV(celi.Id, "generic", csvData)
+	if r.Status != 200 {
+		t.Fatalf("import: %d %s", r.Status, r.Body)
+	}
+	r.json(t, &rep)
+	// La ligne du compte REER est refusée : la route importe dans le CELI seulement.
+	if rep.Created < 6 || rep.Rejected != 1 || rep.Invalid == 0 {
+		t.Fatalf("rapport: %+v", rep)
+	}
+	rows := count(t, `SELECT count(*) FROM core.transaction WHERE `+where, alice.owner)
+	if rows != rep.Created {
+		t.Fatalf("registre %d, rapport %d", rows, rep.Created)
+	}
+
+	// Ré-import : zéro création.
+	alice.importCSV(celi.Id, "generic", csvData).json(t, &rep)
+	if rep.Created != 0 || rep.Duplicates != rows {
+		t.Fatalf("ré-import: %+v", rep)
+	}
+	if n := count(t, `SELECT count(*) FROM core.transaction WHERE `+where, alice.owner); n != rows {
+		t.Fatalf("le ré-import a ajouté des lignes: %d -> %d", rows, n)
+	}
+
+	// Audit : une ligne par écriture, sans quantité, prix ni montant.
+	if n := count(t, `SELECT count(*) FROM core.audit_log WHERE owner_id = $1 AND action = 'transaction.create'`, alice.owner); n < rows {
+		t.Fatalf("audit: %d lignes pour %d écritures", n, rows)
+	}
+	if n := count(t, `SELECT count(*) FROM core.audit_log WHERE owner_id = $1 AND after::text ~ '(quantity|price|amount|5000|30\.5)'`, alice.owner); n != 0 {
+		t.Fatalf("%d lignes d'audit portent un montant", n)
+	}
+
+	// Deux utilisateurs : Bob ne peut pas importer dans le compte d'Alice.
+	if r := bob.importCSV(celi.Id, "generic", csvData); r.Status != 404 {
+		t.Fatalf("Bob: %d %s", r.Status, r.Body)
+	}
+	if n := count(t, `SELECT count(*) FROM core.transaction WHERE owner_id = $1`, bob.owner); n != 0 {
+		t.Fatalf("Bob a %d lignes", n)
+	}
+	if pl := alice.positions(celi); len(pl.Positions) == 0 {
+		t.Fatalf("positions: %+v", pl)
 	}
 }
 

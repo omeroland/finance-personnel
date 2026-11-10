@@ -53,7 +53,10 @@ type Config struct {
 	Catalog Catalog
 	// Portfolio : modèles et derniers prix (P2-11).
 	Portfolio Portfolio
-	Logger    *slog.Logger
+	// Imports écrit les lignes de l'import CSV (satisfait par *etfstore.Store) ;
+	// absent, la route d'import répond 501.
+	Imports ingest.TransactionRepository
+	Logger  *slog.Logger
 	// Now fournit l'horloge (défaut : time.Now).
 	Now func() time.Time
 }
@@ -64,6 +67,7 @@ type Handler struct {
 	ledger  Ledger
 	catalog Catalog
 	pf      Portfolio
+	imports ingest.TransactionRepository
 	log     *slog.Logger
 	now     func() time.Time
 }
@@ -73,7 +77,7 @@ func New(cfg Config) (*Handler, error) {
 	if cfg.Ledger == nil || cfg.Catalog == nil || cfg.Portfolio == nil {
 		return nil, errors.New("handlers: dépôts obligatoires")
 	}
-	h := &Handler{ledger: cfg.Ledger, catalog: cfg.Catalog, pf: cfg.Portfolio, log: cfg.Logger, now: cfg.Now}
+	h := &Handler{ledger: cfg.Ledger, catalog: cfg.Catalog, pf: cfg.Portfolio, imports: cfg.Imports, log: cfg.Logger, now: cfg.Now}
 	if h.log == nil {
 		h.log = slog.Default()
 	}
